@@ -15,7 +15,9 @@
         showHistoryView,
         showConsolidateCategorySelector,
         showCleanTagsModal,
+        showManualMergeUI,
         showAliasMergeUI,
+        updateWorldbookPreview,
     } = deps;
 
     document.getElementById('ttw-start-btn').addEventListener('click', handleStartConversion);
@@ -38,6 +40,11 @@
     document.getElementById('ttw-view-history').addEventListener('click', showHistoryView);
     document.getElementById('ttw-consolidate-entries').addEventListener('click', showConsolidateCategorySelector);
     document.getElementById('ttw-clean-tags').addEventListener('click', showCleanTagsModal);
+    document.getElementById('ttw-manual-merge').addEventListener('click', () => {
+        showManualMergeUI(() => {
+            if (typeof updateWorldbookPreview === 'function') updateWorldbookPreview();
+        });
+    });
     document.getElementById('ttw-alias-merge').addEventListener('click', showAliasMergeUI);
 }
 

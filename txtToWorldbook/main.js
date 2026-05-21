@@ -1157,6 +1157,7 @@ shellRuntime = createShellRuntime(createShellRuntimeConfig({
     showHistoryView: (...args) => showHistoryView(...args),
     showConsolidateCategorySelector: (...args) => showConsolidateCategorySelector(...args),
     showCleanTagsModal: (...args) => showCleanTagsModal(...args),
+    showManualMergeUI: (...args) => showManualMergeUI(...args),
     showAliasMergeUI: (...args) => showAliasMergeUI(...args),
     updateStreamContent,
     showPromptPreview: (...args) => showPromptPreview(...args),
