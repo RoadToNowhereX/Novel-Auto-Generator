@@ -50,7 +50,6 @@ export function createModalEventBinder(deps) {
         showCleanTagsModal,
         showManualMergeUI,
         showAliasMergeUI,
-        updateWorldbookPreview,
         updateStreamContent,
         showPromptPreview,
         showPlotOutlineConfigModal,
