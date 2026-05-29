@@ -105,7 +105,7 @@ export default {
             api: {
                 title: '🔧 API Modes',
                 items: [
-                    '<strong>Tavern API</strong>: Use SillyTavern\'s currently connected AI (Note: message roles may be overridden by tavern post-processing, and preset JB content may be injected)',
+                    "<strong>Tavern API</strong>: Use SillyTavern's currently connected AI (Note: message roles may be overridden by tavern post-processing, and preset JB content may be injected)",
                     '<strong>Custom API</strong>: Direct connection, message chain role settings work fully, unaffected by tavern',
                     'Supports <strong>Gemini / Anthropic / OpenAI compatible</strong> direct connection and proxy modes',
                     'Supports <strong>pulling model lists</strong> and <strong>quick connection tests</strong>',
@@ -166,7 +166,9 @@ export default {
             },
             tokens: {
                 title: '🔢 Token Count',
-                items: ['Display Token count for each entry/category/globally, supports <strong>threshold highlight</strong> for quick discovery of truncated entries'],
+                items: [
+                    'Display Token count for each entry/category/globally, supports <strong>threshold highlight</strong> for quick discovery of truncated entries',
+                ],
             },
             history: {
                 title: '📜 Modification History',
