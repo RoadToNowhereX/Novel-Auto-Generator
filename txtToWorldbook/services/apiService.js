@@ -1,3 +1,58 @@
+/**
+ * 构造 OpenAI 兼容 API 的 chat/completions 完整 URL
+ *
+ * 遵循 OpenAI SDK 标准行为：仅追加 /chat/completions 后缀。
+ * 版本号路径由用户自行输入，不再做任何智能识别。
+ *
+ * 规则：
+ *   - endpoint 为空时使用默认值 http://127.0.0.1:5000/v1
+ *   - 去除末尾斜杠
+ *   - 如 URL 已包含 /chat/completions，则不再追加（信任用户输入的完整 URL）
+ *   - 否则追加 /chat/completions
+ *   - 缺失协议前缀时补 http://
+ *
+ * @param {string} [endpoint] 用户输入的 endpoint
+ * @returns {string}
+ */
+export function buildChatUrl(endpoint) {
+    const suffix = '/chat/completions';
+    let url = endpoint || 'http://127.0.0.1:5000/v1';
+    url = url.replace(/\/+$/, '');
+    if (!url.includes(suffix)) {
+        url += suffix;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+        url = 'http://' + url;
+    }
+    return url;
+}
+
+/**
+ * 构造 OpenAI 兼容 API 的 /models 完整 URL
+ *
+ * 遵循 OpenAI SDK 标准行为：
+ *   - 若 URL 以 /chat/completions 结尾，替换为 /models
+ *   - 若 URL 已以 /models 结尾，不修改
+ *   - 否则追加 /models
+ *
+ * @param {string} endpoint 用户输入的 endpoint（可能带或不带 /chat/completions）
+ * @returns {string}
+ */
+export function buildModelsUrl(endpoint) {
+    const chatSuffix = '/chat/completions';
+    const modelsSuffix = '/models';
+    let url = endpoint.replace(/\/+$/, '');
+    if (url.endsWith(chatSuffix)) {
+        url = url.slice(0, -chatSuffix.length) + modelsSuffix;
+    } else if (!url.endsWith(modelsSuffix)) {
+        url += modelsSuffix;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+        url = 'http://' + url;
+    }
+    return url;
+}
+
 export function createApiService(deps = {}) {
     const {
         AppState,
@@ -178,20 +233,8 @@ export function createApiService(deps = {}) {
             }
 
             case 'openai-compatible': {
-                let openaiEndpoint = endpoint || 'http://127.0.0.1:5000/v1/chat/completions';
+                const openaiEndpoint = buildChatUrl(endpoint);
                 const openaiModel = model || 'local-model';
-
-                if (!openaiEndpoint.includes('/chat/completions')) {
-                    if (openaiEndpoint.endsWith('/v1')) {
-                        openaiEndpoint += '/chat/completions';
-                    } else {
-                        openaiEndpoint = openaiEndpoint.replace(/\/$/, '') + '/chat/completions';
-                    }
-                }
-
-                if (!openaiEndpoint.startsWith('http')) {
-                    openaiEndpoint = 'http://' + openaiEndpoint;
-                }
 
                 const headers = { 'Content-Type': 'application/json' };
                 if (apiKey) {
@@ -293,18 +336,7 @@ export function createApiService(deps = {}) {
             throw new Error('请先设置 API Endpoint');
         }
 
-        let modelsUrl = endpoint;
-        if (modelsUrl.endsWith('/chat/completions')) {
-            modelsUrl = modelsUrl.replace('/chat/completions', '/models');
-        } else if (modelsUrl.endsWith('/v1')) {
-            modelsUrl += '/models';
-        } else if (!modelsUrl.endsWith('/models')) {
-            modelsUrl = modelsUrl.replace(/\/$/, '') + '/models';
-        }
-
-        if (!modelsUrl.startsWith('http')) {
-            modelsUrl = 'http://' + modelsUrl;
-        }
+        const modelsUrl = buildModelsUrl(endpoint);
 
         const headers = { 'Content-Type': 'application/json' };
         if (AppState.settings.customApiKey) {
@@ -339,18 +371,7 @@ export function createApiService(deps = {}) {
             throw new Error('请先设置模型名称');
         }
 
-        let requestUrl = endpoint;
-        if (!requestUrl.includes('/chat/completions')) {
-            if (requestUrl.endsWith('/v1')) {
-                requestUrl += '/chat/completions';
-            } else {
-                requestUrl = requestUrl.replace(/\/$/, '') + '/chat/completions';
-            }
-        }
-
-        if (!requestUrl.startsWith('http')) {
-            requestUrl = 'http://' + requestUrl;
-        }
+        const requestUrl = buildChatUrl(endpoint);
 
         const headers = { 'Content-Type': 'application/json' };
         if (AppState.settings.customApiKey) {
