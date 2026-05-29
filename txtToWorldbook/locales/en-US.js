@@ -102,6 +102,131 @@ export default {
                     '<strong>ETA estimate</strong>: Real-time remaining time estimate based on recent chapter speed',
                 ],
             },
+            api: {
+                title: '🔧 API Modes',
+                items: [
+                    '<strong>Tavern API</strong>: Use SillyTavern\'s currently connected AI (Note: message roles may be overridden by tavern post-processing, and preset JB content may be injected)',
+                    '<strong>Custom API</strong>: Direct connection, message chain role settings work fully, unaffected by tavern',
+                    'Supports <strong>Gemini / Anthropic / OpenAI compatible</strong> direct connection and proxy modes',
+                    'Supports <strong>pulling model lists</strong> and <strong>quick connection tests</strong>',
+                    '<strong>Smart retry</strong>: Auto-retry 429 rate limits, 500/502/503 server errors, network interruptions and other transient failures (including Tavern API)',
+                ],
+            },
+            categories: {
+                title: '🏷️ Custom Extraction Categories',
+                items: [
+                    'Built-in: <strong>Character, Location, Organization</strong>; Presets: <strong>Item, Gameplay, Chapter Plot, Character Inner Thoughts</strong>',
+                    'Supports add/edit/delete custom categories, each can configure name, entry example, keyword example, content extraction guide',
+                    'Each category can configure <strong>default export position/depth/order/auto-increment</strong>',
+                ],
+            },
+            prompt: {
+                title: '📝 Prompt System',
+                items: [
+                    '<strong>Worldbook entry prompt</strong> (core, with <code>{DYNAMIC_JSON_TEMPLATE}</code> placeholder)',
+                    'Optional: <strong>Plot outline</strong>, <strong>Literary style</strong>, <strong>Suffix prompt</strong>',
+                    '<strong>💬 Message chain</strong>: Send prompt in conversation completion preset format, each message can specify role (🔷 system / 🟢 user / 🟡 assistant)',
+                    'Use <code>{PROMPT}</code> placeholder in message chain for actual assembled prompt content',
+                    'Tavern API prefers <code>generateRaw</code> message array format (ST 1.13.2+), auto-compatible with older versions',
+                    '<strong>👁️ Prompt template editing</strong>: Preview button supports tabbed view/edit of full prompt templates for worldbook, plot, style with placeholder guidance',
+                    'All prompts support reset to default and preview, support <strong>export/import configuration</strong>',
+                ],
+            },
+            defaultEntries: {
+                title: '📚 Default Worldbook Entries',
+                items: [
+                    'Visually add/edit/delete default entries, each can configure category, name, keywords, content, position/depth/order',
+                    '<strong>Auto-add</strong> to Worldbook during conversion, or <strong>apply immediately</strong> to current Worldbook',
+                ],
+            },
+            chapters: {
+                title: '📋 Chapter Management',
+                items: [
+                    'Click chapter to view original, edit, copy, re-roll, merge with previous/next chapter',
+                    '<strong>⬆️⬇️ Merge chapters</strong>: Merge adjacent chapters, auto-update Worldbook',
+                    '<strong>🗑️ Multi-select delete</strong>: Batch select and delete chapters (warning for processed chapters)',
+                ],
+            },
+            search: {
+                title: '🔍 Search and Replace',
+                items: [
+                    '<strong>Search highlight</strong>: Highlight keywords in Worldbook preview',
+                    '<strong>Batch replace</strong>: Replace all matches with one click (auto-save Worldbook snapshot before execution)',
+                    'Supports <strong>regular expression</strong> and <strong>case sensitive</strong> options',
+                ],
+            },
+            alias: {
+                title: '🔗 Alias Merging',
+                items: [
+                    'Auto-detect suspected same-name entries, merge after AI judgment',
+                    'Supports <strong>manual merge</strong>: Check entries across categories and merge with custom primary name and target category',
+                    '<strong>Pairwise judgment</strong>: AI judges each pair individually, auto-chains results (A=B and B=C → A,B,C merged)',
+                    'All merge operations <strong>auto-save Worldbook snapshot</strong> before execution, can rollback in history',
+                ],
+            },
+            tokens: {
+                title: '🔢 Token Count',
+                items: ['Display Token count for each entry/category/globally, supports <strong>threshold highlight</strong> for quick discovery of truncated entries'],
+            },
+            history: {
+                title: '📜 Modification History',
+                items: [
+                    'Auto-record changes, side-by-side view, supports <strong>⏪ rollback to any version</strong>, data stored in IndexedDB without loss',
+                    '<strong>Auto-save snapshot</strong> before batch replace, entry consolidation, alias merge operations, can rollback anytime',
+                ],
+            },
+            importMerge: {
+                title: '📥 Import Merge Worldbook',
+                items: [
+                    'Supports SillyTavern format and internal JSON format, auto-detect duplicates',
+                    'Duplicate handling: <strong>AI smart merge</strong> / Overwrite / Keep / Rename / Content overlay',
+                ],
+            },
+            exportImport: {
+                title: '💾 Import/Export',
+                items: [
+                    '<strong>Export JSON / SillyTavern format</strong>, supports volume export',
+                    '<strong>📤 Export changes</strong>: Only export entries added/modified since last export, convenient for incremental updates',
+                    '<strong>Export/import tasks</strong>: Save full progress, supports resuming on different device',
+                    '<strong>Export/import configuration</strong>: Save prompts, categories, default entries and all settings',
+                ],
+            },
+            aiTools: {
+                title: '🧠 AI Optimization and Cleanup',
+                items: [
+                    '<strong>🧠 AI optimize Worldbook</strong>: Let AI auto-optimize and consolidate Worldbook entry content, improving overall quality',
+                    '<strong>📊 Entry evolution aggregation</strong>: Track entry changes across chapters, auto-aggregate historical info',
+                    '<strong>🛠️ Consolidate entries</strong>: AI auto-optimizes entry content, removes duplicates, standardizes format (auto-save snapshot before execution)',
+                    '<strong>🐳 Clean tags</strong>: One-click cleanup of AI thinking tags and other thought markers',
+                    '<strong>🔍 Auto-dedup detection</strong>: Auto-scan for suspected duplicate entries after processing, suggests using alias merge',
+                ],
+            },
+            modelStatus: {
+                title: '📊 Model Status Display',
+                items: [
+                    'Real-time display of API connection status: success/failure/connecting',
+                    'Shows available model list, supports quick selection switch',
+                    'Rate limit info: current limits, TPM remaining, etc.',
+                ],
+            },
+        },
+        tips: {
+            title: '💡 Tips',
+            items: [
+                'For long novels, recommend enabling <strong>parallel mode</strong> (independent is fastest, batched is more coherent)',
+                'Garbled text? <strong>🔍 Search</strong> to locate → <strong>🎲 Batch re-roll</strong> to fix',
+                'Unhappy with an entry? Click <strong>🎯</strong> to re-roll individually with custom prompt',
+                'AI outputting thinking tags? <strong>🏷️ Clean tags</strong> one-click cleanup',
+                'Message chain roles not working? Switch to <strong>custom API mode</strong> (Tavern API overrides role settings)',
+                'Same thing with multiple names? <strong>🔗 Alias merge</strong> auto-recognizes (also auto-prompts after processing)',
+                'Progress auto-saved, no manual action needed; also <strong>📤 export task</strong> anytime for cross-device restore',
+                '<strong>Auto-save snapshot</strong> before batch replace/consolidate/merge operations, can rollback in history',
+                'Need to update only some entries? <strong>📤 Export changes</strong> only exports new/modified since last export',
+                'Want to adjust full prompt? Click <strong>👁️ Preview</strong> button to directly edit prompt templates',
+                'Control export position? Click <strong>⚙️</strong> button next to category or entry to configure',
+                'Main UI can only be closed via top-right <strong>✕ button</strong> to prevent accidental exit',
+                'In volume mode, watch <strong>volume indicator</strong> for current volume and completion progress',
+            ],
         },
         gotIt: 'Got it',
     },
