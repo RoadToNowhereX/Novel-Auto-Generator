@@ -1,4 +1,7 @@
 ﻿import { Logger } from '../core/logger.js';
+import { RetryableError, FatalError } from '../core/errors.js';
+
+const HTTP_RETRYABLE = new Set([408, 429, 500, 502, 503, 504, 529]);
 
 const APICaller = {
     /**
@@ -23,9 +26,9 @@ const APICaller = {
         } catch (error) {
             clearTimeout(timeoutId);
             if (error.name === 'AbortError') {
-                throw new Error('请求超时');
+                throw new RetryableError('请求超时', { httpStatus: 408, code: 'TIMEOUT' });
             }
-            throw error;
+            throw new RetryableError(`网络错误: ${error.message}`, { code: 'NETWORK_ERROR' });
         }
     },
 
@@ -36,14 +39,13 @@ const APICaller = {
             let text = '';
             try {
                 text = await response.text();
-            } catch (e) {}
-            const error = new Error(
-                `API请求失败: ${response.status} ${response.statusText}${text ? ` - ${text.substring(0, 200)}` : ''}`,
-            );
-            error.status = response.status;
-            error.responseText = text;
-            error.response = response;
-            throw error;
+            } catch (_e) {}
+            const message = `API请求失败: ${response.status} ${response.statusText}${text ? ` - ${text.substring(0, 200)}` : ''}`;
+            const ErrorClass = HTTP_RETRYABLE.has(response.status) ? RetryableError : FatalError;
+            throw new ErrorClass(message, {
+                httpStatus: response.status,
+                code: `HTTP_${response.status}`,
+            });
         }
         return response;
     },
