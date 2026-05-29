@@ -1,4 +1,4 @@
-import { escapeHtmlForDisplay, escapeAttribute } from './renderer.js';
+import { escapeHtmlForDisplay, escapeAttrForDisplay } from './renderer.js';
 
 export function createCategoryEditorModal(deps = {}) {
     const {
@@ -30,15 +30,15 @@ export function createCategoryEditorModal(deps = {}) {
         const body = `
                     <div class="ttw-form-group">
                         <label>分类名称 *</label>
-                        <input type="text" id="ttw-cat-name" value="${escapeAttribute(cat.name)}" placeholder="如：道具、玩法" class="ttw-input">
+                        <input type="text" id="ttw-cat-name" value="${escapeAttrForDisplay(cat.name)}" placeholder="如：道具、玩法" class="ttw-input">
                     </div>
                     <div class="ttw-form-group">
                         <label>条目名称示例</label>
-                        <input type="text" id="ttw-cat-entry-example" value="${escapeAttribute(cat.entryExample)}" placeholder="如：道具名称" class="ttw-input">
+                        <input type="text" id="ttw-cat-entry-example" value="${escapeAttrForDisplay(cat.entryExample)}" placeholder="如：道具名称" class="ttw-input">
                     </div>
                     <div class="ttw-form-group">
                         <label>关键词示例（逗号分隔）</label>
-                        <input type="text" id="ttw-cat-keywords" value="${escapeAttribute(cat.keywordsExample.join(', '))}" placeholder="如：道具名, 别名" class="ttw-input">
+                        <input type="text" id="ttw-cat-keywords" value="${escapeAttrForDisplay(cat.keywordsExample.join(', '))}" placeholder="如：道具名, 别名" class="ttw-input">
                     </div>
                     <div class="ttw-form-group">
                         <label>内容提取指南</label>

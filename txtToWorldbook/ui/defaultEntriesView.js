@@ -1,4 +1,4 @@
-import { escapeHtmlForDisplay, escapeAttribute } from './renderer.js';
+import { escapeHtmlForDisplay, escapeAttrForDisplay } from './renderer.js';
 
 export function createDefaultEntriesView(deps = {}) {
     const { AppState, ListRenderer, PerfUtils, EventDelegate, ModalFactory, ErrorHandler, saveCurrentSettings } = deps;
@@ -83,15 +83,15 @@ export function createDefaultEntriesView(deps = {}) {
         const body = `
                 <div class="ttw-form-group">
                     <label>分类 *</label>
-                    <input type="text" id="ttw-default-entry-category" value="${escapeAttribute(entry.category)}" placeholder="如：角色、地点、系统" class="ttw-input">
+                    <input type="text" id="ttw-default-entry-category" value="${escapeAttrForDisplay(entry.category)}" placeholder="如：角色、地点、系统" class="ttw-input">
                 </div>
                 <div class="ttw-form-group">
                     <label>条目名称 *</label>
-                    <input type="text" id="ttw-default-entry-name" value="${escapeAttribute(entry.name)}" placeholder="条目名称" class="ttw-input">
+                    <input type="text" id="ttw-default-entry-name" value="${escapeAttrForDisplay(entry.name)}" placeholder="条目名称" class="ttw-input">
                 </div>
                 <div class="ttw-form-group">
                     <label>关键词（逗号分隔）</label>
-                    <input type="text" id="ttw-default-entry-keywords" value="${escapeAttribute((entry.keywords || []).join(', '))}" placeholder="关键词1, 关键词2" class="ttw-input">
+                    <input type="text" id="ttw-default-entry-keywords" value="${escapeAttrForDisplay((entry.keywords || []).join(', '))}" placeholder="关键词1, 关键词2" class="ttw-input">
                 </div>
                 <div class="ttw-form-group">
                     <label>内容</label>
