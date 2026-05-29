@@ -135,23 +135,6 @@ import { ensureModalStyles } from './ui/modalStyles.js';
 (function () {
 'use strict';
 
-// ============================================================
-// 第一区：配置与常量
-// ============================================================
-// 第一区：配置与常量
-// ============================================================
-// - 版本信息
-// - 默认配置对象
-// - 常量定义
-// - Semaphore 类
-
-// ============================================================
-// 第二区：应用状态
-// ============================================================
-// - AppState 统一状态对象
-// - 兼容层 getter/setter
-// - 运行时状态
-
 // ========== AppState 统一状态对象 ==========
 const { AppState, MemoryHistoryDB } = createAppContext({
     defaultCategoryLight: DEFAULT_CATEGORY_LIGHT,
@@ -163,38 +146,7 @@ const { AppState, MemoryHistoryDB } = createAppContext({
     Logger,
 });
 
-// ============================================================
-// 第三区：工具函数
-// ============================================================
-// - Token 计数
-// - 中文数字转换
-// - 文件哈希
-// - 编码检测
-// - JSON 修复
-
 let getEntryTotalTokens = () => 0;
-
-// ============================================================
-// 第三区-C：自然排序与中文数字处理
-// ============================================================
-
-// naturalSortEntryNames / chineseNumToInt 已抽离到 core/utils.js
-
-// ============================================================
-// 第三区-A：性能优化工具
-// ============================================================
-// - 防抖节流
-// - DOM批量更新
-// - Token计数缓存
-// - 事件委托管理
-
-// ============================================================
-// 第三区-A2：错误处理与日志
-// ============================================================
-// - ErrorHandler: 统一错误处理
-// - Logger: 日志系统
-
-// Logger 已抽离到 core/logger.js
 
 // ========== UI常量 ==========
 const UI = {
@@ -211,31 +163,16 @@ const UI = {
 	}
 };
 
-// ============================================================
-// 第三区-B：工厂模式（模态框、API、列表渲染）
-// ============================================================
-// - ModalFactory: 统一模态框创建
-// - APICaller: 统一API调用封装
-// - ListRenderer: 列表渲染工具
-
-// ========== ModalFactory 模态框工厂 ==========
-async function confirmAction(message, options = {}) {
-    return ModalFactory.confirm({ message, ...options });
-}
-
-async function promptAction(config, options = {}) {
-    if (typeof config === 'string') {
-        return ModalFactory.prompt({ message: config, ...options });
-    }
-    return ModalFactory.prompt(config || options);
-}
-
-async function alertAction(config, options = {}) {
-    if (typeof config === 'string') {
-        return ModalFactory.alert({ message: config, ...options });
-    }
-    return ModalFactory.alert(config || options);
-}
+// ========== ModalFactory 便捷方法 ==========
+const confirmAction = (message, options = {}) => ModalFactory.confirm({ message, ...options });
+const promptAction = (config, options = {}) =>
+    typeof config === 'string'
+        ? ModalFactory.prompt({ message: config, ...options })
+        : ModalFactory.prompt(config || options);
+const alertAction = (config, options = {}) =>
+    typeof config === 'string'
+        ? ModalFactory.alert({ message: config, ...options })
+        : ModalFactory.alert(config || options);
 
 const ErrorHandler = createErrorHandler({
     Logger,
@@ -320,14 +257,6 @@ const {
     showMemoryContentModal,
     showProcessedResults,
 } = memoryQueueView;
-// ============================================================
-// 第四区：数据持久层
-// ============================================================
-// - IndexedDB 封装 (MemoryHistoryDB)
-// - LocalStorage 操作
-// - 设置保存/加载
-// - 自定义分类持久化
-
 // ========== IndexedDB ==========
     categoryPersistenceService = createCategoryPersistenceService({
         AppState,
@@ -347,10 +276,9 @@ const {
     } = categoryPersistenceService;
 
     /**
-     * isTokenLimitError
-     * 
+     * 检测是否为 Token 限制错误
      * @param {*} errorMsg
-     * @returns {*}
+     * @returns {boolean}
      */
     function isTokenLimitError(errorMsg) {
         if (!errorMsg) return false;
@@ -369,11 +297,9 @@ const {
     }
 
     /**
-     * updateStreamContent
-     * 
-     * @param {*} content
-     * @param {*} clear
-     * @returns {*}
+     * 更新实时输出流内容
+     * @param {string} content
+     * @param {boolean} [clear=false]
      */
     function updateStreamContent(content, clear = false) {
         if (clear) {
@@ -388,13 +314,14 @@ const {
         }
     }
 
-    // 【新增】调试模式日志 - 带时间戳输出到实时输出面板
+    // 调试模式日志 - 带时间戳输出到实时输出面板
     function debugLog(msg) {
         if (!AppState.settings.debugMode) return;
         const now = new Date();
         const ts = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
         updateStreamContent(`[${ts}] 🔍 ${msg}\n`);
     }
+
     // ========== 分类灯状态管理 ==========
     function getCategoryLightState(category) {
         if (AppState.config.categoryLight.hasOwnProperty(category)) {
@@ -403,39 +330,22 @@ const {
         return false;
     }
 
-    /**
-     * setCategoryLightState
-     * 
-     * @param {*} category
-     * @param {*} isGreen
-     * @returns {*}
-     */
     function setCategoryLightState(category, isGreen) {
         AppState.config.categoryLight[category] = isGreen;
         saveCategoryLightSettings();
     }
 
-    /**
-     * saveCategoryLightSettings
-     * 
-     * @returns {*}
-     */
     function saveCategoryLightSettings() {
         if (!categoryLightService) return;
         categoryLightService.saveCategoryLightSettings();
     }
 
-    /**
-     * loadCategoryLightSettings
-     * 
-     * @returns {*}
-     */
     function loadCategoryLightSettings() {
         if (!categoryLightService) return;
         categoryLightService.loadCategoryLightSettings();
     }
 
-    // ========== 新增：条目位置/深度/顺序配置管理 ==========
+    // ========== 条目位置/深度/顺序配置管理 ==========
     function getEntryConfig(category, entryName) {
         if (entryConfigService) return entryConfigService.getEntryConfig(category, entryName);
         const key = `${category}::${entryName}`;
@@ -500,14 +410,6 @@ const {
 
 
 
-    /**
-     * setEntryConfig
-     * 
-     * @param {*} category
-     * @param {*} entryName
-     * @param {*} config
-     * @returns {*}
-     */
     function setEntryConfig(category, entryName, config) {
         if (entryConfigService) {
             entryConfigService.setEntryConfig(category, entryName, config);
@@ -519,13 +421,6 @@ const {
         saveCurrentSettings();
     }
 
-    /**
-     * setCategoryDefaultConfig
-     * 
-     * @param {*} category
-     * @param {*} config
-     * @returns {*}
-     */
     function setCategoryDefaultConfig(category, config) {
         if (entryConfigService) {
             entryConfigService.setCategoryDefaultConfig(category, config);
@@ -541,26 +436,6 @@ const {
         saveCurrentSettings();
 }
 
-
-// ============================================================
-// 第五区：API通信层
-// ============================================================
-// - 酒馆 API 调用
-// - Gemini API 调用
-// - DeepSeek API 调用
-// - OpenAI 兼容 API
-// - 模型列表获取
-// - 连接测试
-
-// ============================================================
-// 第六区：核心业务逻辑
-// ============================================================
-// - 内容分块
-// - 记忆处理
-// - 世界书生成
-// - 条目合并
-// - 历史回滚
-// - 数据规范化
 
 const coreServices = createCoreServices({
     promptDeps: {
@@ -801,15 +676,6 @@ async function processMemoryChunkIndependent(options) {
         return getProcessingService().processMemoryChunksParallel(startIndex, endIndex, batchSummary);
     }
 
-// ============================================================
-// 第六区：核心业务逻辑
-// ============================================================
-// - 内容分块
-// - 记忆处理
-// - 世界书生成
-// - 条目合并
-// - 历史回滚
-
 /**
  * 处理单个记忆块（串行模式）
  * @param {number} index - 记忆索引
@@ -830,12 +696,11 @@ function handleStopProcessing() {
         return getProcessingService().handleStartProcessing();
     }
 
-/**
- * startRepairFailedMemories
- * 
- * @returns {Promise<any>}
- */
-async function handleRepairFailedMemories() {
+    /**
+     * 修复失败的章节
+     * @returns {Promise<any>}
+     */
+    async function handleRepairFailedMemories() {
     return getProcessingService().handleRepairFailedMemories();
 }
 
@@ -851,25 +716,6 @@ const {
     showBatchRerollModal,
     showRollHistorySelector,
 } = rerollBridge;
-
-// 第七区：UI组件层
-// ============================================================
-// - 模态框工厂
-// - 表单处理
-// - 事件绑定
-// - UI 更新函数
-// - 列表渲染
-
-    // ========== 导入JSON合并世界书 ==========
-    async function importAndMergeWorldbook() {
-        if (!importMergeService) return;
-        return importMergeService.importAndMergeWorldbook();
-    }
-
-
-
-
-
 
 const {
     renderMessageChainUI,
@@ -946,16 +792,7 @@ let {
     showAliasMergeUI,
 } = createFeaturePlaceholders();
 
-// ============================================================
-// 第八区：初始化与导出
-// ============================================================
-// - 初始化函数
-// - 设置加载
-// - 导出接口
-// - 模态框创建
-// - HTML模板构建函数
-
-// ========== createModal 辅助函数：HTML模板构建 ==========
+// ========== 初始化与导出 ==========
 // 模态框HTML构建已迁移至 ui/settingsPanel.js
 worldbookView = createWorldbookViewRuntime({
     AppState,
@@ -1242,8 +1079,6 @@ open = shellRuntimeBindings.open;
 	Logger.info('Module', '代码质量: ErrorHandler统一错误处理 | JSDoc完整文档 | 函数命名规范化');
 })();
 
-
-
 let __txtToWorldbookInitPromise = null;
 
 export async function initTxtToWorldbookBridge() {
@@ -1265,10 +1100,5 @@ export default {
     initTxtToWorldbookBridge,
     getTxtToWorldbookApi,
 };
-
-
-
-
-
 
 
