@@ -1,3 +1,5 @@
+import { escapeHtmlForDisplay, escapeAttribute } from './renderer.js';
+
 export function createCategoryEditorModal(deps = {}) {
     const {
         AppState,
@@ -28,19 +30,19 @@ export function createCategoryEditorModal(deps = {}) {
         const body = `
                     <div class="ttw-form-group">
                         <label>分类名称 *</label>
-                        <input type="text" id="ttw-cat-name" value="${cat.name}" placeholder="如：道具、玩法" class="ttw-input">
+                        <input type="text" id="ttw-cat-name" value="${escapeAttribute(cat.name)}" placeholder="如：道具、玩法" class="ttw-input">
                     </div>
                     <div class="ttw-form-group">
                         <label>条目名称示例</label>
-                        <input type="text" id="ttw-cat-entry-example" value="${cat.entryExample}" placeholder="如：道具名称" class="ttw-input">
+                        <input type="text" id="ttw-cat-entry-example" value="${escapeAttribute(cat.entryExample)}" placeholder="如：道具名称" class="ttw-input">
                     </div>
                     <div class="ttw-form-group">
                         <label>关键词示例（逗号分隔）</label>
-                        <input type="text" id="ttw-cat-keywords" value="${cat.keywordsExample.join(', ')}" placeholder="如：道具名, 别名" class="ttw-input">
+                        <input type="text" id="ttw-cat-keywords" value="${escapeAttribute(cat.keywordsExample.join(', '))}" placeholder="如：道具名, 别名" class="ttw-input">
                     </div>
                     <div class="ttw-form-group">
                         <label>内容提取指南</label>
-                        <textarea id="ttw-cat-content-guide" rows="4" class="ttw-textarea-small" placeholder="描述AI应该提取哪些信息...">${cat.contentGuide}</textarea>
+                        <textarea id="ttw-cat-content-guide" rows="4" class="ttw-textarea-small" placeholder="描述AI应该提取哪些信息...">${escapeHtmlForDisplay(cat.contentGuide)}</textarea>
                     </div>
 
                     <div style="margin-top:16px;padding:12px;background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.3);border-radius:8px;">

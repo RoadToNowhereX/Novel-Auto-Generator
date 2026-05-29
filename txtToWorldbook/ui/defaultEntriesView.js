@@ -1,3 +1,5 @@
+import { escapeHtmlForDisplay, escapeAttribute } from './renderer.js';
+
 export function createDefaultEntriesView(deps = {}) {
     const { AppState, ListRenderer, PerfUtils, EventDelegate, ModalFactory, ErrorHandler, saveCurrentSettings } = deps;
 
@@ -81,19 +83,19 @@ export function createDefaultEntriesView(deps = {}) {
         const body = `
                 <div class="ttw-form-group">
                     <label>分类 *</label>
-                    <input type="text" id="ttw-default-entry-category" value="${entry.category}" placeholder="如：角色、地点、系统" class="ttw-input">
+                    <input type="text" id="ttw-default-entry-category" value="${escapeAttribute(entry.category)}" placeholder="如：角色、地点、系统" class="ttw-input">
                 </div>
                 <div class="ttw-form-group">
                     <label>条目名称 *</label>
-                    <input type="text" id="ttw-default-entry-name" value="${entry.name}" placeholder="条目名称" class="ttw-input">
+                    <input type="text" id="ttw-default-entry-name" value="${escapeAttribute(entry.name)}" placeholder="条目名称" class="ttw-input">
                 </div>
                 <div class="ttw-form-group">
                     <label>关键词（逗号分隔）</label>
-                    <input type="text" id="ttw-default-entry-keywords" value="${(entry.keywords || []).join(', ')}" placeholder="关键词1, 关键词2" class="ttw-input">
+                    <input type="text" id="ttw-default-entry-keywords" value="${escapeAttribute((entry.keywords || []).join(', '))}" placeholder="关键词1, 关键词2" class="ttw-input">
                 </div>
                 <div class="ttw-form-group">
                     <label>内容</label>
-                    <textarea id="ttw-default-entry-content" rows="6" class="ttw-textarea-small" placeholder="条目内容...">${entry.content || ''}</textarea>
+                    <textarea id="ttw-default-entry-content" rows="6" class="ttw-textarea-small" placeholder="条目内容...">${escapeHtmlForDisplay(entry.content || '')}</textarea>
                 </div>
                 <div class="ttw-form-group">
                     <label>位置</label>
