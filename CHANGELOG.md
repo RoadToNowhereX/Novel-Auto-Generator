@@ -2,17 +2,34 @@
 
 本文件根据 Git 标签、提交历史和 README 中已有的更新记录整理。格式参考 Keep a Changelog，版本顺序为新到旧。
 
-## [Unreleased]
-
-### 变更
-
-- TXT 转世界书入口 `main.js` 从 1274 行清理至 1057 行，移除已废弃的区段标记注释、压缩薄包装函数、清理重复注释和空行，重构阶段 8 目标达成。
+## v1.8.0 - 2026-05-29
 
 ### 新增
 
-- 引入 Vitest + fake-indexeddb 测试框架，首次为项目添加自动化测试。
-- 新增 86 个自动化测试用例，覆盖工具函数、响应解析、世界书服务、IndexedDB 持久化四个核心模块。
-- 新增回归测试清单文档（17 项手动测试场景），覆盖完整用户工作流。
+- 国际化 (i18n) 基础设施：零依赖的多语言框架，支持点分隔键、参数插值、浏览器语言检测、订阅机制。
+- 新增中文/英文双语语言包，覆盖所有已迁移 UI 文本。
+- 帮助弹窗 (`helpModal.js`) 完整国际化：14 个功能章节 + 13 条使用技巧全部迁移到 locale 文件，`helpModal.js` 从 183 行压缩至 97 行。
+- 世界书变更 diff 视图：基于最长公共子序列 (LCS) 算法，在历史详情中渲染行级 +/- diff，支持上下文折叠、行号和 XSS 防护。
+- 分层错误模型：`UserError` / `RetryableError` / `FatalError` / `AbortedError` / `TokenLimitError`，配合 `isRetryable` / `isUserFacing` 分类工具。
+- 引入 Vitest + fake-indexeddb 测试框架，首次为项目添加自动化测试，累计 175 个测试用例覆盖 core/infra/services 9 个测试文件。
+- 新增回归测试清单文档（`tests/REGRESSION.md`，17 项手动测试场景），覆盖完整用户工作流。
+- 引入 ESLint 9 (flat config) + Prettier 代码规范工具链，新增 `lint` / `format` 系列脚本。
+- 新增 GitHub Actions CI 流水线 (`.github/workflows/ci.yml`)：Node 20/22 矩阵自动跑 lint、格式检查、测试。
+
+### 变更
+
+- TXT 转世界书入口 `main.js` 完成重构收尾：1274 → 984 行 (-23%)，移除废弃区段注释、抽离 `isTokenLimitError` 到 `core/runtime.js`。
+- OpenAI 兼容 URL 构造遵循 SDK 标准：抽公共函数 `buildChatUrl()` / `buildModelsUrl()` 导出，仅追加 `/chat/completions` 或 `/models`，版本号路径由用户控制，同时支持百度千帆 `/v2/coding`、火山引擎 `/api/coding/v3` 等自定义路径。
+- API 层接入分层错误模型：`apiCaller.js` 的 HTTP 错误按状态码区分可重试 (408/429/500/502/503/504/529) 与不可重试。
+- `errorHandler.js` / `modalFactory.js` 的硬编码错误/确认文本迁移到 i18n。
+- `renderer.js` 世界书视图标签迁移（分类按钮、条目徽章、工具提示、深度/顺序前缀、摘要模板）。
+
+### 修复
+
+- 修复分类编辑/条目编辑表单 8 处 XSS 属性注入漏洞，HTML 属性值统一使用 `escapeAttrForDisplay` 转义。
+- 修复 IndexedDB 并发竞态：`saveHistory` 按 `(memoryTitle, fileHash)` 分组写队列，避免并行处理时互相覆盖。
+- 修复 ESM 命名导入错误 (`escapeAttribute`) 阻塞插件加载，重命名为实际导出的 `escapeAttrForDisplay`。
+- 修复 `txtToWorldbook/styles/modal.css` 文件末尾非法字符导致的 Prettier 解析失败。
 
 ## v1.7.2 - 2026-05-21
 
