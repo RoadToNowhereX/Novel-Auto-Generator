@@ -1,3 +1,5 @@
+import { t } from './i18n.js';
+
 export function createErrorHandler(deps = {}) {
     const { Logger, ModalFactory, confirmAction } = deps;
 
@@ -6,11 +8,11 @@ export function createErrorHandler(deps = {}) {
             Logger.error(context || 'App', error.message || error);
 
             if (error.message === 'ABORTED') {
-                return { handled: true, message: '操作已取消' };
+                return { handled: true, message: t('errors.operationCancelled') };
             }
 
             if (error.message?.startsWith('TOKEN_LIMIT:')) {
-                return { handled: true, message: 'Token超限', isTokenLimit: true };
+                return { handled: true, message: t('errors.tokenLimit'), isTokenLimit: true };
             }
 
             if (error.status || error.message?.includes('API') || error.message?.includes('请求')) {
@@ -22,28 +24,21 @@ export function createErrorHandler(deps = {}) {
                 error.message?.includes('网络') ||
                 error.message?.includes('fetch')
             ) {
-                this.showUserError('网络连接失败，请检查网络设置');
-                return { handled: true, message: '网络错误' };
+                this.showUserError(t('errors.network'));
+                return { handled: true, message: t('errors.networkError') };
             }
 
-            this.showUserError(error.message || '未知错误');
-            return { handled: false, message: error.message || '未知错误' };
+            this.showUserError(error.message || t('errors.unknown'));
+            return { handled: false, message: error.message || t('errors.unknown') };
         },
 
         handleAPIError(error) {
-            const messages = {
-                401: 'API Key 无效',
-                403: '没有权限访问此API',
-                404: 'API端点不存在',
-                429: '请求过于频繁，请稍后重试',
-                500: '服务器内部错误',
-                502: '网关错误',
-                503: '服务暂时不可用',
-                504: '网关超时',
-            };
-
             const status = error.status || this.extractStatus(error.message);
-            const msg = messages[status] || error.message || `API错误 (${status || '未知'})`;
+            const httpMsg = status ? t(`errors.http.${status}`) : null;
+            const msg =
+                (httpMsg && httpMsg !== `errors.http.${status}` ? httpMsg : null) ||
+                error.message ||
+                t('errors.apiError', { status: status || t('common.unknown') });
             this.showUserError(msg);
             return { handled: true, message: msg };
         },
@@ -58,17 +53,17 @@ export function createErrorHandler(deps = {}) {
             const bodyNode = document.createElement('div');
             bodyNode.style.cssText =
                 'white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #ff6b6b; padding: 10px;';
-            bodyNode.textContent = String(message ?? '未知错误');
+            bodyNode.textContent = String(message ?? t('errors.unknown'));
 
             const footerNode = document.createElement('button');
             footerNode.className = 'ttw-btn ttw-btn-primary';
             footerNode.id = 'ttw-close-error-modal';
             footerNode.type = 'button';
-            footerNode.textContent = '我知道了';
+            footerNode.textContent = t('help.gotIt');
 
             const modal = ModalFactory.create({
                 id: 'ttw-error-modal',
-                title: '❌ 错误',
+                title: t('modal.error'),
                 bodyNode,
                 footerNode,
                 maxWidth: '500px',
@@ -98,8 +93,8 @@ animation: ttw-toast-in 0.3s ease;
             }, 2000);
         },
 
-        confirmAsync(message, title = '确认') {
-            return confirmAction(message, { title });
+        confirmAsync(message, title) {
+            return confirmAction(message, { title: title || t('modal.confirmTitle') });
         },
     };
 }

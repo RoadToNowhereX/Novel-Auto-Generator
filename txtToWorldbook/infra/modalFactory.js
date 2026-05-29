@@ -1,4 +1,6 @@
-﻿const ModalFactory = {
+﻿import { t } from '../core/i18n.js';
+
+const ModalFactory = {
     _escape(text) {
         if (text === null || text === undefined) return '';
         return String(text)
@@ -162,9 +164,9 @@
     alert(config) {
         return new Promise((resolve) => {
             const {
-                title = '提示',
+                title = t('modal.confirmTitle'),
                 message = '',
-                confirmText = '知道了',
+                confirmText = t('help.gotIt'),
             } = typeof config === 'string' ? { message: config } : config;
 
             let settled = false;
@@ -191,7 +193,13 @@
 
     confirm(config) {
         return new Promise((resolve) => {
-            const { title = '确认', message = '', confirmText = '确定', cancelText = '取消', danger = false } = config;
+            const {
+                title = t('modal.confirmTitle'),
+                message = '',
+                confirmText = t('common.ok'),
+                cancelText = t('common.cancel'),
+                danger = false,
+            } = config;
 
             let settled = false;
             const footer = `
@@ -230,12 +238,12 @@
     prompt(config) {
         return new Promise((resolve) => {
             const {
-                title = '输入',
+                title = t('modal.promptTitle'),
                 message = '',
                 defaultValue = '',
                 placeholder = '',
-                confirmText = '确定',
-                cancelText = '取消',
+                confirmText = t('common.ok'),
+                cancelText = t('common.cancel'),
                 multiline = false,
                 rows = 3,
                 trimResult = true,
