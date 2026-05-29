@@ -1,5 +1,40 @@
 import { estimateTokenCount } from './utils.js';
 
+/**
+ * 检测是否为 Token 限制错误
+ * @param {*} errorMsg
+ * @returns {boolean}
+ */
+export function isTokenLimitError(errorMsg) {
+    if (!errorMsg) return false;
+    const checkStr = String(errorMsg).substring(0, 800);
+    const patterns = [
+        /prompt is too long/i,
+        /tokens? >\s*\d+\s*maximum/i,
+        /max_prompt_tokens/i,
+        /tokens?.*exceeded/i,
+        /context.?length.*exceeded/i,
+        /exceeded.*(?:token|limit|context|maximum)/i,
+        /input tokens/i,
+        /context_length/i,
+        /too many tokens/i,
+        /token limit/i,
+        /maximum.*tokens/i,
+        /20015.*limit/i,
+        /INVALID_ARGUMENT/i,
+        /request too large/i,
+        /payload too large/i,
+        /content.?length.?limit/i,
+        /max.?context/i,
+        /model.?(?:maximum|max).?(?:context|length)/i,
+        /reduce.?(?:the|your).?(?:prompt|input)/i,
+        /too.?(?:long|large).?(?:for|to)/i,
+        /string_above_max_length/i,
+        /over.?(?:the|token).?limit/i,
+    ];
+    return patterns.some((pattern) => pattern.test(checkStr));
+}
+
 export class Semaphore {
     constructor(max) {
         this.max = max;

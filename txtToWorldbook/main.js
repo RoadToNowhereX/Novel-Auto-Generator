@@ -80,7 +80,7 @@ import {
 import { Logger } from './core/logger.js';
 import { estimateTokenCount, naturalSortEntryNames, buildWorldbookSummary } from './core/utils.js';
 import { createErrorHandler } from './core/errorHandler.js';
-import { Semaphore, PerfUtils, TokenCache } from './core/runtime.js';
+import { Semaphore, PerfUtils, TokenCache, isTokenLimitError } from './core/runtime.js';
 import { ModalFactory } from './infra/modalFactory.js';
 import { APICaller } from './infra/apiCaller.js';
 import { EventDelegate } from './infra/eventDelegate.js';
@@ -196,23 +196,19 @@ import { ensureModalStyles } from './ui/modalStyles.js';
     let _bindModalEvents = () => modalEventBinder?.bindModalEvents(shellRuntime?.getModalContainer?.());
     let closeModal = () => modalController?.closeModal();
     let open = () => modalController?.open();
-    let {
-        importMergeService,
-        replaceAndCleanService,
-        settingsPersistenceService,
-        categoryPersistenceService,
-        categoryLightService,
-        entryConfigService,
-        modalLifecycle,
-        modalController,
-        modalEventBinder,
-        fileUtils,
-        entryConfigModals,
-        handleFileSelect,
-        splitContentIntoMemory,
-        handleClearFile,
-        rechunkMemories,
-    } = createShellPlaceholders();
+let {
+    importMergeService,
+    settingsPersistenceService,
+    categoryPersistenceService,
+    categoryLightService,
+    entryConfigService,
+    modalLifecycle,
+    modalController,
+    modalEventBinder,
+    handleFileSelect,
+    handleClearFile,
+    rechunkMemories,
+} = createShellPlaceholders();
     // ========== ListRenderer 列表渲染工具 ==========
     const ListRenderer = createListRenderer({
         smartUpdate: PerfUtils.smartUpdate,
@@ -259,41 +255,6 @@ import { ensureModalStyles } from './ui/modalStyles.js';
         generateDynamicJsonTemplate,
         getEnabledCategoryNames,
     } = categoryPersistenceService;
-
-    /**
-     * 检测是否为 Token 限制错误
-     * @param {*} errorMsg
-     * @returns {boolean}
-     */
-    function isTokenLimitError(errorMsg) {
-        if (!errorMsg) return false;
-        const checkStr = String(errorMsg).substring(0, 800);
-        const patterns = [
-            /prompt is too long/i,
-            /tokens? >\s*\d+\s*maximum/i,
-            /max_prompt_tokens/i,
-            /tokens?.*exceeded/i,
-            /context.?length.*exceeded/i,
-            /exceeded.*(?:token|limit|context|maximum)/i,
-            /input tokens/i,
-            /context_length/i,
-            /too many tokens/i,
-            /token limit/i,
-            /maximum.*tokens/i,
-            /20015.*limit/i,
-            /INVALID_ARGUMENT/i,
-            /request too large/i,
-            /payload too large/i,
-            /content.?length.?limit/i,
-            /max.?context/i,
-            /model.?(?:maximum|max).?(?:context|length)/i,
-            /reduce.?(?:the|your).?(?:prompt|input)/i,
-            /too.?(?:long|large).?(?:for|to)/i,
-            /string_above_max_length/i,
-            /over.?(?:the|token).?limit/i,
-        ];
-        return patterns.some((pattern) => pattern.test(checkStr));
-    }
 
     /**
      * 更新实时输出流内容
@@ -567,25 +528,14 @@ import { ensureModalStyles } from './ui/modalStyles.js';
         getRerollModals,
     } = coreServices;
     const {
-        getLanguagePrefix,
-        messagesToString,
-        applyMessageChain,
-        convertToGeminiContents,
         buildSystemPrompt,
         getPreviousMemoryContext,
         getChapterForcePrompt,
+        getLanguagePrefix,
     } = promptService;
     const { filterResponseContent, parseAIResponse } = parserService;
     const { callSillyTavernAPI, callCustomAPI, handleFetchModelList, handleQuickTestModel, callAPI } = apiService;
-    const {
-        normalizeWorldbookEntry,
-        normalizeWorldbookData,
-        mergeWorldbookData,
-        mergeWorldbookDataIncremental,
-        findChangedEntries,
-        mergeWorldbookDataWithHistory,
-        saveWorldbookSnapshot,
-    } = worldbookService;
+    const { mergeWorldbookDataIncremental, mergeWorldbookDataWithHistory, saveWorldbookSnapshot } = worldbookService;
     const { convertToSillyTavernFormat } = exportFormatService;
     getEntryTotalTokens = (entry) => tokenMetricsService.getEntryTotalTokens(entry);
 
@@ -629,7 +579,7 @@ import { ensureModalStyles } from './ui/modalStyles.js';
         buildWorldbookSummary,
         estimateTokenCount,
     });
-    const { handleRepairSingleMemory, handleRepairMemoryWithSplit } = repairService;
+    const { handleRepairMemoryWithSplit } = repairService;
     const memoryQueueActionsService = createMemoryQueueActionsService({
         AppState,
         ErrorHandler,
@@ -650,21 +600,6 @@ import { ensureModalStyles } from './ui/modalStyles.js';
      */
     async function processMemoryChunkIndependent(options) {
         return getProcessingService().processMemoryChunkIndependent(options);
-    }
-
-    async function processMemoryChunksParallel(startIndex, endIndex, batchSummary) {
-        return getProcessingService().processMemoryChunksParallel(startIndex, endIndex, batchSummary);
-    }
-
-    /**
-     * 处理单个记忆块（串行模式）
-     * @param {number} index - 记忆索引
-     * @param {number} [retryCount=0] - 重试次数
-     * @returns {Promise<void>}
-     * @throws {Error} 处理过程中发生错误
-     */
-    async function processMemoryChunk(index, retryCount = 0) {
-        return getProcessingService().processMemoryChunk(index, retryCount);
     }
 
     function handleStopProcessing() {
@@ -709,15 +644,12 @@ import { ensureModalStyles } from './ui/modalStyles.js';
         updateChapterRegexUI,
         renderCategoriesList,
         showAddCategoryModal,
-        showEditCategoryModal,
         renderDefaultWorldbookEntriesUI,
         showAddDefaultEntryModal,
-        showEditDefaultEntryModal,
         saveDefaultWorldbookEntriesUI,
         testChapterRegex,
         handleUseTavernApiChange,
         handleProviderChange,
-        updateModelStatus,
         handleFetchModels,
         handleQuickTest,
         showPromptPreview,
@@ -887,8 +819,6 @@ import { ensureModalStyles } from './ui/modalStyles.js';
         mergeWorkflowService,
     });
     ({
-        entryConfigModals,
-        replaceAndCleanService,
         importMergeService,
         showCleanTagsModal,
         showEntryConfigModal,
@@ -1005,7 +935,6 @@ import { ensureModalStyles } from './ui/modalStyles.js';
     );
     const shellRuntimeBindings = createShellRuntimeBindings(shellRuntime);
     ({
-        fileUtils,
         settingsPersistenceService,
         categoryLightService,
         entryConfigService,
@@ -1013,7 +942,6 @@ import { ensureModalStyles } from './ui/modalStyles.js';
         modalController,
         modalEventBinder,
         handleFileSelect,
-        splitContentIntoMemory,
         handleClearFile,
         rechunkMemories,
     } = shellRuntimeBindings);
