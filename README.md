@@ -187,10 +187,48 @@ novel-auto-generator/
 │   ├── ui/                # UI 组件与视图
 │   ├── app/               # 依赖注入与应用组装
 │   └── adapters/          # 外部 API 适配器
+├── tests/                 # 自动化测试（Vitest）
+│   ├── core/              # 工具函数测试
+│   ├── services/          # 服务层测试
+│   ├── infra/             # 基础设施测试
+│   └── REGRESSION.md      # 手动回归测试清单
 ├── README.md              # 本文档
 ├── CHANGELOG.md           # 更新日志
 └── txtToWorldbook.md      # TXT转世界书详细文档
 ```
+
+---
+
+## 开发与测试
+
+本项目使用 [Vitest](https://vitest.dev/) 作为自动化测试框架，覆盖 TXT 转世界书核心模块。
+
+### 运行测试
+
+```bash
+# 安装依赖
+npm install
+
+# 运行全部测试
+npm test
+
+# 监听模式（开发时使用）
+npm run test:watch
+```
+
+### 测试覆盖范围
+
+| 模块 | 测试文件 | 用例数 |
+|:---|:---|:---:|
+| 工具函数 (estimateTokenCount, chineseNumToInt 等) | `tests/core/utils.test.js` | 21 |
+| 响应解析 (filterTags, parseAIResponse, JSON 修复) | `tests/services/parserService.test.js` | 12 |
+| 世界书服务 (normalize, merge, diff, history) | `tests/services/worldbookService.test.js` | 21 |
+| IndexedDB 持久化 (6 个存储表全 CRUD 测试) | `tests/infra/memoryHistoryDB.test.js` | 32 |
+| **合计** | | **86** |
+
+### 手动回归测试
+
+涉及核心逻辑变更的发布前，请按照 [tests/REGRESSION.md](tests/REGRESSION.md) 完成 17 项手动测试场景验证。
 
 ---
 
