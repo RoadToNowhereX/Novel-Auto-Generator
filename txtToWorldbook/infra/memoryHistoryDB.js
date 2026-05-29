@@ -1,4 +1,20 @@
 ﻿export function createMemoryHistoryDB(AppState, Logger) {
+    // ========== 写操作并发队列 ==========
+    // 保护 saveHistory 等复合读-改-写操作的原子性
+    // 同一 memoryTitle 的写操作被序列化，避免并行处理时互相覆盖
+    const _writeQueues = new Map();
+
+    function enqueue(key, fn) {
+        const existing = _writeQueues.get(key) || Promise.resolve();
+        const next = existing.then(fn, fn); // 前一个失败也继续执行后续
+        // 清理：最后一个完成后移除
+        next.finally(() => {
+            if (_writeQueues.get(key) === next) _writeQueues.delete(key);
+        });
+        _writeQueues.set(key, next);
+        return next;
+    }
+
     const MemoryHistoryDB = {
         dbName: 'TxtToWorldbookDB',
         storeName: 'history',
@@ -133,6 +149,8 @@
 
         /**
          * saveHistory
+         * 并发保护：同一 (memoryTitle, fileHash) 的写操作被序列化，
+         * 避免并行处理时多个 saveHistory 交叉执行读-改-写导致数据覆盖。
          *
          * @param {*} memoryIndex
          * @param {*} memoryTitle
@@ -142,6 +160,12 @@
          * @returns {Promise<any>}
          */
         async saveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries) {
+            const fileHash = AppState.file.hash || '';
+            const queueKey = `history:${memoryTitle}:${fileHash}`;
+            return enqueue(queueKey, () => this._doSaveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries));
+        },
+
+        async _doSaveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries) {
             const db = await this.openDB();
             const allowedDuplicates = ['记忆-优化', '记忆-演变总结'];
             return new Promise((resolve, reject) => {

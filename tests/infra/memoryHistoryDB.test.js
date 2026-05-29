@@ -122,6 +122,23 @@ describe('MemoryHistoryDB', () => {
             expect(filtered[0].newWorldbook.new).toBe(2);
         });
 
+        it('并发保存相同 memoryTitle 的记录保持原子性', async () => {
+            // 同时发起 3 个保存请求
+            const promises = [
+                testDB.db.saveHistory(0, '第1章', {}, { v: 1 }, []),
+                testDB.db.saveHistory(0, '第1章', {}, { v: 2 }, []),
+                testDB.db.saveHistory(0, '第1章', {}, { v: 3 }, []),
+            ];
+            await Promise.all(promises);
+
+            const history = await testDB.db.getAllHistory();
+            const filtered = history.filter((h) => h.memoryTitle === '第1章');
+            // 去重逻辑应确保每条唯一记录
+            expect(filtered.length).toBe(1);
+            // 最后一个保存应胜出
+            expect(filtered[0].newWorldbook.v).toBe(3);
+        });
+
         it('允许重复的标题 (记忆-优化) 不去重', async () => {
             await testDB.db.saveHistory(0, '记忆-优化', {}, { v1: 1 }, []);
             await testDB.db.saveHistory(0, '记忆-优化', {}, { v2: 2 }, []);
