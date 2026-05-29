@@ -1,8 +1,5 @@
 export function createEntryConfigService(deps = {}) {
-    const {
-        AppState,
-        onConfigChanged,
-    } = deps;
+    const { AppState, onConfigChanged } = deps;
 
     function getEntryConfig(category, entryName) {
         const key = `${category}::${entryName}`;
@@ -26,7 +23,7 @@ export function createEntryConfigService(deps = {}) {
         }
 
         // 从自定义分类获取默认配置
-        const categoryConfig = AppState.persistent.customCategories.find(c => c.name === category);
+        const categoryConfig = AppState.persistent.customCategories.find((c) => c.name === category);
         if (categoryConfig) {
             return {
                 position: categoryConfig.defaultPosition || 0,
@@ -54,7 +51,7 @@ export function createEntryConfigService(deps = {}) {
         if (AppState.config.categoryDefault[category]?.autoIncrementOrder !== undefined) {
             return AppState.config.categoryDefault[category].autoIncrementOrder;
         }
-        const categoryConfig = AppState.persistent.customCategories.find(c => c.name === category);
+        const categoryConfig = AppState.persistent.customCategories.find((c) => c.name === category);
         return categoryConfig?.autoIncrementOrder || false;
     }
 
@@ -66,7 +63,7 @@ export function createEntryConfigService(deps = {}) {
         if (AppState.config.categoryDefault[category]?.order !== undefined) {
             return AppState.config.categoryDefault[category].order;
         }
-        const categoryConfig = AppState.persistent.customCategories.find(c => c.name === category);
+        const categoryConfig = AppState.persistent.customCategories.find((c) => c.name === category);
         return categoryConfig?.defaultOrder || 100;
     }
 

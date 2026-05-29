@@ -17,14 +17,22 @@ export function createImportExportService(deps = {}) {
 
     function exportCharacterCard() {
         const timeString = new Date()
-            .toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+            .toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            })
             .replace(/[:/\s]/g, '')
             .replace(/,/g, '-');
 
         const baseName = getExportBaseName('角色卡');
 
         try {
-            const worldbookToExport = AppState.processing.volumeMode ? getAllVolumesWorldbook() : AppState.worldbook.generated;
+            const worldbookToExport = AppState.processing.volumeMode
+                ? getAllVolumesWorldbook()
+                : AppState.worldbook.generated;
             const stWorldbook = convertToSillyTavernFormat(worldbookToExport);
 
             const v2Entries = stWorldbook.entries.map((entry, index) => ({
@@ -121,11 +129,19 @@ export function createImportExportService(deps = {}) {
 
     function exportToSillyTavern() {
         const timeString = new Date()
-            .toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+            .toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            })
             .replace(/[:/\s]/g, '')
             .replace(/,/g, '-');
         try {
-            const worldbookToExport = AppState.processing.volumeMode ? getAllVolumesWorldbook() : AppState.worldbook.generated;
+            const worldbookToExport = AppState.processing.volumeMode
+                ? getAllVolumesWorldbook()
+                : AppState.worldbook.generated;
             const sillyTavernWorldbook = convertToSillyTavernFormat(worldbookToExport);
 
             const baseName = getExportBaseName('世界书');
@@ -150,7 +166,13 @@ export function createImportExportService(deps = {}) {
             return;
         }
         const timeString = new Date()
-            .toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+            .toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            })
             .replace(/[:/\s]/g, '')
             .replace(/,/g, '-');
         for (let i = 0; i < AppState.worldbook.volumes.length; i++) {
@@ -196,7 +218,13 @@ export function createImportExportService(deps = {}) {
             promptMessageChain: AppState.settings.promptMessageChain,
         };
         const timeString = new Date()
-            .toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+            .toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            })
             .replace(/[:/\s]/g, '')
             .replace(/,/g, '-');
         const fileName = `TxtToWorldbook-配置-${timeString}.json`;
@@ -280,9 +308,13 @@ export function createImportExportService(deps = {}) {
                         AppState.settings.customBatchRerollPrompt = data.prompts.batchRerollPrompt;
                     }
                     if (data.prompts.consolidatePrompt && data.prompts.consolidatePrompt.trim()) {
-                        if (!AppState.settings.consolidatePromptPresets) AppState.settings.consolidatePromptPresets = [];
+                        if (!AppState.settings.consolidatePromptPresets)
+                            AppState.settings.consolidatePromptPresets = [];
                         if (!AppState.settings.consolidatePromptPresets.some((p) => p.name === '旧版自定义')) {
-                            AppState.settings.consolidatePromptPresets.push({ name: '旧版自定义', prompt: data.prompts.consolidatePrompt });
+                            AppState.settings.consolidatePromptPresets.push({
+                                name: '旧版自定义',
+                                prompt: data.prompts.consolidatePrompt,
+                            });
                         }
                     }
                     if (data.prompts.defaultWorldbookEntries !== undefined) {
@@ -315,7 +347,7 @@ export function createImportExportService(deps = {}) {
             }
 
             const allHistory = MemoryHistoryDB ? await MemoryHistoryDB.getAllHistory() : [];
-            const recentHistory = allHistory.filter(h => h.timestamp > lastExportTs);
+            const recentHistory = allHistory.filter((h) => h.timestamp > lastExportTs);
 
             if (recentHistory.length === 0) {
                 ErrorHandler.showUserSuccess('自上次导出以来没有变更');
@@ -354,7 +386,13 @@ export function createImportExportService(deps = {}) {
             }
 
             const timeString = new Date()
-                .toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+                .toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                })
                 .replace(/[:/\s]/g, '')
                 .replace(/,/g, '-');
             const baseName = getExportBaseName('变更');

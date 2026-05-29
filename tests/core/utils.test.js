@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { estimateTokenCount, chineseNumToInt, buildWorldbookSummary, naturalSortEntryNames } from '../../txtToWorldbook/core/utils.js';
+import {
+    estimateTokenCount,
+    chineseNumToInt,
+    buildWorldbookSummary,
+    naturalSortEntryNames,
+} from '../../txtToWorldbook/core/utils.js';
 
 // ============================================================
 // estimateTokenCount
@@ -131,10 +136,10 @@ describe('buildWorldbookSummary', () => {
 
     it('正常生成摘要', () => {
         const worldbook = {
-            '角色': {
-                '张三': { '关键词': ['张三', '老张'], '内容': '一个普通人' },
-                '李四': { '关键词': ['李四'], '内容': '另一个普通人' }
-            }
+            角色: {
+                张三: { 关键词: ['张三', '老张'], 内容: '一个普通人' },
+                李四: { 关键词: ['李四'], 内容: '另一个普通人' },
+            },
         };
         const summary = buildWorldbookSummary(worldbook);
         expect(summary).toContain('张三');
@@ -145,9 +150,9 @@ describe('buildWorldbookSummary', () => {
 
     it('条目过多时切换为紧凑格式', () => {
         // 创建大量条目使 token 超过 maxTokens
-        const worldbook = { '角色': {} };
+        const worldbook = { 角色: {} };
         for (let i = 0; i < 500; i++) {
-            worldbook['角色'][`角色${i}`] = { '关键词': [`关键字${i}`], '内容': 'x'.repeat(200) };
+            worldbook['角色'][`角色${i}`] = { 关键词: [`关键字${i}`], 内容: 'x'.repeat(200) };
         }
         const summary = buildWorldbookSummary(worldbook, 100); // 低 limit
         expect(summary).toBeTruthy();
@@ -155,9 +160,9 @@ describe('buildWorldbookSummary', () => {
     });
 
     it('超长时截断', () => {
-        const worldbook = { '角色': {} };
+        const worldbook = { 角色: {} };
         for (let i = 0; i < 50; i++) {
-            worldbook['角色'][`角色${i}号`] = { '关键词': [`关${i}`], '内容': 'y'.repeat(100) };
+            worldbook['角色'][`角色${i}号`] = { 关键词: [`关${i}`], 内容: 'y'.repeat(100) };
         }
         const summary = buildWorldbookSummary(worldbook, 50);
         expect(summary).toBeTruthy();

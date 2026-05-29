@@ -1,14 +1,9 @@
 export function createReplaceAndCleanService(deps = {}) {
-    const {
-        AppState,
-        ModalFactory,
-        ErrorHandler,
-        confirmAction,
-        updateWorldbookPreview,
-    } = deps;
+    const { AppState, ModalFactory, ErrorHandler, confirmAction, updateWorldbookPreview } = deps;
 
     function parseTagNames(input) {
-        return input.split('\n')
+        return input
+            .split('\n')
             .map((line) => line.trim())
             .filter((line) => line.length > 0 && /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(line));
     }
@@ -16,9 +11,10 @@ export function createReplaceAndCleanService(deps = {}) {
     function groupMatchesBySource(matches) {
         const groups = {};
         for (const m of matches) {
-            const key = m.source === 'worldbook'
-                ? `wb::${m.category}::${m.entryName}`
-                : `mem${m.memoryIndex}::${m.category}::${m.entryName}`;
+            const key =
+                m.source === 'worldbook'
+                    ? `wb::${m.category}::${m.entryName}`
+                    : `mem${m.memoryIndex}::${m.category}::${m.entryName}`;
             if (!groups[key]) groups[key] = [];
             groups[key].push(m);
         }
@@ -31,7 +27,9 @@ export function createReplaceAndCleanService(deps = {}) {
             if (!entry) return null;
             return {
                 get: () => entry['内容'] || '',
-                set: (val) => { entry['内容'] = val; },
+                set: (val) => {
+                    entry['内容'] = val;
+                },
             };
         }
 
@@ -41,7 +39,9 @@ export function createReplaceAndCleanService(deps = {}) {
         if (!entry) return null;
         return {
             get: () => entry['内容'] || '',
-            set: (val) => { entry['内容'] = val; },
+            set: (val) => {
+                entry['内容'] = val;
+            },
         };
     }
 
@@ -58,7 +58,11 @@ export function createReplaceAndCleanService(deps = {}) {
                 let match;
                 while ((match = fullRegex.exec(text)) !== null) {
                     allMatches.push({
-                        source, category, entryName, memoryIndex, tag,
+                        source,
+                        category,
+                        entryName,
+                        memoryIndex,
+                        tag,
                         type: 'full',
                         startInText: match.index,
                         endInText: match.index + match[0].length,
@@ -75,7 +79,11 @@ export function createReplaceAndCleanService(deps = {}) {
                     const openTagCheck = new RegExp(`<${escaped}[\\s>]`, 'i');
                     if (!openTagCheck.test(textBefore)) {
                         allMatches.push({
-                            source, category, entryName, memoryIndex, tag,
+                            source,
+                            category,
+                            entryName,
+                            memoryIndex,
+                            tag,
                             type: 'close-only',
                             startInText: 0,
                             endInText: closePos,
@@ -94,14 +102,22 @@ export function createReplaceAndCleanService(deps = {}) {
                     const textAfter = text.substring(absPos);
                     const closeTagCheck = new RegExp(`</${escaped}>`, 'i');
                     if (!closeTagCheck.test(textAfter.substring(openMatch[0].length))) {
-                        const alreadyMatched = allMatches.some((m) =>
-                            m.source === source && m.category === category
-                            && m.entryName === entryName && m.memoryIndex === memoryIndex
-                            && m.startInText <= absPos && m.endInText >= text.length
+                        const alreadyMatched = allMatches.some(
+                            (m) =>
+                                m.source === source &&
+                                m.category === category &&
+                                m.entryName === entryName &&
+                                m.memoryIndex === memoryIndex &&
+                                m.startInText <= absPos &&
+                                m.endInText >= text.length,
                         );
                         if (!alreadyMatched) {
                             allMatches.push({
-                                source, category, entryName, memoryIndex, tag,
+                                source,
+                                category,
+                                entryName,
+                                memoryIndex,
+                                tag,
                                 type: 'open-only',
                                 startInText: absPos,
                                 endInText: text.length,
@@ -155,9 +171,10 @@ export function createReplaceAndCleanService(deps = {}) {
         const CONTEXT_CHARS = 40;
 
         matches.forEach((m, idx) => {
-            const locationStr = m.source === 'worldbook'
-                ? `世界书 / ${m.category} / ${m.entryName}`
-                : `记忆${m.memoryIndex + 1} / ${m.category} / ${m.entryName}`;
+            const locationStr =
+                m.source === 'worldbook'
+                    ? `世界书 / ${m.category} / ${m.entryName}`
+                    : `记忆${m.memoryIndex + 1} / ${m.category} / ${m.entryName}`;
 
             const typeLabels = { full: '完整标签', 'close-only': '开头不闭合', 'open-only': '末尾不闭合' };
             const typeColors = { full: '#3498db', 'close-only': '#e67e22', 'open-only': '#9b59b6' };
@@ -167,9 +184,10 @@ export function createReplaceAndCleanService(deps = {}) {
             const beforePrefix = beforeStart > 0 ? '...' : '';
 
             const deletedFull = m.matchedText;
-            const deletedDisplay = deletedFull.length > 200
-                ? `${deletedFull.substring(0, 100)}\n... (${deletedFull.length}字) ...\n${deletedFull.substring(deletedFull.length - 80)}`
-                : deletedFull;
+            const deletedDisplay =
+                deletedFull.length > 200
+                    ? `${deletedFull.substring(0, 100)}\n... (${deletedFull.length}字) ...\n${deletedFull.substring(deletedFull.length - 80)}`
+                    : deletedFull;
 
             const afterEnd = Math.min(m.fullText.length, m.endInText + CONTEXT_CHARS);
             const afterText = m.fullText.substring(m.endInText, afterEnd);
@@ -309,18 +327,23 @@ tochao">thinking\ntucao\ntochao</textarea>
         });
 
         modal.querySelector('#ttw-clean-select-all').addEventListener('click', () => {
-            modal.querySelectorAll('.ttw-clean-match-cb').forEach((cb) => { cb.checked = true; });
+            modal.querySelectorAll('.ttw-clean-match-cb').forEach((cb) => {
+                cb.checked = true;
+            });
             updateExecBtnCount(modal);
         });
 
         modal.querySelector('#ttw-clean-deselect-all').addEventListener('click', () => {
-            modal.querySelectorAll('.ttw-clean-match-cb').forEach((cb) => { cb.checked = false; });
+            modal.querySelectorAll('.ttw-clean-match-cb').forEach((cb) => {
+                cb.checked = false;
+            });
             updateExecBtnCount(modal);
         });
 
         modal.querySelector('#ttw-execute-clean-tags').addEventListener('click', async () => {
-            const selectedIndices = [...modal.querySelectorAll('.ttw-clean-match-cb:checked')]
-                .map((cb) => parseInt(cb.dataset.index, 10));
+            const selectedIndices = [...modal.querySelectorAll('.ttw-clean-match-cb:checked')].map((cb) =>
+                parseInt(cb.dataset.index, 10),
+            );
             if (selectedIndices.length === 0) {
                 ErrorHandler.showUserError('请至少选择一项');
                 return;

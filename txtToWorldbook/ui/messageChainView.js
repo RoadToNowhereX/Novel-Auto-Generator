@@ -1,11 +1,5 @@
 export function createMessageChainView(deps = {}) {
-    const {
-        AppState,
-        ListRenderer,
-        EventDelegate,
-        saveCurrentSettings,
-        handleUseTavernApiChange,
-    } = deps;
+    const { AppState, ListRenderer, EventDelegate, saveCurrentSettings, handleUseTavernApiChange } = deps;
 
     function renderMessageChainUI() {
         const container = document.getElementById('ttw-message-chain-list');
@@ -25,7 +19,8 @@ export function createMessageChainView(deps = {}) {
 
         if (container.dataset.eventsBound === 'true') return;
 
-        const getChain = () => (AppState.settings.promptMessageChain || [{ role: 'user', content: '{PROMPT}', enabled: true }]);
+        const getChain = () =>
+            AppState.settings.promptMessageChain || [{ role: 'user', content: '{PROMPT}', enabled: true }];
 
         EventDelegate.on(container, '.ttw-chain-role', 'change', (e, sel) => {
             const idx = parseInt(sel.dataset.chainIndex, 10);

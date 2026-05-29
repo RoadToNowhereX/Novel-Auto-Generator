@@ -1,14 +1,7 @@
 import { escapeHtmlForDisplay, highlightEscapedText } from './renderer.js';
 
 export function createReplaceModal(deps = {}) {
-    const {
-        AppState,
-        ModalFactory,
-        ErrorHandler,
-        confirmAction,
-        updateWorldbookPreview,
-        saveWorldbookSnapshot,
-    } = deps;
+    const { AppState, ModalFactory, ErrorHandler, confirmAction, updateWorldbookPreview, saveWorldbookSnapshot } = deps;
 
     function previewReplace(findText, replaceWith, inWorldbook, inResults) {
         const regex = new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
@@ -62,7 +55,10 @@ export function createReplaceModal(deps = {}) {
                         const idx = entry['内容'].indexOf(findText);
                         const start = Math.max(0, idx - 20);
                         const end = Math.min(entry['内容'].length, idx + findText.length + 20);
-                        const context = (start > 0 ? '...' : '') + entry['内容'].substring(start, end) + (end < entry['内容'].length ? '...' : '');
+                        const context =
+                            (start > 0 ? '...' : '') +
+                            entry['内容'].substring(start, end) +
+                            (end < entry['内容'].length ? '...' : '');
 
                         allMatches.push({
                             source: 'worldbook',
@@ -133,7 +129,10 @@ export function createReplaceModal(deps = {}) {
                             const idx = entry['内容'].indexOf(findText);
                             const start = Math.max(0, idx - 20);
                             const end = Math.min(entry['内容'].length, idx + findText.length + 20);
-                            const context = (start > 0 ? '...' : '') + entry['内容'].substring(start, end) + (end < entry['内容'].length ? '...' : '');
+                            const context =
+                                (start > 0 ? '...' : '') +
+                                entry['内容'].substring(start, end) +
+                                (end < entry['内容'].length ? '...' : '');
 
                             allMatches.push({
                                 source: 'memory',
@@ -273,13 +272,15 @@ export function createReplaceModal(deps = {}) {
                     const entry = AppState.worldbook.generated[category][entryName];
 
                     if (Array.isArray(entry['关键词'])) {
-                        entry['关键词'] = entry['关键词'].map((kw) => {
-                            if (kw.includes(findText)) {
-                                count++;
-                                return kw.replace(regex, replaceWith);
-                            }
-                            return kw;
-                        }).filter((kw) => kw);
+                        entry['关键词'] = entry['关键词']
+                            .map((kw) => {
+                                if (kw.includes(findText)) {
+                                    count++;
+                                    return kw.replace(regex, replaceWith);
+                                }
+                                return kw;
+                            })
+                            .filter((kw) => kw);
                     }
 
                     if (entry['内容'] && entry['内容'].includes(findText)) {
@@ -321,13 +322,15 @@ export function createReplaceModal(deps = {}) {
                         const entry = memory.result[category][entryName];
 
                         if (Array.isArray(entry['关键词'])) {
-                            entry['关键词'] = entry['关键词'].map((kw) => {
-                                if (kw.includes(findText)) {
-                                    count++;
-                                    return kw.replace(regex, replaceWith);
-                                }
-                                return kw;
-                            }).filter((kw) => kw);
+                            entry['关键词'] = entry['关键词']
+                                .map((kw) => {
+                                    if (kw.includes(findText)) {
+                                        count++;
+                                        return kw.replace(regex, replaceWith);
+                                    }
+                                    return kw;
+                                })
+                                .filter((kw) => kw);
                         }
 
                         if (entry['内容'] && entry['内容'].includes(findText)) {
@@ -406,7 +409,9 @@ export function createReplaceModal(deps = {}) {
             } else {
                 const highlightText = (text) => highlightEscapedText(text, findText);
 
-                const itemsHtml = preview.allMatches.map((match, idx) => `
+                const itemsHtml = preview.allMatches
+                    .map(
+                        (match, idx) => `
                     <div class="ttw-replace-item" data-index="${idx}" style="font-size:11px;margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:4px;border-left:3px solid #e67e22;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                             <div style="color:#888;font-size:10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtmlForDisplay(match.location)}">${escapeHtmlForDisplay(match.locationShort)}</div>
@@ -415,7 +420,9 @@ export function createReplaceModal(deps = {}) {
                         <div style="color:#e74c3c;text-decoration:line-through;word-break:break-all;margin-bottom:4px;">${highlightText(match.before)}</div>
                         <div style="color:#27ae60;word-break:break-all;">${escapeHtmlForDisplay(match.after)}</div>
                     </div>
-                `).join('');
+                `,
+                    )
+                    .join('');
 
                 previewDiv.innerHTML = `
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #444;">
@@ -435,7 +442,13 @@ export function createReplaceModal(deps = {}) {
                         if (!matchInfo) return;
 
                         const action = replaceWith ? `替换为"${replaceWith}"` : '删除';
-                        if (!await confirmAction(`确定要${action}此处的"${findText}"吗？\n\n位置: ${matchInfo.location}`, { title: '替换单项', danger: true })) return;
+                        if (
+                            !(await confirmAction(
+                                `确定要${action}此处的"${findText}"吗？\n\n位置: ${matchInfo.location}`,
+                                { title: '替换单项', danger: true },
+                            ))
+                        )
+                            return;
 
                         const success = executeSingleReplace(findText, replaceWith, matchInfo);
                         if (success) {
@@ -473,7 +486,12 @@ export function createReplaceModal(deps = {}) {
             }
 
             const action = replaceWith ? `替换为"${replaceWith}"` : '删除';
-            if (!await confirmAction(`确定要${action} ${preview.count} 处"${findText}"吗？\n\n此操作不可撤销！`, { title: '批量替换', danger: true })) {
+            if (
+                !(await confirmAction(`确定要${action} ${preview.count} 处"${findText}"吗？\n\n此操作不可撤销！`, {
+                    title: '批量替换',
+                    danger: true,
+                }))
+            ) {
                 return;
             }
 

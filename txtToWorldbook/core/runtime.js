@@ -89,11 +89,12 @@ export const TokenCache = {
         let hash = 0;
         const len = str.length;
         if (len === 0) return '0';
-        const sample = len < 500
-            ? str
-            : str.slice(0, 100) + str.slice(Math.floor(len / 2), Math.floor(len / 2) + 100) + str.slice(-100);
+        const sample =
+            len < 500
+                ? str
+                : str.slice(0, 100) + str.slice(Math.floor(len / 2), Math.floor(len / 2) + 100) + str.slice(-100);
         for (let i = 0; i < sample.length; i++) {
-            hash = ((hash << 5) - hash) + sample.charCodeAt(i);
+            hash = (hash << 5) - hash + sample.charCodeAt(i);
             hash &= hash;
         }
         return hash.toString(16) + '-' + len;

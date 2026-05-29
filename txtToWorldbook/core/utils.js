@@ -21,8 +21,8 @@
 export function chineseNumToInt(str) {
     if (/^\d+$/.test(str)) return parseInt(str, 10);
 
-    const numMap = { '零': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9 };
-    const unitMap = { '十': 10, '百': 100, '千': 1000, '万': 10000 };
+    const numMap = { 零: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+    const unitMap = { 十: 10, 百: 100, 千: 1000, 万: 10000 };
     let result = 0;
     let section = 0;
     let current = 0;
@@ -33,7 +33,7 @@ export function chineseNumToInt(str) {
         } else if (unitMap[ch] !== undefined) {
             const unit = unitMap[ch];
             if (unit === 10000) {
-                section = (current === 0 && section === 0) ? unit : (section + current) * unit;
+                section = current === 0 && section === 0 ? unit : (section + current) * unit;
                 result += section;
                 section = 0;
             } else {
@@ -63,9 +63,7 @@ export function buildWorldbookSummary(worldbook, maxTokens = 4000) {
         lines.push(`\n[${category}] (${entryNames.length}条):`);
         for (const name of entryNames) {
             const entry = entries[name];
-            const keywords = Array.isArray(entry?.['关键词'])
-                ? entry['关键词'].join(', ')
-                : '';
+            const keywords = Array.isArray(entry?.['关键词']) ? entry['关键词'].join(', ') : '';
             lines.push(keywords ? `  - ${name} (关键词: ${keywords})` : `  - ${name}`);
         }
     }

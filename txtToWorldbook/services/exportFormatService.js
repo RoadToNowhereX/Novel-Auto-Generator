@@ -24,7 +24,10 @@ export function createExportFormatService(deps = {}) {
                 categoryEntryIndex[category] = 0;
             }
 
-            for (const [itemName, itemData] of naturalSortEntryNames(Object.keys(categoryData)).map((name) => [name, categoryData[name]])) {
+            for (const [itemName, itemData] of naturalSortEntryNames(Object.keys(categoryData)).map((name) => [
+                name,
+                categoryData[name],
+            ])) {
                 if (typeof itemData !== 'object' || itemData === null) continue;
                 if (!(itemData.关键词 && itemData.内容)) continue;
 
@@ -79,7 +82,12 @@ export function createExportFormatService(deps = {}) {
 
         return {
             entries,
-            originalData: { name: '小说转换的世界书', description: '由TXT转世界书功能生成', version: 1, author: 'TxtToWorldbook' },
+            originalData: {
+                name: '小说转换的世界书',
+                description: '由TXT转世界书功能生成',
+                version: 1,
+                author: 'TxtToWorldbook',
+            },
         };
     }
 

@@ -1,13 +1,7 @@
 import { escapeHtmlForDisplay } from './renderer.js';
 
 export function createHistoryView(deps = {}) {
-    const {
-        AppState,
-        ModalFactory,
-        MemoryHistoryDB,
-        confirmAction,
-        ErrorHandler,
-    } = deps;
+    const { AppState, ModalFactory, MemoryHistoryDB, confirmAction, ErrorHandler } = deps;
 
     async function showHistoryView() {
         const existingModal = document.getElementById('ttw-history-modal');
@@ -21,9 +15,10 @@ export function createHistoryView(deps = {}) {
             console.warn('[TTW] 历史记录加载失败:', e.message);
         }
 
-        let listHtml = historyList.length === 0
-            ? '<div style="text-align:center;color:#888;padding:10px;font-size:11px;">暂无历史</div>'
-            : '';
+        let listHtml =
+            historyList.length === 0
+                ? '<div style="text-align:center;color:#888;padding:10px;font-size:11px;">暂无历史</div>'
+                : '';
 
         if (historyList.length > 0) {
             const sortedList = [...historyList].sort((a, b) => b.timestamp - a.timestamp);
@@ -67,7 +62,9 @@ export function createHistoryView(deps = {}) {
             maxWidth: '900px',
         });
 
-        historyModal.querySelector('#ttw-close-history').addEventListener('click', () => ModalFactory.close(historyModal));
+        historyModal
+            .querySelector('#ttw-close-history')
+            .addEventListener('click', () => ModalFactory.close(historyModal));
         historyModal.querySelector('#ttw-clear-history').addEventListener('click', async () => {
             if (await confirmAction('确定清空所有历史记录？', { title: '清空历史记录', danger: true })) {
                 await MemoryHistoryDB.clearAllHistory();
@@ -86,7 +83,8 @@ export function createHistoryView(deps = {}) {
                 item.classList.add('active');
 
                 if (!history) {
-                    detailContainer.innerHTML = '<div style="text-align:center;color:#e74c3c;padding:40px;">找不到记录</div>';
+                    detailContainer.innerHTML =
+                        '<div style="text-align:center;color:#e74c3c;padding:40px;">找不到记录</div>';
                     return;
                 }
 
@@ -103,7 +101,8 @@ export function createHistoryView(deps = {}) {
                 if (history.changedEntries && history.changedEntries.length > 0) {
                     history.changedEntries.forEach((change) => {
                         const typeIcon = change.type === 'add' ? '➕' : change.type === 'modify' ? '✏️' : '❌';
-                        const typeColor = change.type === 'add' ? '#27ae60' : change.type === 'modify' ? '#3498db' : '#e74c3c';
+                        const typeColor =
+                            change.type === 'add' ? '#27ae60' : change.type === 'modify' ? '#3498db' : '#e74c3c';
                         html += `<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px;margin-bottom:6px;border-left:3px solid ${typeColor};font-size:12px;">
 						<span style="color:${typeColor};">${typeIcon}</span>
 						<span style="color:#e67e22;margin-left:6px;">[${escapeHtmlForDisplay(change.category)}] ${escapeHtmlForDisplay(change.entryName)}</span>
@@ -122,7 +121,7 @@ export function createHistoryView(deps = {}) {
     }
 
     async function rollbackToHistory(historyId) {
-        if (!await confirmAction('确定回退到此版本？页面将刷新。', { title: '回退历史版本', danger: true })) return;
+        if (!(await confirmAction('确定回退到此版本？页面将刷新。', { title: '回退历史版本', danger: true }))) return;
 
         try {
             const history = await MemoryHistoryDB.rollbackToHistory(historyId);

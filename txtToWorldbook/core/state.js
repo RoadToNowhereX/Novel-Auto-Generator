@@ -12,19 +12,19 @@
         worldbook: {
             generated: {},
             volumes: [],
-            currentVolumeIndex: 0
+            currentVolumeIndex: 0,
         },
         memory: {
             queue: [],
             failedQueue: [],
             currentIndex: 0,
             startIndex: 0,
-            userSelectedIndex: null
+            userSelectedIndex: null,
         },
         file: {
             current: null,
             hash: null,
-            novelName: ''
+            novelName: '',
         },
         processing: {
             status: 'idle',
@@ -35,14 +35,14 @@
             incrementalMode: true,
             volumeMode: false,
             streamContent: '',
-            activeTasks: new Set()
+            activeTasks: new Set(),
         },
         ui: {
             isMultiSelectMode: false,
             selectedIndices: new Set(),
             searchKeyword: '',
             tokenThreshold: 0,
-            manualMergeHighlight: null
+            manualMergeHighlight: null,
         },
         config: {
             entryPosition: {},
@@ -50,14 +50,14 @@
             categoryDefault: {},
             plotOutline: { ...(defaultPlotOutlineConfig || {}) },
             parallel: { ...(defaultParallelConfig || {}) },
-            chapterRegex: { ...(defaultChapterRegex || {}) }
+            chapterRegex: { ...(defaultChapterRegex || {}) },
         },
         persistent: {
             defaultEntries: [],
             customCategories: JSON.parse(JSON.stringify(defaultWorldbookCategories || [])),
-            pendingImport: null
+            pendingImport: null,
         },
         settings: { ...(defaultSettings || {}) },
-        globalSemaphore: null
+        globalSemaphore: null,
     };
 }

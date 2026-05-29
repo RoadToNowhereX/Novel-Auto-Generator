@@ -1,14 +1,13 @@
 export function createParserService(deps = {}) {
-    const {
-        AppState,
-        debugLog,
-        getEnabledCategoryNames,
-    } = deps;
+    const { AppState, debugLog, getEnabledCategoryNames } = deps;
 
     function filterResponseContent(text) {
         if (!text) return text;
         const filterTagsStr = AppState.settings.filterResponseTags || 'thinking,/think';
-        const filterTags = filterTagsStr.split(',').map((t) => t.trim()).filter((t) => t);
+        const filterTags = filterTagsStr
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t);
         let cleaned = text;
         for (const tag of filterTags) {
             if (tag.startsWith('/')) {
@@ -89,7 +88,7 @@ export function createParserService(deps = {}) {
                     }
                 }
                 if (content || keywords.length > 0) {
-                    result[category][entryName] = { '关键词': keywords, '内容': content };
+                    result[category][entryName] = { 关键词: keywords, 内容: content };
                 }
             }
             if (Object.keys(result[category]).length === 0) delete result[category];
@@ -128,7 +127,13 @@ export function createParserService(deps = {}) {
                 while (j < jsonStr.length && /[\s\r\n]/.test(jsonStr[j])) j++;
                 const nextChar = jsonStr[j];
 
-                if (nextChar === ':' || nextChar === ',' || nextChar === '}' || nextChar === ']' || nextChar === undefined) {
+                if (
+                    nextChar === ':' ||
+                    nextChar === ',' ||
+                    nextChar === '}' ||
+                    nextChar === ']' ||
+                    nextChar === undefined
+                ) {
                     inString = false;
                     result += char;
                 } else {
@@ -244,7 +249,7 @@ export function createParserService(deps = {}) {
         const directResult = tryParse(directText);
         if (directResult.ok) return directResult.value;
 
-        let fenced = extractJsonCandidate(directText);
+        const fenced = extractJsonCandidate(directText);
 
         const fencedResult = tryParse(fenced);
         if (fencedResult.ok) return fencedResult.value;
@@ -262,7 +267,9 @@ export function createParserService(deps = {}) {
         }
 
         const summary = directText.slice(0, 200).replace(/\s+/g, ' ');
-        throw new Error(`JSON解析失败${strict ? '（已尝试自动修复）' : ''}。响应摘要: ${summary}${directText.length > 200 ? '...' : ''}`);
+        throw new Error(
+            `JSON解析失败${strict ? '（已尝试自动修复）' : ''}。响应摘要: ${summary}${directText.length > 200 ? '...' : ''}`,
+        );
     }
 
     return {

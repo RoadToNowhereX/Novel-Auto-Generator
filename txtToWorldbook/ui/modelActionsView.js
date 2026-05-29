@@ -1,10 +1,5 @@
 export function createModelActionsView(deps = {}) {
-    const {
-        saveCurrentSettings,
-        handleFetchModelList,
-        handleQuickTestModel,
-        Logger,
-    } = deps;
+    const { saveCurrentSettings, handleFetchModelList, handleQuickTestModel, Logger } = deps;
 
     function updateModelStatus(text, type) {
         const statusEl = document.getElementById('ttw-model-status');

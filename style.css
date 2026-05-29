@@ -30,50 +30,55 @@
     margin-bottom: 10px;
 }
 
-.nag-status-badge.stopped { 
-    background: rgba(150,150,150,0.3); 
-    color: #aaa; 
+.nag-status-badge.stopped {
+    background: rgba(150, 150, 150, 0.3);
+    color: #aaa;
 }
 
-.nag-status-badge.running { 
-    background: rgba(76,175,80,0.3); 
-    color: #4CAF50; 
-    animation: pulse 1.5s infinite; 
+.nag-status-badge.running {
+    background: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+    animation: pulse 1.5s infinite;
 }
 
-.nag-status-badge.paused { 
-    background: rgba(255,193,7,0.3); 
-    color: #FFC107; 
+.nag-status-badge.paused {
+    background: rgba(255, 193, 7, 0.3);
+    color: #ffc107;
 }
 
-@keyframes pulse { 
-    0%, 100% { opacity: 1; } 
-    50% { opacity: 0.7; } 
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
 }
 
-.nag-progress-container { 
-    margin: 10px 0; 
+.nag-progress-container {
+    margin: 10px 0;
 }
 
 .nag-progress-bar {
-    width: 100%; 
+    width: 100%;
     height: 20px;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     overflow: hidden;
 }
 
 .nag-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
     border-radius: 10px;
     transition: width 0.5s;
 }
 
-.nag-progress-text { 
-    margin-top: 5px; 
-    font-size: 13px; 
-    text-align: center; 
+.nag-progress-text {
+    margin-top: 5px;
+    font-size: 13px;
+    text-align: center;
 }
 
 .nag-stats-row {
@@ -89,8 +94,8 @@
    按钮
    ============================================ */
 
-.nag-controls { 
-    padding: 8px; 
+.nag-controls {
+    padding: 8px;
 }
 
 .nag-btn-row {
@@ -99,8 +104,8 @@
     margin-bottom: 6px;
 }
 
-.nag-btn-row:last-child { 
-    margin-bottom: 0; 
+.nag-btn-row:last-child {
+    margin-bottom: 0;
 }
 
 .nag-btn-row .menu_button {
@@ -110,9 +115,9 @@
     font-size: 12px;
 }
 
-.nag-btn-row .menu_button:disabled { 
-    opacity: 0.5; 
-    cursor: not-allowed; 
+.nag-btn-row .menu_button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* ============================================
@@ -130,15 +135,15 @@
     opacity: 0.9;
 }
 
-.nag-setting-item input[type="text"],
-.nag-setting-item input[type="number"],
+.nag-setting-item input[type='text'],
+.nag-setting-item input[type='number'],
 .nag-setting-item textarea,
 .nag-setting-item select {
     width: 100%;
     padding: 8px 10px;
     border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 6px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     color: #fff;
     font-size: 13px;
     box-sizing: border-box;
@@ -148,7 +153,7 @@
 .nag-setting-item textarea:focus,
 .nag-setting-item select:focus {
     outline: none;
-    border-color: #8BC34A;
+    border-color: #8bc34a;
 }
 
 .nag-setting-item input:disabled,
@@ -157,14 +162,14 @@
     cursor: not-allowed;
 }
 
-.nag-setting-item textarea { 
-    resize: vertical; 
-    min-height: 50px; 
+.nag-setting-item textarea {
+    resize: vertical;
+    min-height: 50px;
 }
 
-.nag-setting-item select option { 
-    background: #2a2a2a; 
-    color: #fff; 
+.nag-setting-item select option {
+    background: #2a2a2a;
+    color: #fff;
 }
 
 .nag-setting-row {
@@ -172,8 +177,8 @@
     gap: 10px;
 }
 
-.nag-setting-row .nag-setting-item { 
-    flex: 1; 
+.nag-setting-row .nag-setting-item {
+    flex: 1;
 }
 
 .nag-hint {
@@ -202,12 +207,12 @@
     padding: 6px 0;
 }
 
-.nag-checkbox-label input[type="checkbox"] {
+.nag-checkbox-label input[type='checkbox'] {
     width: 18px;
     height: 18px;
     margin: 0;
     cursor: pointer;
-    accent-color: #8BC34A;
+    accent-color: #8bc34a;
 }
 
 .nag-checkbox-label span {
@@ -226,7 +231,7 @@
     gap: 8px;
     margin-bottom: 12px;
     padding: 8px 12px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 6px;
     font-size: 13px;
 }
@@ -234,14 +239,14 @@
 .menu_button_icon {
     padding: 4px 8px;
     font-size: 12px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 4px;
     cursor: pointer;
 }
 
 .menu_button_icon:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 #nag-floor-inputs.disabled {
@@ -269,7 +274,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-bottom: 1px solid var(--SmartThemeBorderColor);
     font-size: 12px;
     font-weight: bold;
@@ -281,7 +286,7 @@
     overflow-y: auto;
     font-size: 12px;
     line-height: 1.5;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .nag-preview-source {
@@ -292,7 +297,7 @@
 
 .nag-preview-raw {
     padding: 8px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
     font-size: 11px;
     max-height: 60px;
@@ -304,7 +309,7 @@
 
 .nag-preview-text {
     padding: 8px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
     margin-top: 6px;
     word-break: break-word;
@@ -313,9 +318,15 @@
     overflow-y: auto;
 }
 
-.nag-preview-success { color: #8BC34A; }
-.nag-preview-warning { color: #FFC107; }
-.nag-preview-info { color: #64B5F6; }
+.nag-preview-success {
+    color: #8bc34a;
+}
+.nag-preview-warning {
+    color: #ffc107;
+}
+.nag-preview-info {
+    color: #64b5f6;
+}
 
 /* ============================================
    面板折叠
@@ -389,8 +400,14 @@
 }
 
 @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ============================================
@@ -440,7 +457,7 @@
 
 /* 不同模块的强调色 */
 .nag-module-send {
-    border-left: 3px solid #64B5F6;
+    border-left: 3px solid #64b5f6;
 }
 
 .nag-module-send .nag-module-header {
@@ -448,7 +465,7 @@
 }
 
 .nag-module-reply {
-    border-left: 3px solid #81C784;
+    border-left: 3px solid #81c784;
 }
 
 .nag-module-reply .nag-module-header {
@@ -456,7 +473,7 @@
 }
 
 .nag-module-control {
-    border-left: 3px solid #FFB74D;
+    border-left: 3px solid #ffb74d;
 }
 
 .nag-module-control .nag-module-header {
@@ -531,7 +548,6 @@
     isolation: isolate;
 }
 
-
 .nag-modal {
     background: var(--SmartThemeBlurTintColor, #1e1e2e);
     border: 1px solid var(--SmartThemeBorderColor, #555);
@@ -549,13 +565,13 @@
 }
 
 @keyframes nagModalAppear {
-    from { 
-        opacity: 0; 
-        transform: scale(0.95) translateY(-10px); 
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
     }
-    to { 
-        opacity: 1; 
-        transform: scale(1) translateY(0); 
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }
 
@@ -574,7 +590,7 @@
 .nag-modal-title {
     font-weight: bold;
     font-size: 14px;
-    color: #8BC34A;
+    color: #8bc34a;
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -620,7 +636,7 @@
 
 .nag-modal-body h4 {
     margin: 16px 0 8px 0;
-    color: #64B5F6;
+    color: #64b5f6;
     font-size: 13px;
 }
 
@@ -632,7 +648,7 @@
     margin: 8px 0;
 }
 
-.nag-modal-body ul, 
+.nag-modal-body ul,
 .nag-modal-body ol {
     margin: 8px 0;
     padding-left: 20px;
@@ -666,51 +682,50 @@
     .nag-modal-container {
         padding: 16px;
     }
-    
+
     .nag-modal {
         max-height: calc(100vh - 60px);
         max-height: calc(100dvh - 60px);
     }
-    
+
     .nag-modal-header {
         padding: 10px 14px;
     }
-    
+
     .nag-modal-title {
         font-size: 13px;
     }
-    
+
     .nag-modal-close {
         width: 36px;
         height: 36px;
         font-size: 18px;
     }
-    
+
     .nag-modal-body {
         padding: 14px;
         font-size: 14px;
     }
 }
 
-
 /* ============================================
    响应式布局
    ============================================ */
 
 @media (max-width: 500px) {
-    .nag-setting-row { 
-        flex-direction: column; 
-        gap: 0; 
+    .nag-setting-row {
+        flex-direction: column;
+        gap: 0;
     }
-    
-    .nag-btn-row { 
-        flex-wrap: wrap; 
+
+    .nag-btn-row {
+        flex-wrap: wrap;
     }
-    
-    .nag-btn-row .menu_button { 
-        min-width: calc(50% - 3px); 
+
+    .nag-btn-row .menu_button {
+        min-width: calc(50% - 3px);
     }
-    
+
     .nag-module-body .nag-setting-row {
         flex-direction: column;
         gap: 0;

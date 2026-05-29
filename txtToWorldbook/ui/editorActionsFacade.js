@@ -1,8 +1,5 @@
 export function createEditorActionsFacade(deps = {}) {
-    const {
-        categoryEditorModal,
-        defaultEntriesView,
-    } = deps;
+    const { categoryEditorModal, defaultEntriesView } = deps;
 
     function showAddCategoryModal() {
         if (!categoryEditorModal) return;

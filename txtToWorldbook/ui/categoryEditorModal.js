@@ -10,18 +10,20 @@ export function createCategoryEditorModal(deps = {}) {
 
     function showEditCategoryModal(editIndex) {
         const isEdit = editIndex !== null;
-        const cat = isEdit ? AppState.persistent.customCategories[editIndex] : {
-            name: '',
-            enabled: true,
-            isBuiltin: false,
-            entryExample: '',
-            keywordsExample: [],
-            contentGuide: '',
-            defaultPosition: 0,
-            defaultDepth: 4,
-            defaultOrder: 100,
-            autoIncrementOrder: false,
-        };
+        const cat = isEdit
+            ? AppState.persistent.customCategories[editIndex]
+            : {
+                  name: '',
+                  enabled: true,
+                  isBuiltin: false,
+                  entryExample: '',
+                  keywordsExample: [],
+                  contentGuide: '',
+                  defaultPosition: 0,
+                  defaultDepth: 4,
+                  defaultOrder: 100,
+                  autoIncrementOrder: false,
+              };
 
         const body = `
                     <div class="ttw-form-group">
@@ -91,10 +93,18 @@ export function createCategoryEditorModal(deps = {}) {
 
         modal.querySelector('#ttw-save-cat').addEventListener('click', async () => {
             const name = document.getElementById('ttw-cat-name').value.trim();
-            if (!name) { ErrorHandler.showUserError('请输入分类名称'); return; }
+            if (!name) {
+                ErrorHandler.showUserError('请输入分类名称');
+                return;
+            }
 
-            const duplicateIndex = AppState.persistent.customCategories.findIndex((c, i) => c.name === name && i !== editIndex);
-            if (duplicateIndex !== -1) { ErrorHandler.showUserError('该分类名称已存在'); return; }
+            const duplicateIndex = AppState.persistent.customCategories.findIndex(
+                (c, i) => c.name === name && i !== editIndex,
+            );
+            if (duplicateIndex !== -1) {
+                ErrorHandler.showUserError('该分类名称已存在');
+                return;
+            }
 
             const entryExample = document.getElementById('ttw-cat-entry-example').value.trim();
             const keywordsStr = document.getElementById('ttw-cat-keywords').value.trim();
@@ -104,7 +114,12 @@ export function createCategoryEditorModal(deps = {}) {
             const defaultOrder = parseInt(document.getElementById('ttw-cat-default-order').value, 10) || 100;
             const autoIncrementOrder = document.getElementById('ttw-cat-auto-increment').checked;
 
-            const keywordsExample = keywordsStr ? keywordsStr.split(/[,，]/).map((k) => k.trim()).filter((k) => k) : [];
+            const keywordsExample = keywordsStr
+                ? keywordsStr
+                      .split(/[,，]/)
+                      .map((k) => k.trim())
+                      .filter((k) => k)
+                : [];
 
             const newCat = {
                 name,

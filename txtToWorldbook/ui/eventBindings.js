@@ -127,11 +127,7 @@ export function bindExportEvents(deps = {}) {
 }
 
 export function bindFileEvents(deps = {}) {
-    const {
-        AppState,
-        handleFileSelect,
-        handleClearFile,
-    } = deps;
+    const { AppState, handleFileSelect, handleClearFile } = deps;
 
     const uploadArea = document.getElementById('ttw-upload-area');
     const fileInput = document.getElementById('ttw-file-input');
@@ -163,9 +159,7 @@ export function bindFileEvents(deps = {}) {
 }
 
 export function bindStreamEvents(deps = {}) {
-    const {
-        updateStreamContent,
-    } = deps;
+    const { updateStreamContent } = deps;
 
     document.getElementById('ttw-toggle-stream').addEventListener('click', () => {
         const container = document.getElementById('ttw-stream-container');
@@ -176,22 +170,29 @@ export function bindStreamEvents(deps = {}) {
     document.getElementById('ttw-copy-stream').addEventListener('click', () => {
         const streamEl = document.getElementById('ttw-stream-content');
         if (streamEl && streamEl.textContent) {
-            navigator.clipboard.writeText(streamEl.textContent).then(() => {
-                const btn = document.getElementById('ttw-copy-stream');
-                const orig = btn.textContent;
-                btn.textContent = '✅ 已复制';
-                setTimeout(() => { btn.textContent = orig; }, 1500);
-            }).catch(() => {
-                const ta = document.createElement('textarea');
-                ta.value = streamEl.textContent;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                const btn = document.getElementById('ttw-copy-stream');
-                btn.textContent = '✅ 已复制';
-                setTimeout(() => { btn.textContent = '📋 复制全部'; }, 1500);
-            });
+            navigator.clipboard
+                .writeText(streamEl.textContent)
+                .then(() => {
+                    const btn = document.getElementById('ttw-copy-stream');
+                    const orig = btn.textContent;
+                    btn.textContent = '✅ 已复制';
+                    setTimeout(() => {
+                        btn.textContent = orig;
+                    }, 1500);
+                })
+                .catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = streamEl.textContent;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    const btn = document.getElementById('ttw-copy-stream');
+                    btn.textContent = '✅ 已复制';
+                    setTimeout(() => {
+                        btn.textContent = '📋 复制全部';
+                    }, 1500);
+                });
         }
     });
 
@@ -226,24 +227,108 @@ export function bindSettingEvents(deps = {}) {
     } = deps;
 
     EventDelegate.batchOn(modalContainer, {
-        '#ttw-use-tavern-api': { change: () => { handleUseTavernApiChange(); saveCurrentSettings(); } },
-        '#ttw-api-provider': { change: () => { handleProviderChange(); saveCurrentSettings(); } },
-        '#ttw-model-select': { change: (e) => { if (e.target.value) { document.getElementById('ttw-api-model').value = e.target.value; saveCurrentSettings(); } } },
+        '#ttw-use-tavern-api': {
+            change: () => {
+                handleUseTavernApiChange();
+                saveCurrentSettings();
+            },
+        },
+        '#ttw-api-provider': {
+            change: () => {
+                handleProviderChange();
+                saveCurrentSettings();
+            },
+        },
+        '#ttw-model-select': {
+            change: (e) => {
+                if (e.target.value) {
+                    document.getElementById('ttw-api-model').value = e.target.value;
+                    saveCurrentSettings();
+                }
+            },
+        },
         '#ttw-fetch-models': { click: handleFetchModels },
         '#ttw-quick-test': { click: handleQuickTest },
-        '#ttw-parallel-enabled': { change: (e) => { AppState.config.parallel.enabled = e.target.checked; saveCurrentSettings(); } },
-        '#ttw-parallel-concurrency': { change: (e) => { AppState.config.parallel.concurrency = Math.max(1, Math.min(10, parseInt(e.target.value, 10) || 3)); e.target.value = AppState.config.parallel.concurrency; saveCurrentSettings(); } },
-        '#ttw-parallel-mode': { change: (e) => { AppState.config.parallel.mode = e.target.value; saveCurrentSettings(); } },
-        '#ttw-volume-mode': { change: (e) => { AppState.processing.volumeMode = e.target.checked; const indicator = document.getElementById('ttw-volume-indicator'); if (indicator) indicator.style.display = AppState.processing.volumeMode ? 'block' : 'none'; } },
+        '#ttw-parallel-enabled': {
+            change: (e) => {
+                AppState.config.parallel.enabled = e.target.checked;
+                saveCurrentSettings();
+            },
+        },
+        '#ttw-parallel-concurrency': {
+            change: (e) => {
+                AppState.config.parallel.concurrency = Math.max(1, Math.min(10, parseInt(e.target.value, 10) || 3));
+                e.target.value = AppState.config.parallel.concurrency;
+                saveCurrentSettings();
+            },
+        },
+        '#ttw-parallel-mode': {
+            change: (e) => {
+                AppState.config.parallel.mode = e.target.value;
+                saveCurrentSettings();
+            },
+        },
+        '#ttw-volume-mode': {
+            change: (e) => {
+                AppState.processing.volumeMode = e.target.checked;
+                const indicator = document.getElementById('ttw-volume-indicator');
+                if (indicator) indicator.style.display = AppState.processing.volumeMode ? 'block' : 'none';
+            },
+        },
         '#ttw-rechunk-btn': { click: rechunkMemories },
         '#ttw-add-category': { click: showAddCategoryModal },
-        '#ttw-reset-categories': { click: async () => { if (await confirmAction('确定重置为默认分类配置吗？这将清除所有自定义分类。', { title: '重置分类', danger: true })) { await resetToDefaultCategories(); renderCategoriesList(); } } },
+        '#ttw-reset-categories': {
+            click: async () => {
+                if (
+                    await confirmAction('确定重置为默认分类配置吗？这将清除所有自定义分类。', {
+                        title: '重置分类',
+                        danger: true,
+                    })
+                ) {
+                    await resetToDefaultCategories();
+                    renderCategoriesList();
+                }
+            },
+        },
         '#ttw-add-default-entry': { click: showAddDefaultEntryModal },
-        '#ttw-apply-default-entries': { click: () => { saveDefaultWorldbookEntriesUI(); const applied = applyDefaultWorldbookEntries(); if (applied) { showResultSection(true); updateWorldbookPreview(); ErrorHandler.showUserSuccess('默认世界书条目已应用！'); } else { ErrorHandler.showUserError('没有默认世界书条目'); } } },
-        '#ttw-chapter-regex': { change: (e) => { AppState.config.chapterRegex.pattern = e.target.value; saveCurrentSettings(); } },
+        '#ttw-apply-default-entries': {
+            click: () => {
+                saveDefaultWorldbookEntriesUI();
+                const applied = applyDefaultWorldbookEntries();
+                if (applied) {
+                    showResultSection(true);
+                    updateWorldbookPreview();
+                    ErrorHandler.showUserSuccess('默认世界书条目已应用！');
+                } else {
+                    ErrorHandler.showUserError('没有默认世界书条目');
+                }
+            },
+        },
+        '#ttw-chapter-regex': {
+            change: (e) => {
+                AppState.config.chapterRegex.pattern = e.target.value;
+                saveCurrentSettings();
+            },
+        },
         '#ttw-test-chapter-regex': { click: testChapterRegex },
-        '.ttw-chapter-preset': { click: (e, btn) => { const regex = btn.dataset.regex; document.getElementById('ttw-chapter-regex').value = regex; AppState.config.chapterRegex.pattern = regex; saveCurrentSettings(); } },
-        '.ttw-reset-prompt': { click: (e, btn) => { const type = btn.getAttribute('data-type'); const textarea = document.getElementById(`ttw-${type}-prompt`); if (textarea) { textarea.value = ''; saveCurrentSettings(); } } }
+        '.ttw-chapter-preset': {
+            click: (e, btn) => {
+                const regex = btn.dataset.regex;
+                document.getElementById('ttw-chapter-regex').value = regex;
+                AppState.config.chapterRegex.pattern = regex;
+                saveCurrentSettings();
+            },
+        },
+        '.ttw-reset-prompt': {
+            click: (e, btn) => {
+                const type = btn.getAttribute('data-type');
+                const textarea = document.getElementById(`ttw-${type}-prompt`);
+                if (textarea) {
+                    textarea.value = '';
+                    saveCurrentSettings();
+                }
+            },
+        },
     });
 
     ['ttw-api-key', 'ttw-api-endpoint', 'ttw-api-model', 'ttw-chunk-size', 'ttw-api-timeout'].forEach((id) => {
@@ -251,16 +336,21 @@ export function bindSettingEvents(deps = {}) {
         if (el) el.addEventListener('change', saveCurrentSettings);
     });
 
-    ['ttw-incremental-mode', 'ttw-volume-mode', 'ttw-enable-plot', 'ttw-enable-style', 'ttw-force-chapter-marker', 'ttw-allow-recursion'].forEach((id) => {
+    [
+        'ttw-incremental-mode',
+        'ttw-volume-mode',
+        'ttw-enable-plot',
+        'ttw-enable-style',
+        'ttw-force-chapter-marker',
+        'ttw-allow-recursion',
+    ].forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', saveCurrentSettings);
     });
 }
 
 export function bindPromptEvents(deps = {}) {
-    const {
-        saveCurrentSettings,
-    } = deps;
+    const { saveCurrentSettings } = deps;
 
     ['ttw-worldbook-prompt', 'ttw-plot-prompt', 'ttw-style-prompt', 'ttw-suffix-prompt'].forEach((id) => {
         const el = document.getElementById(id);
@@ -269,12 +359,7 @@ export function bindPromptEvents(deps = {}) {
 }
 
 export function bindMessageChainEvents(deps = {}) {
-    const {
-        AppState,
-        renderMessageChainUI,
-        saveCurrentSettings,
-        confirmAction,
-    } = deps;
+    const { AppState, renderMessageChainUI, saveCurrentSettings, confirmAction } = deps;
 
     renderMessageChainUI();
     document.getElementById('ttw-add-chain-msg').addEventListener('click', () => {
@@ -307,12 +392,16 @@ function toggleCollapsePanel(contentId, header) {
 export function bindCollapsePanelEvents() {
     const categoriesHeader = document.querySelector('[data-target="ttw-categories-content"]');
     if (categoriesHeader) {
-        categoriesHeader.addEventListener('click', () => toggleCollapsePanel('ttw-categories-content', categoriesHeader));
+        categoriesHeader.addEventListener('click', () =>
+            toggleCollapsePanel('ttw-categories-content', categoriesHeader),
+        );
     }
 
     const defaultEntriesHeader = document.querySelector('[data-target="ttw-default-entries-content"]');
     if (defaultEntriesHeader) {
-        defaultEntriesHeader.addEventListener('click', () => toggleCollapsePanel('ttw-default-entries-content', defaultEntriesHeader));
+        defaultEntriesHeader.addEventListener('click', () =>
+            toggleCollapsePanel('ttw-default-entries-content', defaultEntriesHeader),
+        );
     }
 
     document.querySelectorAll('.ttw-prompt-header[data-target]').forEach((header) => {
@@ -326,12 +415,7 @@ export function bindCollapsePanelEvents() {
 }
 
 export function bindModalBasicEvents(deps = {}) {
-    const {
-        modalContainer,
-        closeModal,
-        showHelpModal,
-        handleEscKey,
-    } = deps;
+    const { modalContainer, closeModal, showHelpModal, handleEscKey } = deps;
 
     const modal = modalContainer.querySelector('.ttw-modal');
     if (!modal) return;

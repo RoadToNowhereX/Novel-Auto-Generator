@@ -1,8 +1,5 @@
 export function createRerollBridge(deps = {}) {
-    const {
-        getRerollService,
-        getRerollModals,
-    } = deps;
+    const { getRerollService, getRerollModals } = deps;
 
     async function handleRerollMemory(index, customPrompt = '') {
         return getRerollService().handleRerollMemory(index, customPrompt);

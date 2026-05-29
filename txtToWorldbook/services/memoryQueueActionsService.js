@@ -1,11 +1,5 @@
 export function createMemoryQueueActionsService(deps = {}) {
-    const {
-        AppState,
-        ErrorHandler,
-        confirmAction,
-        updateMemoryQueueUI,
-        updateStartButtonState,
-    } = deps;
+    const { AppState, ErrorHandler, confirmAction, updateMemoryQueueUI, updateStartButtonState } = deps;
 
     function normalizeUntitledMemories() {
         AppState.memory.queue.forEach((memory, index) => {
@@ -67,8 +61,20 @@ export function createMemoryQueueActionsService(deps = {}) {
             suffix2 = '-2';
         }
 
-        const memory1 = { title: baseName + suffix1, content: content1, processed: false, failed: false, failedError: null };
-        const memory2 = { title: baseName + suffix2, content: content2, processed: false, failed: false, failedError: null };
+        const memory1 = {
+            title: baseName + suffix1,
+            content: content1,
+            processed: false,
+            failed: false,
+            failedError: null,
+        };
+        const memory2 = {
+            title: baseName + suffix2,
+            content: content2,
+            processed: false,
+            failed: false,
+            failedError: null,
+        };
         AppState.memory.queue.splice(memoryIndex, 1, memory1, memory2);
         return { part1: memory1, part2: memory2 };
     }
@@ -77,7 +83,7 @@ export function createMemoryQueueActionsService(deps = {}) {
         if (index < 0 || index >= AppState.memory.queue.length) return;
         const memory = AppState.memory.queue[index];
 
-        if (!await confirmAction(`确定要删除 "${memory.title}" 吗？`, { title: '删除章节', danger: true })) {
+        if (!(await confirmAction(`确定要删除 "${memory.title}" 吗？`, { title: '删除章节', danger: true }))) {
             return;
         }
 
@@ -94,13 +100,15 @@ export function createMemoryQueueActionsService(deps = {}) {
             return;
         }
 
-        const hasProcessed = [...AppState.ui.selectedIndices].some((index) => AppState.memory.queue[index]?.processed && !AppState.memory.queue[index]?.failed);
+        const hasProcessed = [...AppState.ui.selectedIndices].some(
+            (index) => AppState.memory.queue[index]?.processed && !AppState.memory.queue[index]?.failed,
+        );
         let confirmMsg = `确定要删除选中的 ${AppState.ui.selectedIndices.size} 个章节吗？`;
         if (hasProcessed) {
             confirmMsg += '\n\n⚠️ 警告：选中的章节中包含已处理的章节，删除后相关的世界书数据不会自动更新！';
         }
 
-        if (!await confirmAction(confirmMsg, { title: '批量删除章节', danger: true })) {
+        if (!(await confirmAction(confirmMsg, { title: '批量删除章节', danger: true }))) {
             return;
         }
 
@@ -110,9 +118,15 @@ export function createMemoryQueueActionsService(deps = {}) {
         }
 
         normalizeUntitledMemories();
-        AppState.memory.startIndex = Math.min(AppState.memory.startIndex, Math.max(0, AppState.memory.queue.length - 1));
+        AppState.memory.startIndex = Math.min(
+            AppState.memory.startIndex,
+            Math.max(0, AppState.memory.queue.length - 1),
+        );
         if (AppState.memory.userSelectedIndex !== null) {
-            AppState.memory.userSelectedIndex = Math.min(AppState.memory.userSelectedIndex, Math.max(0, AppState.memory.queue.length - 1));
+            AppState.memory.userSelectedIndex = Math.min(
+                AppState.memory.userSelectedIndex,
+                Math.max(0, AppState.memory.queue.length - 1),
+            );
         }
 
         AppState.ui.selectedIndices.clear();

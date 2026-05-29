@@ -36,16 +36,19 @@ export function createMergeWorkflowService(deps = {}) {
         saveWorldbookSnapshot,
     } = deps;
 
-    const mergedService = mergeService || (createMergeService && createMergeService({
-        AppState,
-        Logger,
-        getAllVolumesWorldbook,
-        getLanguagePrefix,
-        updateStreamContent,
-        Semaphore,
-        callAPI,
-        parseAIResponse,
-    }));
+    const mergedService =
+        mergeService ||
+        (createMergeService &&
+            createMergeService({
+                AppState,
+                Logger,
+                getAllVolumesWorldbook,
+                getLanguagePrefix,
+                updateStreamContent,
+                Semaphore,
+                callAPI,
+                parseAIResponse,
+            }));
 
     if (!mergedService) {
         throw new Error('createMergeWorkflowService requires mergeService or createMergeService deps');
@@ -69,16 +72,14 @@ export function createMergeWorkflowService(deps = {}) {
             // 整理条目允许纯文本输出，JSON解析失败时保留清洗后的文本。
         }
 
-        return text
-            .replace(/^整理后的内容[:：]\s*/i, '')
-            .trim();
+        return text.replace(/^整理后的内容[:：]\s*/i, '').trim();
     }
 
     async function consolidateEntry(category, entryName, promptTemplate) {
         const entry = AppState.worldbook.generated[category]?.[entryName];
         if (!entry || !entry['内容']) return;
 
-        const template = (promptTemplate && promptTemplate.trim()) ? promptTemplate.trim() : defaultConsolidatePrompt;
+        const template = promptTemplate && promptTemplate.trim() ? promptTemplate.trim() : defaultConsolidatePrompt;
         const prompt = template.replace('{CONTENT}', entry['内容']);
         const response = await callAPI(getLanguagePrefix() + prompt);
         const finalContent = cleanConsolidateResponse(response);
@@ -114,7 +115,9 @@ export function createMergeWorkflowService(deps = {}) {
             let entriesListHtml = '';
             entryNames.forEach((name) => {
                 const isFailed = lastConsolidateFailedEntries.some((e) => e.category === cat && e.name === name);
-                const failedBadge = isFailed ? '<span style="color:#e74c3c;font-size:9px;margin-left:4px;">❗失败</span>' : '';
+                const failedBadge = isFailed
+                    ? '<span style="color:#e74c3c;font-size:9px;margin-left:4px;">❗失败</span>'
+                    : '';
                 const entryTokens = getEntryTotalTokens(AppState.worldbook.generated[cat][name]);
                 entriesListHtml += `
 			<label style="display:flex;align-items:center;gap:6px;padding:3px 6px;font-size:11px;cursor:pointer;">
@@ -128,7 +131,9 @@ export function createMergeWorkflowService(deps = {}) {
             const hasFailedInCat = lastConsolidateFailedEntries.some((e) => e.category === cat);
 
             let catTotalTokens = 0;
-            entryNames.forEach((name) => { catTotalTokens += getEntryTotalTokens(AppState.worldbook.generated[cat][name]); });
+            entryNames.forEach((name) => {
+                catTotalTokens += getEntryTotalTokens(AppState.worldbook.generated[cat][name]);
+            });
 
             const presets = AppState.settings.consolidatePromptPresets || [];
             const currentPreset = (AppState.settings.consolidateCategoryPresetMap || {})[cat] || '默认';
@@ -177,14 +182,18 @@ export function createMergeWorkflowService(deps = {}) {
 			</div>
 			<div id="ttw-consolidate-presets-list" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;"></div>
 		</div>
-		${hasAnyFailed ? `
+		${
+            hasAnyFailed
+                ? `
 		<div style="margin-bottom:12px;padding:10px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:6px;">
 			<div style="display:flex;justify-content:space-between;align-items:center;">
 				<span style="color:#e74c3c;font-weight:bold;font-size:12px;">❗ 上次有 ${lastConsolidateFailedEntries.length} 个条目失败</span>
 				<button class="ttw-btn ttw-btn-small ttw-btn-warning" id="ttw-select-all-failed">🔧 只选失败项</button>
 			</div>
 		</div>
-		` : ''}
+		`
+                : ''
+        }
 		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
 			<span style="font-weight:bold;">选择分类和条目 <span id="ttw-consolidate-selected-count" style="color:#888;font-size:11px;font-weight:normal;"></span></span>
 			<div style="display:flex;gap:8px;">
@@ -248,14 +257,18 @@ export function createMergeWorkflowService(deps = {}) {
         modal.querySelectorAll('.ttw-select-all-entries').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const cat = btn.dataset.category;
-                modal.querySelectorAll(`.ttw-consolidate-entry-cb[data-category="${cat}"]`).forEach((cb) => { cb.checked = true; });
+                modal.querySelectorAll(`.ttw-consolidate-entry-cb[data-category="${cat}"]`).forEach((cb) => {
+                    cb.checked = true;
+                });
                 updateSelectedCount();
             });
         });
         modal.querySelectorAll('.ttw-deselect-all-entries').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const cat = btn.dataset.category;
-                modal.querySelectorAll(`.ttw-consolidate-entry-cb[data-category="${cat}"]`).forEach((cb) => { cb.checked = false; });
+                modal.querySelectorAll(`.ttw-consolidate-entry-cb[data-category="${cat}"]`).forEach((cb) => {
+                    cb.checked = false;
+                });
                 updateSelectedCount();
             });
         });
@@ -263,7 +276,9 @@ export function createMergeWorkflowService(deps = {}) {
             btn.addEventListener('click', () => {
                 const cat = btn.dataset.category;
                 modal.querySelectorAll(`.ttw-consolidate-entry-cb[data-category="${cat}"]`).forEach((cb) => {
-                    const isFailed = lastConsolidateFailedEntries.some((e) => e.category === cat && e.name === cb.dataset.entry);
+                    const isFailed = lastConsolidateFailedEntries.some(
+                        (e) => e.category === cat && e.name === cb.dataset.entry,
+                    );
                     cb.checked = isFailed;
                 });
                 updateSelectedCount();
@@ -286,10 +301,16 @@ export function createMergeWorkflowService(deps = {}) {
         const selectAllFailedBtn = modal.querySelector('#ttw-select-all-failed');
         if (selectAllFailedBtn) {
             selectAllFailedBtn.addEventListener('click', () => {
-                modal.querySelectorAll('.ttw-consolidate-entry-cb').forEach((cb) => { cb.checked = false; });
-                modal.querySelectorAll('.ttw-consolidate-cat-cb').forEach((cb) => { cb.checked = false; });
+                modal.querySelectorAll('.ttw-consolidate-entry-cb').forEach((cb) => {
+                    cb.checked = false;
+                });
+                modal.querySelectorAll('.ttw-consolidate-cat-cb').forEach((cb) => {
+                    cb.checked = false;
+                });
                 lastConsolidateFailedEntries.forEach((failed) => {
-                    const cb = modal.querySelector(`.ttw-consolidate-entry-cb[data-category="${failed.category}"][data-entry="${failed.name}"]`);
+                    const cb = modal.querySelector(
+                        `.ttw-consolidate-entry-cb[data-category="${failed.category}"][data-entry="${failed.name}"]`,
+                    );
                     if (cb) cb.checked = true;
                 });
                 updateSelectedCount();
@@ -301,7 +322,7 @@ export function createMergeWorkflowService(deps = {}) {
         function getPresetPromptByName(name) {
             if (!name || name === '默认') return defaultConsolidatePrompt;
             const preset = (AppState.settings.consolidatePromptPresets || []).find((p) => p.name === name);
-            return (preset && preset.prompt && preset.prompt.trim()) ? preset.prompt : defaultConsolidatePrompt;
+            return preset && preset.prompt && preset.prompt.trim() ? preset.prompt : defaultConsolidatePrompt;
         }
 
         function renderPresetsListUI() {
@@ -353,18 +374,33 @@ export function createMergeWorkflowService(deps = {}) {
             });
 
             container.querySelectorAll('.ttw-consolidate-preset-name').forEach((input) => {
-                input.addEventListener('focus', () => { input.style.borderColor = '#e67e22'; });
+                input.addEventListener('focus', () => {
+                    input.style.borderColor = '#e67e22';
+                });
                 input.addEventListener('blur', () => {
                     input.style.borderColor = 'transparent';
                     const idx = parseInt(input.dataset.presetIndex, 10);
                     const newName = input.value.trim();
-                    if (!newName) { input.value = presets[idx].name; return; }
-                    if (newName === '默认') { ErrorHandler.showUserError('不能使用"默认"作为预设名'); input.value = presets[idx].name; return; }
-                    if (presets.some((p, i) => i !== idx && p.name === newName)) { ErrorHandler.showUserError('预设名已存在'); input.value = presets[idx].name; return; }
+                    if (!newName) {
+                        input.value = presets[idx].name;
+                        return;
+                    }
+                    if (newName === '默认') {
+                        ErrorHandler.showUserError('不能使用"默认"作为预设名');
+                        input.value = presets[idx].name;
+                        return;
+                    }
+                    if (presets.some((p, i) => i !== idx && p.name === newName)) {
+                        ErrorHandler.showUserError('预设名已存在');
+                        input.value = presets[idx].name;
+                        return;
+                    }
                     const oldName = presets[idx].name;
                     presets[idx].name = newName;
                     const map = AppState.settings.consolidateCategoryPresetMap || {};
-                    Object.keys(map).forEach((cat) => { if (map[cat] === oldName) map[cat] = newName; });
+                    Object.keys(map).forEach((cat) => {
+                        if (map[cat] === oldName) map[cat] = newName;
+                    });
                     AppState.settings.consolidatePromptPresets = presets;
                     saveCurrentSettings();
                     refreshCategoryPresetDropdowns();
@@ -384,11 +420,17 @@ export function createMergeWorkflowService(deps = {}) {
                 btn.addEventListener('click', async () => {
                     const idx = parseInt(btn.dataset.presetIndex, 10);
                     const deletedName = presets[idx].name;
-                    const confirmed = await ModalFactory.confirm({ title: '删除预设', message: `确定删除预设「${deletedName}」？`, danger: true });
+                    const confirmed = await ModalFactory.confirm({
+                        title: '删除预设',
+                        message: `确定删除预设「${deletedName}」？`,
+                        danger: true,
+                    });
                     if (!confirmed) return;
                     presets.splice(idx, 1);
                     const map = AppState.settings.consolidateCategoryPresetMap || {};
-                    Object.keys(map).forEach((cat) => { if (map[cat] === deletedName) delete map[cat]; });
+                    Object.keys(map).forEach((cat) => {
+                        if (map[cat] === deletedName) delete map[cat];
+                    });
                     AppState.settings.consolidatePromptPresets = presets;
                     saveCurrentSettings();
                     renderPresetsListUI();
@@ -412,12 +454,23 @@ export function createMergeWorkflowService(deps = {}) {
         }
 
         modal.querySelector('#ttw-consolidate-add-preset').addEventListener('click', async () => {
-            const name = await promptAction({ title: '添加预设', message: '输入预设名称:', placeholder: '例如：角色整理', defaultValue: '' });
+            const name = await promptAction({
+                title: '添加预设',
+                message: '输入预设名称:',
+                placeholder: '例如：角色整理',
+                defaultValue: '',
+            });
             if (!name || !name.trim()) return;
             const trimmedName = name.trim();
-            if (trimmedName === '默认') { ErrorHandler.showUserError('不能使用"默认"作为预设名'); return; }
+            if (trimmedName === '默认') {
+                ErrorHandler.showUserError('不能使用"默认"作为预设名');
+                return;
+            }
             if (!AppState.settings.consolidatePromptPresets) AppState.settings.consolidatePromptPresets = [];
-            if (AppState.settings.consolidatePromptPresets.some((p) => p.name === trimmedName)) { ErrorHandler.showUserError('预设名已存在'); return; }
+            if (AppState.settings.consolidatePromptPresets.some((p) => p.name === trimmedName)) {
+                ErrorHandler.showUserError('预设名已存在');
+                return;
+            }
             AppState.settings.consolidatePromptPresets.push({ name: trimmedName, prompt: '' });
             saveCurrentSettings();
             renderPresetsListUI();
@@ -432,7 +485,8 @@ export function createMergeWorkflowService(deps = {}) {
         modal.querySelectorAll('.ttw-consolidate-cat-preset').forEach((select) => {
             select.addEventListener('change', () => {
                 const cat = select.dataset.category;
-                if (!AppState.settings.consolidateCategoryPresetMap) AppState.settings.consolidateCategoryPresetMap = {};
+                if (!AppState.settings.consolidateCategoryPresetMap)
+                    AppState.settings.consolidateCategoryPresetMap = {};
                 if (select.value === '默认') {
                     delete AppState.settings.consolidateCategoryPresetMap[cat];
                 } else {
@@ -465,8 +519,15 @@ export function createMergeWorkflowService(deps = {}) {
                 const pName = pSelect ? pSelect.value : '默认';
                 presetUsage[pName] = (presetUsage[pName] || 0) + 1;
             });
-            const usageSummary = Object.entries(presetUsage).map(([k, v]) => `「${k}」${v}条`).join('，');
-            if (!await confirmAction(`确定要整理 ${selectedEntries.length} 个条目吗？\n\n预设分配：${usageSummary}`, { title: '整理条目' })) return;
+            const usageSummary = Object.entries(presetUsage)
+                .map(([k, v]) => `「${k}」${v}条`)
+                .join('，');
+            if (
+                !(await confirmAction(`确定要整理 ${selectedEntries.length} 个条目吗？\n\n预设分配：${usageSummary}`, {
+                    title: '整理条目',
+                }))
+            )
+                return;
             modal.remove();
             await consolidateSelectedEntries(selectedEntries);
         });
@@ -509,12 +570,18 @@ export function createMergeWorkflowService(deps = {}) {
                 updateStreamContent(`📝 [${index + 1}/${entries.length}] ${entry.category} - ${entry.name}\n`);
                 await consolidateEntry(entry.category, entry.name, entry.promptTemplate);
                 completed++;
-                updateProgress(((completed + failed) / entries.length) * 100, `整理中 (${completed}✅ ${failed}❌ / ${entries.length})`);
+                updateProgress(
+                    ((completed + failed) / entries.length) * 100,
+                    `整理中 (${completed}✅ ${failed}❌ / ${entries.length})`,
+                );
                 updateStreamContent('   ✅ 完成\n');
             } catch (error) {
                 failed++;
                 failedEntries.push({ category: entry.category, name: entry.name, error: error.message });
-                updateProgress(((completed + failed) / entries.length) * 100, `整理中 (${completed}✅ ${failed}❌ / ${entries.length})`);
+                updateProgress(
+                    ((completed + failed) / entries.length) * 100,
+                    `整理中 (${completed}✅ ${failed}❌ / ${entries.length})`,
+                );
                 updateStreamContent(`   ❌ 失败: ${error.message}\n`);
             } finally {
                 semaphore.release();
@@ -579,7 +646,9 @@ export function createMergeWorkflowService(deps = {}) {
                 const sourceInfo = mergedService.resolveDisplayedEntrySource(cat, name);
                 const entry = sourceInfo?.entry || entries[name];
                 const sourceType = sourceInfo?.sourceType || 'generated';
-                const volumeIndex = Number.isInteger(sourceInfo?.volumeIndex) ? sourceInfo.volumeIndex : AppState.worldbook.currentVolumeIndex;
+                const volumeIndex = Number.isInteger(sourceInfo?.volumeIndex)
+                    ? sourceInfo.volumeIndex
+                    : AppState.worldbook.currentVolumeIndex;
                 const actualName = sourceInfo?.actualName || name;
                 const keywords = Array.isArray(entry?.['关键词']) ? entry['关键词'].slice(0, 4).join(', ') : '';
                 const tokenCount = getEntryTotalTokens(entry);
@@ -646,7 +715,9 @@ export function createMergeWorkflowService(deps = {}) {
             const btn = modal.querySelector('#ttw-mm-expand-all');
             const allCatBodies = modal.querySelectorAll('.ttw-mm-category > div:nth-child(2)');
             const anyHidden = [...allCatBodies].some((d) => d.style.display === 'none');
-            allCatBodies.forEach((d) => { d.style.display = anyHidden ? 'block' : 'none'; });
+            allCatBodies.forEach((d) => {
+                d.style.display = anyHidden ? 'block' : 'none';
+            });
             btn.textContent = anyHidden ? '全部收起' : '全部展开';
         });
 
@@ -658,7 +729,9 @@ export function createMergeWorkflowService(deps = {}) {
             if (keyword) {
                 modal.querySelectorAll('.ttw-mm-category').forEach((catDiv) => {
                     const body = catDiv.querySelector('div:nth-child(2)');
-                    const hasVisible = [...body.querySelectorAll('.ttw-mm-entry-label')].some((l) => l.style.display !== 'none');
+                    const hasVisible = [...body.querySelectorAll('.ttw-mm-entry-label')].some(
+                        (l) => l.style.display !== 'none',
+                    );
                     if (hasVisible) body.style.display = 'block';
                 });
             }
@@ -677,11 +750,13 @@ export function createMergeWorkflowService(deps = {}) {
                 bar.style.display = 'block';
                 modal.querySelector('#ttw-mm-selected-count').textContent = count;
 
-                const listHtml = checked.map((cb) => {
-                    const cat = cb.dataset.category;
-                    const name = cb.dataset.entry;
-                    return `<span style="display:inline-block;padding:2px 8px;background:rgba(155,89,182,0.3);border-radius:4px;margin:2px;font-size:11px;">[${cat}] ${name}</span>`;
-                }).join('');
+                const listHtml = checked
+                    .map((cb) => {
+                        const cat = cb.dataset.category;
+                        const name = cb.dataset.entry;
+                        return `<span style="display:inline-block;padding:2px 8px;background:rgba(155,89,182,0.3);border-radius:4px;margin:2px;font-size:11px;">[${cat}] ${name}</span>`;
+                    })
+                    .join('');
                 modal.querySelector('#ttw-mm-selected-list').innerHTML = listHtml;
             } else {
                 bar.style.display = 'none';
@@ -696,7 +771,9 @@ export function createMergeWorkflowService(deps = {}) {
         });
 
         modal.querySelector('#ttw-mm-clear-selection').addEventListener('click', () => {
-            modal.querySelectorAll('.ttw-mm-entry-cb:checked').forEach((cb) => { cb.checked = false; });
+            modal.querySelectorAll('.ttw-mm-entry-cb:checked').forEach((cb) => {
+                cb.checked = false;
+            });
             updateSelection();
         });
 
@@ -709,7 +786,10 @@ export function createMergeWorkflowService(deps = {}) {
                 name: cb.dataset.entry,
                 actualName: cb.dataset.actualEntry || cb.dataset.entry,
                 sourceType: cb.dataset.sourceType || 'generated',
-                volumeIndex: cb.dataset.sourceVolume !== undefined && cb.dataset.sourceVolume !== '' ? parseInt(cb.dataset.sourceVolume, 10) : AppState.worldbook.currentVolumeIndex,
+                volumeIndex:
+                    cb.dataset.sourceVolume !== undefined && cb.dataset.sourceVolume !== ''
+                        ? parseInt(cb.dataset.sourceVolume, 10)
+                        : AppState.worldbook.currentVolumeIndex,
             }));
 
             ModalFactory.close(modal);
@@ -729,7 +809,11 @@ export function createMergeWorkflowService(deps = {}) {
                 ...e,
                 actualName: resolved?.actualName || e.actualName || e.name,
                 sourceType: resolved?.sourceType || e.sourceType || 'generated',
-                volumeIndex: Number.isInteger(resolved?.volumeIndex) ? resolved.volumeIndex : (Number.isInteger(e.volumeIndex) ? e.volumeIndex : AppState.worldbook.currentVolumeIndex),
+                volumeIndex: Number.isInteger(resolved?.volumeIndex)
+                    ? resolved.volumeIndex
+                    : Number.isInteger(e.volumeIndex)
+                      ? e.volumeIndex
+                      : AppState.worldbook.currentVolumeIndex,
                 keywords: entry?.['关键词'] || [],
                 content: entry?.['内容'] || '',
                 tokens: getEntryTotalTokens(entry),
@@ -751,25 +835,31 @@ export function createMergeWorkflowService(deps = {}) {
         mergedKeywords = [...new Set(mergedKeywords)];
 
         const allCategories = Object.keys(worldbook);
-        const catOptionsHtml = allCategories.map((cat) => {
-            const selected = cat === involvedCategories[0] ? 'selected' : '';
-            return `<option value="${cat}" ${selected}>${cat}</option>`;
-        }).join('');
+        const catOptionsHtml = allCategories
+            .map((cat) => {
+                const selected = cat === involvedCategories[0] ? 'selected' : '';
+                return `<option value="${cat}" ${selected}>${cat}</option>`;
+            })
+            .join('');
 
-        const nameOptionsHtml = nameOptions.map((name, idx) => {
-            const cat = selectedEntries[idx].category;
-            return `
+        const nameOptionsHtml = nameOptions
+            .map((name, idx) => {
+                const cat = selectedEntries[idx].category;
+                return `
 		<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(0,0,0,0.2);border-radius:4px;margin-bottom:4px;cursor:pointer;">
 			<input type="radio" name="ttw-mm-main-name" value="${name}" ${idx === 0 ? 'checked' : ''} style="accent-color:#27ae60;">
 			<span style="color:#e0e0e0;font-size:13px;">${name}</span>
 			<span style="color:#888;font-size:11px;margin-left:auto;">[${cat}]</span>
 		</label>`;
-        }).join('');
+            })
+            .join('');
 
-        const detailsHtml = entriesInfo.map((info, idx) => {
-            const kwStr = info.keywords.join(', ') || '无';
-            const contentPreview = info.content.length > 200 ? info.content.substring(0, 200) + '...' : info.content;
-            return `
+        const detailsHtml = entriesInfo
+            .map((info, idx) => {
+                const kwStr = info.keywords.join(', ') || '无';
+                const contentPreview =
+                    info.content.length > 200 ? info.content.substring(0, 200) + '...' : info.content;
+                return `
 		<div style="border:1px solid #555;border-radius:6px;margin-bottom:8px;overflow:hidden;">
 			<div class="ttw-collapse-toggle" style="background:#3a3a3a;padding:8px 12px;font-size:13px;display:flex;justify-content:space-between;cursor:pointer;">
 				<span style="color:#e67e22;">[${info.category}] ${info.name}</span>
@@ -780,7 +870,8 @@ export function createMergeWorkflowService(deps = {}) {
 				<div style="color:#aaa;line-height:1.5;white-space:pre-wrap;max-height:150px;overflow-y:auto;">${contentPreview.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
 			</div>
 		</div>`;
-        }).join('');
+            })
+            .join('');
 
         const bodyHtml = `
 		<div style="display:flex;gap:16px;flex-wrap:wrap;">
@@ -855,25 +946,41 @@ export function createMergeWorkflowService(deps = {}) {
             const addSeparator = modal.querySelector('#ttw-mm-add-separator').checked;
 
             const involvedStr = selectedEntries.map((e) => `[${e.category}] ${e.name}`).join('\n');
-            if (!await confirmAction(`确定将以下 ${selectedEntries.length} 个条目合并为「${mainName}」？\n目标分类: ${targetCategory}\n\n${involvedStr}\n\n⚠️ 原条目将被删除！`, { title: '确认手动合并', danger: true })) return;
+            if (
+                !(await confirmAction(
+                    `确定将以下 ${selectedEntries.length} 个条目合并为「${mainName}」？\n目标分类: ${targetCategory}\n\n${involvedStr}\n\n⚠️ 原条目将被删除！`,
+                    { title: '确认手动合并', danger: true },
+                ))
+            )
+                return;
 
             if (typeof saveWorldbookSnapshot === 'function') {
                 await saveWorldbookSnapshot('快照-手动合并前');
             }
-            const mergeResult = mergedService.executeManualMerge(selectedEntries, mainName, targetCategory, dedupKeywords, addSeparator);
+            const mergeResult = mergedService.executeManualMerge(
+                selectedEntries,
+                mainName,
+                targetCategory,
+                dedupKeywords,
+                addSeparator,
+            );
             if (!mergeResult.success) {
                 ErrorHandler.showUserError(mergeResult.error || '手动合并失败，未匹配到可合并的条目');
                 return;
             }
 
-            updateStreamContent(`\n✅ 手动合并完成: ${selectedEntries.length} 个条目 → [${targetCategory}] ${mainName}\n`);
+            updateStreamContent(
+                `\n✅ 手动合并完成: ${selectedEntries.length} 个条目 → [${targetCategory}] ${mainName}\n`,
+            );
             if (typeof deps.setManualMergeHighlight === 'function') {
                 deps.setManualMergeHighlight(targetCategory, mainName);
             }
             ModalFactory.close(modal);
 
             if (typeof onMergeComplete === 'function') onMergeComplete();
-            ErrorHandler.showUserSuccess(`合并完成！${selectedEntries.length} 个条目已合并为「${mainName}」。\n\n建议使用「整理条目」功能让AI优化合并后的内容。`);
+            ErrorHandler.showUserSuccess(
+                `合并完成！${selectedEntries.length} 个条目已合并为「${mainName}」。\n\n建议使用「整理条目」功能让AI优化合并后的内容。`,
+            );
         });
     }
 
@@ -891,8 +998,16 @@ export function createMergeWorkflowService(deps = {}) {
         const mergeByCategory = mergedService.collectAliasMergeGroups(checkedSelections, aiResultByCategory);
 
         const totalSelected = checkedBoxes.length;
-        const categoryList = Object.keys(mergeByCategory).map((c) => `${c}(${mergeByCategory[c].length}组)`).join('、');
-        if (!await confirmAction(`确定合并选中的 ${totalSelected} 组条目？\n涉及分类: ${categoryList}`, { title: '批量合并重复条目', danger: true })) return;
+        const categoryList = Object.keys(mergeByCategory)
+            .map((c) => `${c}(${mergeByCategory[c].length}组)`)
+            .join('、');
+        if (
+            !(await confirmAction(`确定合并选中的 ${totalSelected} 组条目？\n涉及分类: ${categoryList}`, {
+                title: '批量合并重复条目',
+                danger: true,
+            }))
+        )
+            return;
 
         if (typeof saveWorldbookSnapshot === 'function') {
             await saveWorldbookSnapshot('快照-别名合并前');
@@ -901,7 +1016,9 @@ export function createMergeWorkflowService(deps = {}) {
 
         updateWorldbookPreview();
         modal.remove();
-        ErrorHandler.showUserSuccess(`合并完成！共合并了 ${totalMerged} 组条目。\n\n建议使用"整理条目"功能清理合并后的重复内容。`);
+        ErrorHandler.showUserSuccess(
+            `合并完成！共合并了 ${totalMerged} 组条目。\n\n建议使用"整理条目"功能清理合并后的重复内容。`,
+        );
     }
 
     async function showAliasMergeUI() {
@@ -919,7 +1036,11 @@ export function createMergeWorkflowService(deps = {}) {
             const existingModal = document.getElementById('ttw-alias-cat-modal');
             if (existingModal) existingModal.remove();
 
-            const catListHtml = buildAliasCategorySelectModal(availableCategories, AppState.worldbook.generated, escapeHtml);
+            const catListHtml = buildAliasCategorySelectModal(
+                availableCategories,
+                AppState.worldbook.generated,
+                escapeHtml,
+            );
             const bodyHtml = `
 			<div style="margin-bottom:12px;padding:10px;background:rgba(52,152,219,0.15);border-radius:6px;font-size:12px;color:#3498db;">
 				💡 请勾选需要让AI识别别名并合并的分类。将对每个选中的分类独立扫描重复条目。
@@ -953,7 +1074,9 @@ export function createMergeWorkflowService(deps = {}) {
             });
 
             catModal.querySelector('#ttw-alias-cat-select-all').addEventListener('change', (e) => {
-                catModal.querySelectorAll('.ttw-alias-cat-cb').forEach((cb) => { cb.checked = e.target.checked; });
+                catModal.querySelectorAll('.ttw-alias-cat-cb').forEach((cb) => {
+                    cb.checked = e.target.checked;
+                });
             });
 
             catModal.querySelector('#ttw-alias-cat-cancel').addEventListener('click', () => {
@@ -1000,7 +1123,12 @@ export function createMergeWorkflowService(deps = {}) {
         if (existingModal) existingModal.remove();
 
         const groupCategoryMap = [];
-        const groupsHtml = buildAliasGroupsListHtml(allSuspectedByCategory, AppState.worldbook.generated, groupCategoryMap, escapeHtml);
+        const groupsHtml = buildAliasGroupsListHtml(
+            allSuspectedByCategory,
+            AppState.worldbook.generated,
+            groupCategoryMap,
+            escapeHtml,
+        );
 
         const bodyHtml = `
 		<div style="margin-bottom:16px;padding:12px;background:rgba(52,152,219,0.15);border-radius:8px;">
@@ -1073,7 +1201,9 @@ export function createMergeWorkflowService(deps = {}) {
         let aiResultByCategory = {};
 
         modal.querySelector('#ttw-select-all-alias').addEventListener('change', (e) => {
-            modal.querySelectorAll('.ttw-alias-group-cb').forEach((cb) => { cb.checked = e.target.checked; });
+            modal.querySelectorAll('.ttw-alias-group-cb').forEach((cb) => {
+                cb.checked = e.target.checked;
+            });
         });
 
         modal.querySelector('#ttw-cancel-alias').addEventListener('click', () => ModalFactory.close(modal));
@@ -1102,15 +1232,23 @@ export function createMergeWorkflowService(deps = {}) {
             AppState.processing.isStopped = false;
 
             try {
-                const useParallel = modal.querySelector('#ttw-alias-parallel')?.checked ?? AppState.config.parallel.enabled;
+                const useParallel =
+                    modal.querySelector('#ttw-alias-parallel')?.checked ?? AppState.config.parallel.enabled;
                 const threshold = parseInt(modal.querySelector('#ttw-alias-threshold')?.value, 10) || 5;
 
-                updateStreamContent(`\n🤖 第二阶段：两两配对判断...\n并发: ${useParallel ? '开启' : '关闭'}, 阈值: ${threshold}\n`);
+                updateStreamContent(
+                    `\n🤖 第二阶段：两两配对判断...\n并发: ${useParallel ? '开启' : '关闭'}, 阈值: ${threshold}\n`,
+                );
 
                 aiResultByCategory = {};
                 for (const cat of Object.keys(selectedByCategory)) {
                     updateStreamContent(`\n📂 处理分类「${cat}」...\n`);
-                    aiResultByCategory[cat] = await mergedService.verifyDuplicatesWithAI(selectedByCategory[cat], useParallel, threshold, cat);
+                    aiResultByCategory[cat] = await mergedService.verifyDuplicatesWithAI(
+                        selectedByCategory[cat],
+                        useParallel,
+                        threshold,
+                        cat,
+                    );
                 }
 
                 const resultDiv = modal.querySelector('#ttw-alias-result');
@@ -1126,7 +1264,9 @@ export function createMergeWorkflowService(deps = {}) {
                 const selectAllMergeCb = mergePlanDiv.querySelector('#ttw-select-all-merge-groups');
                 if (selectAllMergeCb) {
                     selectAllMergeCb.addEventListener('change', (e) => {
-                        mergePlanDiv.querySelectorAll('.ttw-merge-group-cb').forEach((cb) => { cb.checked = e.target.checked; });
+                        mergePlanDiv.querySelectorAll('.ttw-merge-group-cb').forEach((cb) => {
+                            cb.checked = e.target.checked;
+                        });
                     });
                 }
 

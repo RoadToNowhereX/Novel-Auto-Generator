@@ -27,7 +27,7 @@
             maxHeight = '80vh',
             onClose = null,
             closeOnOverlay = true,
-            closeOnEscape = true
+            closeOnEscape = true,
         } = config;
 
         const container = document.createElement('div');
@@ -59,7 +59,7 @@
         bodyEl.className = 'ttw-modal-body';
         bodyEl.style.maxHeight = maxHeight;
         bodyEl.style.overflowY = 'auto';
-        const resolvedBodyNode = bodyNode || ((typeof Node !== 'undefined' && body instanceof Node) ? body : null);
+        const resolvedBodyNode = bodyNode || (typeof Node !== 'undefined' && body instanceof Node ? body : null);
         if (resolvedBodyNode) {
             bodyEl.appendChild(resolvedBodyNode);
         } else {
@@ -67,7 +67,8 @@
         }
         modal.appendChild(bodyEl);
 
-        const resolvedFooterNode = footerNode || ((typeof Node !== 'undefined' && footer instanceof Node) ? footer : null);
+        const resolvedFooterNode =
+            footerNode || (typeof Node !== 'undefined' && footer instanceof Node ? footer : null);
         if (footer || resolvedFooterNode) {
             const footerEl = document.createElement('div');
             footerEl.className = 'ttw-modal-footer';
@@ -106,7 +107,15 @@
         }
 
         // 阻止事件冒泡到 SillyTavern 外层（如扩展栏折叠监听）
-        const stopPropagationEvents = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend'];
+        const stopPropagationEvents = [
+            'click',
+            'mousedown',
+            'mouseup',
+            'pointerdown',
+            'pointerup',
+            'touchstart',
+            'touchend',
+        ];
         const stopPropagationHandler = (e) => e.stopPropagation();
         stopPropagationEvents.forEach((eventName) => {
             container.addEventListener(eventName, stopPropagationHandler);
@@ -155,7 +164,7 @@
             const {
                 title = '提示',
                 message = '',
-                confirmText = '知道了'
+                confirmText = '知道了',
             } = typeof config === 'string' ? { message: config } : config;
 
             let settled = false;
@@ -168,7 +177,7 @@
                     if (settled) return;
                     settled = true;
                     resolve();
-                }
+                },
             });
 
             modal.querySelector('[data-action="confirm"]').addEventListener('click', () => {
@@ -182,13 +191,7 @@
 
     confirm(config) {
         return new Promise((resolve) => {
-            const {
-                title = '确认',
-                message = '',
-                confirmText = '确定',
-                cancelText = '取消',
-                danger = false
-            } = config;
+            const { title = '确认', message = '', confirmText = '确定', cancelText = '取消', danger = false } = config;
 
             let settled = false;
             const footer = `
@@ -205,7 +208,7 @@
                     if (settled) return;
                     settled = true;
                     resolve(false);
-                }
+                },
             });
 
             modal.querySelector('[data-action="cancel"]').addEventListener('click', () => {
@@ -235,7 +238,7 @@
                 cancelText = '取消',
                 multiline = false,
                 rows = 3,
-                trimResult = true
+                trimResult = true,
             } = typeof config === 'string' ? { message: config } : config;
 
             const inputHtml = multiline
@@ -260,7 +263,7 @@
                     if (settled) return;
                     settled = true;
                     resolve(null);
-                }
+                },
             });
 
             const input = modal.querySelector('[data-role="prompt-input"]');
@@ -297,20 +300,19 @@
 
     listSelect(config) {
         return new Promise((resolve) => {
-            const {
-                title = '选择',
-                items = [],
-                multiSelect = false,
-                selectedIndices = []
-            } = config;
+            const { title = '选择', items = [], multiSelect = false, selectedIndices = [] } = config;
 
-            const listHtml = items.map((item, i) => `
+            const listHtml = items
+                .map(
+                    (item, i) => `
                 <label class="ttw-list-item" style="display:block;padding:8px;border-bottom:1px solid #eee;cursor:pointer;">
                     <input type="${multiSelect ? 'checkbox' : 'radio'}" name="ttw-list-select" 
                            value="${i}" ${selectedIndices.includes(i) ? 'checked' : ''}>
                     <span>${typeof item === 'object' ? item.label || item.name : item}</span>
                 </label>
-            `).join('');
+            `,
+                )
+                .join('');
 
             const footer = `
                 <button class="ttw-btn ttw-btn-small" data-action="select-all">全选</button>
@@ -329,15 +331,15 @@
                     if (settled) return;
                     settled = true;
                     resolve(null);
-                }
+                },
             });
 
             modal.querySelector('[data-action="select-all"]').addEventListener('click', () => {
-                modal.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+                modal.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = true));
             });
 
             modal.querySelector('[data-action="deselect-all"]').addEventListener('click', () => {
-                modal.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                modal.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
             });
 
             modal.querySelector('[data-action="cancel"]').addEventListener('click', () => {
@@ -348,14 +350,14 @@
             });
 
             modal.querySelector('[data-action="confirm"]').addEventListener('click', () => {
-                const selected = Array.from(modal.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
+                const selected = Array.from(modal.querySelectorAll('input:checked')).map((cb) => parseInt(cb.value));
                 if (settled) return;
                 settled = true;
                 this.close(modal);
                 resolve(multiSelect ? selected : selected[0]);
             });
         });
-    }
+    },
 };
 
 export { ModalFactory };

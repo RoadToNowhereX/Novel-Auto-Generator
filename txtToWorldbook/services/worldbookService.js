@@ -1,9 +1,5 @@
 ﻿export function createWorldbookService(deps = {}) {
-    const {
-        getIncrementalMode = () => false,
-        saveHistory = async () => {},
-        debugLog = () => {},
-    } = deps;
+    const { getIncrementalMode = () => false, saveHistory = async () => {}, debugLog = () => {} } = deps;
 
     function normalizeWorldbookEntry(entry) {
         if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return entry;
@@ -98,7 +94,13 @@
             const newCategory = newWorldbook[category] || {};
             for (const entryName in oldCategory) {
                 if (!newCategory[entryName]) {
-                    changes.push({ type: 'delete', category, entryName, oldValue: oldCategory[entryName], newValue: null });
+                    changes.push({
+                        type: 'delete',
+                        category,
+                        entryName,
+                        oldValue: oldCategory[entryName],
+                        newValue: null,
+                    });
                 }
             }
         }

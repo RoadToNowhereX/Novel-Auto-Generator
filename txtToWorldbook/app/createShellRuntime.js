@@ -67,7 +67,9 @@ export function createShellRuntime(deps = {}) {
     const modalController = createModalController({
         AppState,
         getModalContainer: () => modalContainer,
-        setModalContainer: (value) => { modalContainer = value; },
+        setModalContainer: (value) => {
+            modalContainer = value;
+        },
         ...createModalControllerDeps,
     });
 

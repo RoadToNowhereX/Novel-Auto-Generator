@@ -18,7 +18,12 @@ export function createSearchModal(deps = {}) {
         const useParallel = AppState.config.parallel.enabled && memoryIndices.length > 1;
         const parallelHint = useParallel ? `\n\n将使用并行处理（${AppState.config.parallel.concurrency}并发）` : '';
 
-        if (!await confirmAction(`确定要重Roll ${memoryIndices.length} 个章节吗？\n\n这将使用当前附加提示词重新生成这些章节的世界书条目。${parallelHint}`, { title: '批量重 Roll 章节' })) {
+        if (
+            !(await confirmAction(
+                `确定要重Roll ${memoryIndices.length} 个章节吗？\n\n这将使用当前附加提示词重新生成这些章节的世界书条目。${parallelHint}`,
+                { title: '批量重 Roll 章节' },
+            ))
+        ) {
             return { success: 0, fail: 0, stopped: false };
         }
 
@@ -79,12 +84,17 @@ export function createSearchModal(deps = {}) {
                         const idx = content.indexOf(keyword);
                         const start = Math.max(0, idx - 30);
                         const end = Math.min(content.length, idx + keyword.length + 30);
-                        const context = (start > 0 ? '...' : '') + content.substring(start, end) + (end < content.length ? '...' : '');
+                        const context =
+                            (start > 0 ? '...' : '') +
+                            content.substring(start, end) +
+                            (end < content.length ? '...' : '');
                         matches.push({ field: '内容', text: context });
                     }
 
                     if (matches.length > 0) {
-                        const alreadyExists = results.some((r) => r.memoryIndex === i && r.category === category && r.entryName === entryName);
+                        const alreadyExists = results.some(
+                            (r) => r.memoryIndex === i && r.category === category && r.entryName === entryName,
+                        );
                         if (!alreadyExists) {
                             results.push({
                                 category,
@@ -118,7 +128,8 @@ export function createSearchModal(deps = {}) {
                     const idx = content.indexOf(keyword);
                     const start = Math.max(0, idx - 30);
                     const end = Math.min(content.length, idx + keyword.length + 30);
-                    const context = (start > 0 ? '...' : '') + content.substring(start, end) + (end < content.length ? '...' : '');
+                    const context =
+                        (start > 0 ? '...' : '') + content.substring(start, end) + (end < content.length ? '...' : '');
                     matches.push({ field: '内容', text: context });
                 }
 
@@ -154,18 +165,38 @@ export function createSearchModal(deps = {}) {
             const sourceTag = result.fromMemoryResult
                 ? '<span style="font-size:9px;color:#27ae60;margin-left:4px;">✓ 当前结果</span>'
                 : '<span style="font-size:9px;color:#f39c12;margin-left:4px;">⚠ 合并数据</span>';
-            const matchTexts = result.matches.slice(0, 2).map((m) => {
-                const matchText = (m.text || '').substring(0, 80);
-                return `<span style="color:#888;">${escapeHtmlForDisplay(m.field || '')}:</span> ${highlightKw(matchText)}${m.text && m.text.length > 80 ? '...' : ''}`;
-            }).join('<br>');
+            const matchTexts = result.matches
+                .slice(0, 2)
+                .map((m) => {
+                    const matchText = (m.text || '').substring(0, 80);
+                    return `<span style="color:#888;">${escapeHtmlForDisplay(m.field || '')}:</span> ${highlightKw(matchText)}${m.text && m.text.length > 80 ? '...' : ''}`;
+                })
+                .join('<br>');
 
-            html += '<div class="ttw-search-result-item" data-result-index="' + idx + '" style="background:rgba(0,0,0,0.2);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid #f1c40f;cursor:pointer;transition:background 0.2s;">';
+            html +=
+                '<div class="ttw-search-result-item" data-result-index="' +
+                idx +
+                '" style="background:rgba(0,0,0,0.2);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid #f1c40f;cursor:pointer;transition:background 0.2s;">';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-            html += '<span style="font-weight:bold;color:#e67e22;">[' + escapeHtmlForDisplay(result.category) + '] ' + highlightKw(result.entryName) + '</span>';
+            html +=
+                '<span style="font-weight:bold;color:#e67e22;">[' +
+                escapeHtmlForDisplay(result.category) +
+                '] ' +
+                highlightKw(result.entryName) +
+                '</span>';
             html += '<div style="display:flex;align-items:center;gap:8px;">';
-            html += '<span style="font-size:11px;color:' + memoryColor + ';background:rgba(52,152,219,0.2);padding:2px 6px;border-radius:3px;">📍 ' + memoryLabel + '</span>';
+            html +=
+                '<span style="font-size:11px;color:' +
+                memoryColor +
+                ';background:rgba(52,152,219,0.2);padding:2px 6px;border-radius:3px;">📍 ' +
+                memoryLabel +
+                '</span>';
             html += sourceTag;
-            if (result.memoryIndex >= 0) html += '<button class="ttw-btn-tiny ttw-reroll-single" data-memory-idx="' + result.memoryIndex + '" title="重Roll此章节">🎲</button>';
+            if (result.memoryIndex >= 0)
+                html +=
+                    '<button class="ttw-btn-tiny ttw-reroll-single" data-memory-idx="' +
+                    result.memoryIndex +
+                    '" title="重Roll此章节">🎲</button>';
             html += '</div></div>';
             html += '<div style="font-size:12px;color:#ccc;">' + matchTexts + '</div>';
             html += '</div>';
@@ -177,7 +208,7 @@ export function createSearchModal(deps = {}) {
                 e.stopPropagation();
                 const memoryIndex = parseInt(this.dataset.memoryIdx, 10);
                 const customPrompt = modal.querySelector('#ttw-search-suffix-prompt')?.value || '';
-                if (!await confirmAction(`确定要重Roll 第${memoryIndex + 1}章吗？`, { title: '单章重 Roll' })) return;
+                if (!(await confirmAction(`确定要重Roll 第${memoryIndex + 1}章吗？`, { title: '单章重 Roll' }))) return;
 
                 this.disabled = true;
                 this.textContent = '🔄';
@@ -232,9 +263,10 @@ export function createSearchModal(deps = {}) {
                     dataSource = '来自: 合并后的世界书';
                 }
 
-                const memoryLabel = result.memoryIndex >= 0
-                    ? `记忆${result.memoryIndex + 1} (第${result.memoryIndex + 1}章)`
-                    : '默认/导入条目';
+                const memoryLabel =
+                    result.memoryIndex >= 0
+                        ? `记忆${result.memoryIndex + 1} (第${result.memoryIndex + 1}章)`
+                        : '默认/导入条目';
 
                 let contentHtml = '';
                 if (entry) {
@@ -272,7 +304,8 @@ export function createSearchModal(deps = {}) {
                     detailRerollBtn.onclick = async function () {
                         const memIdx = parseInt(this.dataset.memIdx, 10);
                         const customPrompt = modal.querySelector('#ttw-search-suffix-prompt')?.value || '';
-                        if (!await confirmAction(`确定要重Roll 第${memIdx + 1}章吗？`, { title: '单章重 Roll' })) return;
+                        if (!(await confirmAction(`确定要重Roll 第${memIdx + 1}章吗？`, { title: '单章重 Roll' })))
+                            return;
 
                         this.disabled = true;
                         this.textContent = '🔄 重Roll中...';
@@ -375,7 +408,9 @@ export function createSearchModal(deps = {}) {
 
             const customPrompt = modal.querySelector('#ttw-search-suffix-prompt').value;
             const { success, fail, stopped } = await batchRerollSearchResults(modal, memoryIndices, customPrompt);
-            ErrorHandler.showUserSuccess(`批量重Roll完成！\n成功: ${success}\n失败: ${fail}${stopped ? '\n(已手动停止)' : ''}`);
+            ErrorHandler.showUserSuccess(
+                `批量重Roll完成！\n成功: ${success}\n失败: ${fail}${stopped ? '\n(已手动停止)' : ''}`,
+            );
             modal.querySelector('#ttw-do-search').click();
             updateWorldbookPreview();
         });
@@ -383,7 +418,8 @@ export function createSearchModal(deps = {}) {
         modal.querySelector('#ttw-clear-search').addEventListener('click', () => {
             AppState.ui.searchKeyword = '';
             modal.querySelector('#ttw-search-input').value = '';
-            modal.querySelector('#ttw-search-results').innerHTML = '<div style="text-align:center;color:#888;">已清除高亮</div>';
+            modal.querySelector('#ttw-search-results').innerHTML =
+                '<div style="text-align:center;color:#888;">已清除高亮</div>';
             modal.querySelector('#ttw-search-detail').style.display = 'none';
             modal.querySelector('#ttw-reroll-all-found').style.display = 'none';
             updateWorldbookPreview();

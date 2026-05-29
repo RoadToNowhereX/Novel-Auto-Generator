@@ -37,11 +37,11 @@ export function createFileImportService(deps = {}) {
             if (savedHash && savedHash !== newHash) {
                 const historyList = await MemoryHistoryDB.getAllHistory();
                 if (
-                    historyList.length > 0
-                    && await confirmAction(`检测到新文件，是否清空旧历史？\n当前有 ${historyList.length} 条记录。`, {
+                    historyList.length > 0 &&
+                    (await confirmAction(`检测到新文件，是否清空旧历史？\n当前有 ${historyList.length} 条记录。`, {
                         title: '清空旧历史',
                         danger: true,
-                    })
+                    }))
                 ) {
                     await MemoryHistoryDB.clearAllHistory();
                     await MemoryHistoryDB.clearAllRolls();
@@ -55,7 +55,8 @@ export function createFileImportService(deps = {}) {
             document.getElementById('ttw-upload-area').style.display = 'none';
             document.getElementById('ttw-file-info').style.display = 'flex';
             document.getElementById('ttw-file-name').textContent = file.name;
-            document.getElementById('ttw-file-size').textContent = `(${(content.length / 1024).toFixed(1)} KB, ${encoding})`;
+            document.getElementById('ttw-file-size').textContent =
+                `(${(content.length / 1024).toFixed(1)} KB, ${encoding})`;
 
             AppState.file.novelName = file.name.replace(/\.[^/.]+$/, '');
 
@@ -288,7 +289,7 @@ export function createFileImportService(deps = {}) {
         const processedCount = AppState.memory.queue.filter((m) => m.processed && !m.failed).length;
         if (processedCount > 0) {
             const confirmMsg = `⚠️ 警告：当前有 ${processedCount} 个已处理的章节。\n\n重新分块将会：\n1. 清除所有已处理状态\n2. 需要重新从头开始转换\n3. 但不会清除已生成的世界书数据\n\n确定要重新分块吗？`;
-            if (!await confirmAction(confirmMsg, { title: '重新分块', danger: true })) {
+            if (!(await confirmAction(confirmMsg, { title: '重新分块', danger: true }))) {
                 return;
             }
         }

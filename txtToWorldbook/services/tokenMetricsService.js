@@ -1,7 +1,5 @@
 export function createTokenMetricsService(deps = {}) {
-    const {
-        tokenCacheGet,
-    } = deps;
+    const { tokenCacheGet } = deps;
 
     function getEntryTotalTokens(entry) {
         if (!entry || typeof entry !== 'object') return 0;

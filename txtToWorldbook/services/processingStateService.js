@@ -1,7 +1,5 @@
 export function createProcessingStateService(deps = {}) {
-    const {
-        AppState,
-    } = deps;
+    const { AppState } = deps;
 
     function setProcessingStatus(status) {
         const next = status || 'idle';

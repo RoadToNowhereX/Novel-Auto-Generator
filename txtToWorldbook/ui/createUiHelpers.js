@@ -54,10 +54,7 @@ export function createUiHelpers(deps = {}) {
         handleProviderChange: () => apiModeView?.handleProviderChange(),
         renderMessageChainUI,
     });
-    const {
-        updateSettingsUI,
-        updateChapterRegexUI,
-    } = settingsStateView;
+    const { updateSettingsUI, updateChapterRegexUI } = settingsStateView;
 
     const categoryListView = createCategoryListView({
         AppState,
@@ -154,12 +151,7 @@ export function createUiHelpers(deps = {}) {
     const progressView = createProgressView({
         AppState,
     });
-    const {
-        showQueueSection,
-        showProgressSection,
-        showResultSection,
-        updateProgress,
-    } = progressView;
+    const { showQueueSection, showProgressSection, showResultSection, updateProgress } = progressView;
 
     return {
         renderMessageChainUI,

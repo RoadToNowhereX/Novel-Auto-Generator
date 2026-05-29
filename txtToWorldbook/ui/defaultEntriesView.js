@@ -1,13 +1,5 @@
 export function createDefaultEntriesView(deps = {}) {
-    const {
-        AppState,
-        ListRenderer,
-        PerfUtils,
-        EventDelegate,
-        ModalFactory,
-        ErrorHandler,
-        saveCurrentSettings,
-    } = deps;
+    const { AppState, ListRenderer, PerfUtils, EventDelegate, ModalFactory, ErrorHandler, saveCurrentSettings } = deps;
 
     function saveDefaultWorldbookEntriesUI() {
         AppState.settings.defaultWorldbookEntriesUI = AppState.persistent.defaultEntries;
@@ -19,11 +11,14 @@ export function createDefaultEntriesView(deps = {}) {
         if (!container) return;
 
         if (AppState.persistent.defaultEntries.length === 0) {
-            container.innerHTML = '<div style="text-align:center;color:#888;padding:10px;font-size:11px;">暂无默认条目，点击"添加"按钮创建</div>';
+            container.innerHTML =
+                '<div style="text-align:center;color:#888;padding:10px;font-size:11px;">暂无默认条目，点击"添加"按钮创建</div>';
             return;
         }
 
-        const itemsHtml = AppState.persistent.defaultEntries.map((entry, index) => `
+        const itemsHtml = AppState.persistent.defaultEntries
+            .map(
+                (entry, index) => `
             <div class="ttw-default-entry-item">
                 <div class="ttw-default-entry-header">
                     <span class="ttw-default-entry-title">[${ListRenderer.escapeHtml(entry.category || '未分类')}] ${ListRenderer.escapeHtml(entry.name || '未命名')}</span>
@@ -36,7 +31,9 @@ export function createDefaultEntriesView(deps = {}) {
                     <span style="color:#9b59b6;">关键词:</span> ${ListRenderer.escapeHtml((entry.keywords || []).join(', ') || '无')}
                 </div>
             </div>
-        `).join('');
+        `,
+            )
+            .join('');
 
         PerfUtils.smartUpdate(container, itemsHtml);
 
@@ -69,15 +66,17 @@ export function createDefaultEntriesView(deps = {}) {
 
     function showEditDefaultEntryModal(editIndex) {
         const isEdit = editIndex !== null;
-        const entry = isEdit ? AppState.persistent.defaultEntries[editIndex] : {
-            category: '',
-            name: '',
-            keywords: [],
-            content: '',
-            position: 0,
-            depth: 4,
-            order: 100,
-        };
+        const entry = isEdit
+            ? AppState.persistent.defaultEntries[editIndex]
+            : {
+                  category: '',
+                  name: '',
+                  keywords: [],
+                  content: '',
+                  position: 0,
+                  depth: 4,
+                  order: 100,
+              };
 
         const body = `
                 <div class="ttw-form-group">
@@ -140,10 +139,21 @@ export function createDefaultEntriesView(deps = {}) {
             const depth = parseInt(document.getElementById('ttw-default-entry-depth').value, 10) || 4;
             const order = parseInt(document.getElementById('ttw-default-entry-order').value, 10) || 100;
 
-            if (!category) { ErrorHandler.showUserError('请输入分类'); return; }
-            if (!name) { ErrorHandler.showUserError('请输入条目名称'); return; }
+            if (!category) {
+                ErrorHandler.showUserError('请输入分类');
+                return;
+            }
+            if (!name) {
+                ErrorHandler.showUserError('请输入条目名称');
+                return;
+            }
 
-            const keywords = keywordsStr ? keywordsStr.split(/[,，]/).map((k) => k.trim()).filter((k) => k) : [];
+            const keywords = keywordsStr
+                ? keywordsStr
+                      .split(/[,，]/)
+                      .map((k) => k.trim())
+                      .filter((k) => k)
+                : [];
             const newEntry = { category, name, keywords, content, position, depth, order };
 
             if (isEdit) {

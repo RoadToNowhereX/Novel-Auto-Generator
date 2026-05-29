@@ -17,21 +17,28 @@ export function createPromptPreviewModal(deps = {}) {
         try {
             const prompt = buildSystemPrompt() || '';
             const chapterForce = AppState.settings.forceChapterMarker ? getChapterForcePrompt(1) : '(已关闭)';
-            const apiMode = AppState.settings.useTavernApi ? '酒馆API' : `自定义API (${AppState.settings.customApiProvider || '未设置'})`;
-            const enabledCats = getEnabledCategories().map((c) => c.name).join(', ');
+            const apiMode = AppState.settings.useTavernApi
+                ? '酒馆API'
+                : `自定义API (${AppState.settings.customApiProvider || '未设置'})`;
+            const enabledCats = getEnabledCategories()
+                .map((c) => c.name)
+                .join(', ');
             const chain = Array.isArray(AppState.settings.promptMessageChain)
                 ? AppState.settings.promptMessageChain
                 : [{ role: 'user', content: '{PROMPT}', enabled: true }];
             const enabledChain = chain.filter((m) => m && m.enabled !== false);
-            const chainInfo = enabledChain.map((m, i) => {
-                const roleLabel = m.role === 'system' ? '🔷系统' : m.role === 'assistant' ? '🟡AI助手' : '🟢用户';
-                const contentStr = typeof m.content === 'string' ? m.content : (m.content ? String(m.content) : '');
-                const preview = contentStr.length > 60 ? `${contentStr.substring(0, 60)}...` : contentStr;
-                return `  ${i + 1}. [${roleLabel}] ${preview}`;
-            }).join('\n');
+            const chainInfo = enabledChain
+                .map((m, i) => {
+                    const roleLabel = m.role === 'system' ? '🔷系统' : m.role === 'assistant' ? '🟡AI助手' : '🟢用户';
+                    const contentStr = typeof m.content === 'string' ? m.content : m.content ? String(m.content) : '';
+                    const preview = contentStr.length > 60 ? `${contentStr.substring(0, 60)}...` : contentStr;
+                    return `  ${i + 1}. [${roleLabel}] ${preview}`;
+                })
+                .join('\n');
 
             const isParallelEnabled = AppState.config && AppState.config.parallel && AppState.config.parallel.enabled;
-            const parallelMode = (AppState.config && AppState.config.parallel && AppState.config.parallel.mode) || '关闭';
+            const parallelMode =
+                (AppState.config && AppState.config.parallel && AppState.config.parallel.mode) || '关闭';
 
             const previewContent = `当前提示词预览:\n\nAPI模式: ${apiMode}\n并行模式: ${isParallelEnabled ? parallelMode : '关闭'}\n强制章节标记: ${AppState.settings.forceChapterMarker ? '开启' : '关闭'}\n启用分类: ${enabledCats}\n\n【消息链 (${enabledChain.length}条消息)】\n${chainInfo}\n\n【章节强制标记示例】\n${chapterForce}\n\n【系统提示词】\n${prompt}`;
 
@@ -81,12 +88,12 @@ export function createPromptPreviewModal(deps = {}) {
 
             let activeTab = 'preview';
 
-            modal.querySelectorAll('.ttw-prompt-tab').forEach(btn => {
+            modal.querySelectorAll('.ttw-prompt-tab').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     activeTab = btn.getAttribute('data-tab');
-                    modal.querySelectorAll('.ttw-prompt-tab').forEach(b => b.classList.remove('active'));
+                    modal.querySelectorAll('.ttw-prompt-tab').forEach((b) => b.classList.remove('active'));
                     btn.classList.add('active');
-                    modal.querySelectorAll('.ttw-prompt-panel').forEach(p => p.style.display = 'none');
+                    modal.querySelectorAll('.ttw-prompt-panel').forEach((p) => (p.style.display = 'none'));
                     const panel = modal.querySelector(`#ttw-prompt-tab-${activeTab}`);
                     if (panel) panel.style.display = 'block';
                 });

@@ -11,7 +11,7 @@
 
         /**
          * openDB
-         * 
+         *
          * @returns {Promise<any>}
          */
         async openDB() {
@@ -42,7 +42,10 @@
                         db.createObjectStore(this.stateStoreName, { keyPath: 'key' });
                     }
                     if (!db.objectStoreNames.contains(this.rollStoreName)) {
-                        const rollStore = db.createObjectStore(this.rollStoreName, { keyPath: 'id', autoIncrement: true });
+                        const rollStore = db.createObjectStore(this.rollStoreName, {
+                            keyPath: 'id',
+                            autoIncrement: true,
+                        });
                         rollStore.createIndex('memoryIndex', 'memoryIndex', { unique: false });
                     }
                     if (!db.objectStoreNames.contains(this.categoriesStoreName)) {
@@ -50,7 +53,10 @@
                     }
                     // 新增：条目级别Roll历史存储
                     if (!db.objectStoreNames.contains(this.entryRollStoreName)) {
-                        const entryRollStore = db.createObjectStore(this.entryRollStoreName, { keyPath: 'id', autoIncrement: true });
+                        const entryRollStore = db.createObjectStore(this.entryRollStoreName, {
+                            keyPath: 'id',
+                            autoIncrement: true,
+                        });
                         entryRollStore.createIndex('entryKey', 'entryKey', { unique: false }); // category:entryName
                         entryRollStore.createIndex('timestamp', 'timestamp', { unique: false });
                     }
@@ -65,7 +71,7 @@
 
         /**
          * saveCustomCategories
-         * 
+         *
          * @param {*} categories
          * @returns {Promise<any>}
          */
@@ -82,7 +88,7 @@
 
         /**
          * getCustomCategories
-         * 
+         *
          * @returns {Promise<any>}
          */
         async getCustomCategories() {
@@ -109,7 +115,11 @@
                     const request = store.getAll();
                     request.onsuccess = () => {
                         const fileHash = AppState.file.hash || null;
-                        resolve((request.result || []).filter(item => item.memoryTitle === memoryTitle && (item.fileHash || null) === fileHash));
+                        resolve(
+                            (request.result || []).filter(
+                                (item) => item.memoryTitle === memoryTitle && (item.fileHash || null) === fileHash,
+                            ),
+                        );
                     };
                     request.onerror = () => reject(request.error);
                     return;
@@ -123,7 +133,7 @@
 
         /**
          * saveHistory
-         * 
+         *
          * @param {*} memoryIndex
          * @param {*} memoryTitle
          * @param {*} previousWorldbook
@@ -146,7 +156,7 @@
                     newWorldbook: JSON.parse(JSON.stringify(newWorldbook || {})),
                     changedEntries: changedEntries || [],
                     fileHash: AppState.file.hash || null,
-                    volumeIndex: AppState.worldbook.currentVolumeIndex
+                    volumeIndex: AppState.worldbook.currentVolumeIndex,
                 };
 
                 if (!allowedDuplicates.includes(memoryTitle)) {
@@ -161,7 +171,9 @@
                     lookupRequest.onsuccess = () => {
                         let duplicates = lookupRequest.result || [];
                         if (!store.indexNames.contains('memoryTitleFileHash')) {
-                            duplicates = duplicates.filter(item => item.memoryTitle === memoryTitle && (item.fileHash || null) === fileHash);
+                            duplicates = duplicates.filter(
+                                (item) => item.memoryTitle === memoryTitle && (item.fileHash || null) === fileHash,
+                            );
                         }
                         for (const dup of duplicates) {
                             store.delete(dup.id);
@@ -187,7 +199,7 @@
 
         /**
          * getAllHistory
-         * 
+         *
          * @returns {Promise<any>}
          */
         async getAllHistory() {
@@ -203,7 +215,7 @@
 
         /**
          * getHistoryById
-         * 
+         *
          * @param {*} id
          * @returns {Promise<any>}
          */
@@ -220,7 +232,7 @@
 
         /**
          * clearAllHistory
-         * 
+         *
          * @returns {Promise<any>}
          */
         async clearAllHistory() {
@@ -236,7 +248,7 @@
 
         /**
          * clearAllRolls
-         * 
+         *
          * @returns {Promise<any>}
          */
         async clearAllRolls() {
@@ -252,7 +264,7 @@
 
         /**
          * saveFileHash
-         * 
+         *
          * @param {*} hash
          * @returns {Promise<any>}
          */
@@ -269,7 +281,7 @@
 
         /**
          * getSavedFileHash
-         * 
+         *
          * @returns {Promise<any>}
          */
         async getSavedFileHash() {
@@ -285,7 +297,7 @@
 
         /**
          * clearFileHash
-         * 
+         *
          * @returns {Promise<any>}
          */
         async clearFileHash() {
@@ -301,7 +313,7 @@
 
         /**
          * saveState
-         * 
+         *
          * @param {*} processedIndex
          * @returns {Promise<any>}
          */
@@ -319,7 +331,7 @@
                     currentVolumeIndex: AppState.worldbook.currentVolumeIndex,
                     fileHash: AppState.file.hash,
                     novelName: AppState.file.novelName || '',
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
                 };
                 const request = store.put(state);
                 request.onsuccess = () => resolve();
@@ -329,7 +341,7 @@
 
         /**
          * loadState
-         * 
+         *
          * @returns {Promise<any>}
          */
         async loadState() {
@@ -345,7 +357,7 @@
 
         /**
          * clearState
-         * 
+         *
          * @returns {Promise<any>}
          */
         async clearState() {
@@ -361,7 +373,7 @@
 
         /**
          * saveRollResult
-         * 
+         *
          * @param {*} memoryIndex
          * @param {*} result
          * @returns {Promise<any>}
@@ -374,7 +386,7 @@
                 const record = {
                     memoryIndex,
                     result: JSON.parse(JSON.stringify(result)),
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
                 };
                 const request = store.add(record);
                 request.onsuccess = () => resolve(request.result);
@@ -384,7 +396,7 @@
 
         /**
          * getRollResults
-         * 
+         *
          * @param {*} memoryIndex
          * @returns {Promise<any>}
          */
@@ -402,7 +414,7 @@
 
         /**
          * clearRollResults
-         * 
+         *
          * @param {*} memoryIndex
          * @returns {Promise<any>}
          */
@@ -434,7 +446,7 @@
                     memoryIndex,
                     result: JSON.parse(JSON.stringify(result)),
                     customPrompt,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
                 };
                 const request = store.add(record);
                 request.onsuccess = () => resolve(request.result);
@@ -444,7 +456,7 @@
 
         /**
          * getEntryRollResults
-         * 
+         *
          * @param {*} category
          * @param {*} entryName
          * @returns {Promise<any>}
@@ -469,7 +481,7 @@
 
         /**
          * clearEntryRollResults
-         * 
+         *
          * @param {*} category
          * @param {*} entryName
          * @returns {Promise<any>}
@@ -490,7 +502,7 @@
 
         /**
          * clearAllEntryRolls
-         * 
+         *
          * @returns {Promise<any>}
          */
         async clearAllEntryRolls() {
@@ -506,7 +518,7 @@
 
         /**
          * deleteEntryRollById
-         * 
+         *
          * @param {*} rollId
          * @returns {Promise<any>}
          */
@@ -523,7 +535,7 @@
 
         /**
          * getEntryRollById
-         * 
+         *
          * @param {*} rollId
          * @returns {Promise<any>}
          */
@@ -540,7 +552,7 @@
 
         /**
          * rollbackToHistory
-         * 
+         *
          * @param {*} historyId
          * @returns {Promise<any>}
          */
@@ -550,7 +562,7 @@
 
             const db = await this.openDB();
             const allHistory = await this.getAllHistory();
-            const toDelete = allHistory.filter(h => h.id >= historyId);
+            const toDelete = allHistory.filter((h) => h.id >= historyId);
 
             await new Promise((resolve, reject) => {
                 const transaction = db.transaction([this.storeName], 'readwrite');
@@ -568,7 +580,7 @@
 
         /**
          * cleanDuplicateHistory
-         * 
+         *
          * @returns {Promise<any>}
          */
         async cleanDuplicateHistory() {

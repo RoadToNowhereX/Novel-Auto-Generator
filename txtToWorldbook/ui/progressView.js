@@ -1,7 +1,5 @@
 export function createProgressView(deps = {}) {
-    const {
-        AppState,
-    } = deps;
+    const { AppState } = deps;
 
     function showQueueSection(show) {
         document.getElementById('ttw-queue-section').style.display = show ? 'block' : 'none';
@@ -15,9 +13,10 @@ export function createProgressView(deps = {}) {
         document.getElementById('ttw-result-section').style.display = show ? 'block' : 'none';
         const volumeExportBtn = document.getElementById('ttw-export-volumes');
         if (volumeExportBtn) {
-            volumeExportBtn.style.display = (show && AppState.processing.volumeMode && AppState.worldbook.volumes.length > 0)
-                ? 'inline-block'
-                : 'none';
+            volumeExportBtn.style.display =
+                show && AppState.processing.volumeMode && AppState.worldbook.volumes.length > 0
+                    ? 'inline-block'
+                    : 'none';
         }
     }
 

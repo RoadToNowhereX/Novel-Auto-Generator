@@ -49,7 +49,7 @@ export function createModalController(deps) {
         if (globalSemaphore) globalSemaphore.abort();
 
         AppState.processing.activeTasks.clear();
-        AppState.memory.queue.forEach(memory => {
+        AppState.memory.queue.forEach((memory) => {
             if (memory.processing) memory.processing = false;
         });
 

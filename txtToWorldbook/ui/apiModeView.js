@@ -1,8 +1,5 @@
 export function createApiModeView(deps = {}) {
-    const {
-        AppState,
-        updateModelStatus,
-    } = deps;
+    const { AppState, updateModelStatus } = deps;
 
     function handleUseTavernApiChange() {
         const useTavernApi = document.getElementById('ttw-use-tavern-api')?.checked ?? true;
@@ -16,7 +13,7 @@ export function createApiModeView(deps = {}) {
         if (chainWarning) {
             const chain = AppState.settings.promptMessageChain || [];
             const hasNonUserRole = chain.some((m) => m.enabled !== false && m.role !== 'user');
-            chainWarning.style.display = (useTavernApi && hasNonUserRole) ? 'block' : 'none';
+            chainWarning.style.display = useTavernApi && hasNonUserRole ? 'block' : 'none';
         }
     }
 

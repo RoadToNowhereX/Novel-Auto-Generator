@@ -26,7 +26,7 @@
             return '<div style="color:#e74c3c;font-size:12px;">⚠️ 未找到该条目的来源章节（可能是默认条目或导入条目）</div>';
         }
         let html = '<div style="font-size:12px;color:#888;margin-bottom:8px;">该条目来自以下章节（可多选）：</div>';
-        sources.forEach(source => {
+        sources.forEach((source) => {
             html += `
         <label class="ttw-checkbox-label" style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(39,174,96,0.1);border-radius:6px;margin-bottom:6px;cursor:pointer;">
             <input type="checkbox" name="ttw-reroll-source" value="${source.memoryIndex}" ${sources.length === 1 ? 'checked' : ''}>
@@ -45,8 +45,15 @@
         }
         let html = '<div style="max-height:150px;overflow-y:auto;">';
         rollHistory.forEach((roll, idx) => {
-            const time = new Date(roll.timestamp).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-            const promptPreview = roll.customPrompt ? `「${roll.customPrompt.substring(0, 20)}${roll.customPrompt.length > 20 ? '...' : ''}」` : '';
+            const time = new Date(roll.timestamp).toLocaleString('zh-CN', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+            const promptPreview = roll.customPrompt
+                ? `「${roll.customPrompt.substring(0, 20)}${roll.customPrompt.length > 20 ? '...' : ''}」`
+                : '';
             html += `
         <div class="ttw-entry-roll-item" data-roll-id="${roll.id}" style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(155,89,182,0.1);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.1)'">
             <div style="flex:1;">
@@ -117,7 +124,7 @@
             return;
         }
 
-        const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value, 10));
+        const selectedIndices = Array.from(selectedCheckboxes).map((cb) => parseInt(cb.value, 10));
         const customPrompt = modal.querySelector('#ttw-reroll-entry-prompt').value.trim();
         const concurrency = parseInt(modal.querySelector('#ttw-reroll-concurrency').value, 10) || 3;
 
@@ -144,7 +151,12 @@
                     const currentIndex = index++;
                     const memoryIndex = selectedIndices[currentIndex];
                     try {
-                        const result = await handleRerollSingleEntry({ memoryIndex, category, entryName, customPrompt });
+                        const result = await handleRerollSingleEntry({
+                            memoryIndex,
+                            category,
+                            entryName,
+                            customPrompt,
+                        });
                         lastResult = result;
                         completed++;
                     } catch (error) {
@@ -167,7 +179,9 @@
 
             if (!AppState.processing.isStopped) {
                 if (lastResult) {
-                    const keywords = Array.isArray(lastResult['关键词']) ? lastResult['关键词'].join(', ') : (lastResult['关键词'] || '');
+                    const keywords = Array.isArray(lastResult['关键词'])
+                        ? lastResult['关键词'].join(', ')
+                        : lastResult['关键词'] || '';
                     modal.querySelector('#ttw-entry-keywords-edit').value = keywords;
                     modal.querySelector('#ttw-entry-content-edit').value = lastResult['内容'] || '';
                 }
@@ -176,20 +190,24 @@
                 const newHistory = await MemoryHistoryDB.getEntryRollResults(category, entryName);
                 modal.querySelector('#ttw-entry-roll-history').innerHTML = buildRerollHistoryHtml(newHistory);
 
-                modal.querySelectorAll('.ttw-use-roll-btn').forEach(btn => {
+                modal.querySelectorAll('.ttw-use-roll-btn').forEach((btn) => {
                     btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
                         const rollId = parseInt(btn.dataset.rollId, 10);
                         const roll = await MemoryHistoryDB.getEntryRollById(rollId);
                         if (roll && roll.result) {
-                            const keywords = Array.isArray(roll.result['关键词']) ? roll.result['关键词'].join(', ') : (roll.result['关键词'] || '');
+                            const keywords = Array.isArray(roll.result['关键词'])
+                                ? roll.result['关键词'].join(', ')
+                                : roll.result['关键词'] || '';
                             modal.querySelector('#ttw-entry-keywords-edit').value = keywords;
                             modal.querySelector('#ttw-entry-content-edit').value = roll.result['内容'] || '';
                             if (!AppState.worldbook.generated[category]) AppState.worldbook.generated[category] = {};
                             AppState.worldbook.generated[category][entryName] = JSON.parse(JSON.stringify(roll.result));
                             updateWorldbookPreview();
                             btn.textContent = '✅ 已应用';
-                            setTimeout(() => { btn.textContent = '✅ 使用'; }, 1500);
+                            setTimeout(() => {
+                                btn.textContent = '✅ 使用';
+                            }, 1500);
                         }
                     });
                 });
@@ -213,28 +231,37 @@
         modal.querySelector('#ttw-save-entry-edit').addEventListener('click', () => {
             const keywordsInput = modal.querySelector('#ttw-entry-keywords-edit').value;
             const contentInput = modal.querySelector('#ttw-entry-content-edit').value;
-            const keywords = keywordsInput.split(/[,，]/).map(k => k.trim()).filter(Boolean);
+            const keywords = keywordsInput
+                .split(/[,，]/)
+                .map((k) => k.trim())
+                .filter(Boolean);
             if (!AppState.worldbook.generated[category]) AppState.worldbook.generated[category] = {};
-            AppState.worldbook.generated[category][entryName] = { '关键词': keywords, '内容': contentInput };
+            AppState.worldbook.generated[category][entryName] = { 关键词: keywords, 内容: contentInput };
             updateWorldbookPreview();
             const btn = modal.querySelector('#ttw-save-entry-edit');
             btn.textContent = '✅ 已保存';
-            setTimeout(() => { btn.textContent = '💾 保存编辑'; }, 1500);
+            setTimeout(() => {
+                btn.textContent = '💾 保存编辑';
+            }, 1500);
         });
 
         const selectAllBtn = modal.querySelector('#ttw-select-all-sources');
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', () => {
                 const checkboxes = modal.querySelectorAll('input[name="ttw-reroll-source"]');
-                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                checkboxes.forEach(cb => { cb.checked = !allChecked; });
+                const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+                checkboxes.forEach((cb) => {
+                    cb.checked = !allChecked;
+                });
             });
         }
 
         const clearHistoryBtn = modal.querySelector('#ttw-clear-entry-history');
         if (clearHistoryBtn) {
             clearHistoryBtn.addEventListener('click', async () => {
-                if (await confirmAction('确定清空该条目的所有Roll历史？', { title: '清空条目 Roll 历史', danger: true })) {
+                if (
+                    await confirmAction('确定清空该条目的所有Roll历史？', { title: '清空条目 Roll 历史', danger: true })
+                ) {
                     await MemoryHistoryDB.clearEntryRollResults(category, entryName);
                     ModalFactory.close(modal);
                     showRerollEntryModal(category, entryName, callback);
@@ -248,33 +275,41 @@
                 const rollId = parseInt(btn.dataset.rollId, 10);
                 const roll = await MemoryHistoryDB.getEntryRollById(rollId);
                 if (roll && roll.result) {
-                    const keywords = Array.isArray(roll.result['关键词']) ? roll.result['关键词'].join(', ') : (roll.result['关键词'] || '');
+                    const keywords = Array.isArray(roll.result['关键词'])
+                        ? roll.result['关键词'].join(', ')
+                        : roll.result['关键词'] || '';
                     modal.querySelector('#ttw-entry-keywords-edit').value = keywords;
                     modal.querySelector('#ttw-entry-content-edit').value = roll.result['内容'] || '';
                     if (!AppState.worldbook.generated[category]) AppState.worldbook.generated[category] = {};
                     AppState.worldbook.generated[category][entryName] = JSON.parse(JSON.stringify(roll.result));
                     updateWorldbookPreview();
                     btn.textContent = '✅ 已应用';
-                    setTimeout(() => { btn.textContent = '✅ 使用'; }, 1500);
+                    setTimeout(() => {
+                        btn.textContent = '✅ 使用';
+                    }, 1500);
                 }
             });
         };
-        modal.querySelectorAll('.ttw-use-roll-btn').forEach(btn => bindUseRollBtn(btn));
+        modal.querySelectorAll('.ttw-use-roll-btn').forEach((btn) => bindUseRollBtn(btn));
 
-        modal.querySelectorAll('.ttw-entry-roll-item').forEach(item => {
+        modal.querySelectorAll('.ttw-entry-roll-item').forEach((item) => {
             item.addEventListener('click', async (e) => {
                 if (e.target.classList.contains('ttw-use-roll-btn')) return;
                 const rollId = parseInt(item.dataset.rollId, 10);
                 const roll = await MemoryHistoryDB.getEntryRollById(rollId);
                 if (roll && roll.result) {
-                    const keywords = Array.isArray(roll.result['关键词']) ? roll.result['关键词'].join(', ') : (roll.result['关键词'] || '');
+                    const keywords = Array.isArray(roll.result['关键词'])
+                        ? roll.result['关键词'].join(', ')
+                        : roll.result['关键词'] || '';
                     const infoModal = ModalFactory.create({
                         id: 'ttw-roll-info-modal',
                         title: `🎲 Roll #${rollId} 信息`,
                         body: `<div style="white-space: pre-wrap; font-family: monospace; max-height: 400px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.3); color: #ccc; border-radius: 4px; border: 1px solid #555;">【Roll #${rollId}】\n\n关键词:\n${keywords}\n\n内容:\n${roll.result['内容'] || '(无)'}\n\n提示词:\n${roll.customPrompt || '(无)'}</div>`,
                         footer: '<button class="ttw-btn ttw-btn-primary" id="ttw-close-roll-info">关闭</button>',
                     });
-                    infoModal.querySelector('#ttw-close-roll-info').addEventListener('click', () => ModalFactory.close(infoModal));
+                    infoModal
+                        .querySelector('#ttw-close-roll-info')
+                        .addEventListener('click', () => ModalFactory.close(infoModal));
                 }
             });
         });
@@ -301,7 +336,7 @@
         const currentEntry = AppState.worldbook.generated[category]?.[entryName] || {};
         const currentKeywords = Array.isArray(currentEntry['关键词'])
             ? currentEntry['关键词'].join(', ')
-            : (currentEntry['关键词'] || '');
+            : currentEntry['关键词'] || '';
         const currentContent = currentEntry['内容'] || '';
 
         const entryRollHistory = await MemoryHistoryDB.getEntryRollResults(category, entryName);
@@ -397,10 +432,14 @@
         });
 
         modal.querySelector('#ttw-select-all-entries').addEventListener('click', () => {
-            modal.querySelectorAll('input[name="ttw-batch-entry"]').forEach(cb => { cb.checked = true; });
+            modal.querySelectorAll('input[name="ttw-batch-entry"]').forEach((cb) => {
+                cb.checked = true;
+            });
         });
         modal.querySelector('#ttw-deselect-all-entries').addEventListener('click', () => {
-            modal.querySelectorAll('input[name="ttw-batch-entry"]').forEach(cb => { cb.checked = false; });
+            modal.querySelectorAll('input[name="ttw-batch-entry"]').forEach((cb) => {
+                cb.checked = false;
+            });
         });
 
         const confirmBtn = modal.querySelector('#ttw-confirm-batch');
@@ -409,7 +448,7 @@
 
         confirmBtn.addEventListener('click', async () => {
             const selectedEntries = [];
-            modal.querySelectorAll('input[name="ttw-batch-entry"]:checked').forEach(cb => {
+            modal.querySelectorAll('input[name="ttw-batch-entry"]:checked').forEach((cb) => {
                 selectedEntries.push({ category: cb.dataset.category, entryName: cb.dataset.entry });
             });
 
@@ -446,7 +485,12 @@
 
                     if (sources.length > 0) {
                         try {
-                            await handleRerollSingleEntry({ memoryIndex: sources[0].memoryIndex, category, entryName, customPrompt });
+                            await handleRerollSingleEntry({
+                                memoryIndex: sources[0].memoryIndex,
+                                category,
+                                entryName,
+                                customPrompt,
+                            });
                             completed++;
                         } catch (error) {
                             if (error.message !== 'ABORTED') {
@@ -487,8 +531,19 @@
         }
         let html = '';
         rollResults.forEach((roll, idx) => {
-            const time = new Date(roll.timestamp).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-            const entryCount = roll.result ? Object.keys(roll.result).reduce((sum, cat) => sum + (typeof roll.result[cat] === 'object' ? Object.keys(roll.result[cat]).length : 0), 0) : 0;
+            const time = new Date(roll.timestamp).toLocaleString('zh-CN', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+            const entryCount = roll.result
+                ? Object.keys(roll.result).reduce(
+                      (sum, cat) =>
+                          sum + (typeof roll.result[cat] === 'object' ? Object.keys(roll.result[cat]).length : 0),
+                      0,
+                  )
+                : 0;
             const isCurrentSelected = memory.result && JSON.stringify(memory.result) === JSON.stringify(roll.result);
             html += `
         <div class="ttw-roll-item ${isCurrentSelected ? 'selected' : ''}" data-roll-id="${roll.id}" data-roll-index="${idx}">
@@ -546,19 +601,28 @@
         detailDiv.querySelector('#ttw-save-current-result').addEventListener('click', async () => {
             const editor = detailDiv.querySelector('#ttw-current-result-editor');
             let parsed;
-            try { parsed = JSON.parse(editor.value); }
-            catch (e) { ErrorHandler.showUserError('JSON格式错误！\n\n' + e.message); return; }
+            try {
+                parsed = JSON.parse(editor.value);
+            } catch (e) {
+                ErrorHandler.showUserError('JSON格式错误！\n\n' + e.message);
+                return;
+            }
             memory.result = parsed;
             memory.processed = true;
             memory.failed = false;
-            try { await MemoryHistoryDB.saveRollResult(index, parsed); }
-            catch (dbErr) { Logger.error('DB', '保存到数据库失败:', dbErr); }
+            try {
+                await MemoryHistoryDB.saveRollResult(index, parsed);
+            } catch (dbErr) {
+                Logger.error('DB', '保存到数据库失败:', dbErr);
+            }
             rebuildWorldbookFromMemories();
             updateMemoryQueueUI();
             updateWorldbookPreview();
             const btn = detailDiv.querySelector('#ttw-save-current-result');
             btn.textContent = '✅ 已保存并应用';
-            setTimeout(() => { btn.textContent = '💾 保存并应用'; }, 1500);
+            setTimeout(() => {
+                btn.textContent = '💾 保存并应用';
+            }, 1500);
         });
 
         detailDiv.querySelector('#ttw-copy-current-result').addEventListener('click', () => {
@@ -566,7 +630,9 @@
             navigator.clipboard.writeText(editor.value).then(() => {
                 const btn = detailDiv.querySelector('#ttw-copy-current-result');
                 btn.textContent = '✅ 已复制';
-                setTimeout(() => { btn.textContent = '📋 复制'; }, 1500);
+                setTimeout(() => {
+                    btn.textContent = '📋 复制';
+                }, 1500);
             });
         });
 
@@ -574,18 +640,28 @@
             const pasteArea = detailDiv.querySelector('#ttw-paste-json-area');
             const editor = detailDiv.querySelector('#ttw-current-result-editor');
             const rawText = pasteArea.value.trim();
-            if (!rawText) { ErrorHandler.showUserError('请先粘贴JSON内容'); return; }
+            if (!rawText) {
+                ErrorHandler.showUserError('请先粘贴JSON内容');
+                return;
+            }
             let parsed;
-            try { parsed = parseAIResponse(rawText, { strict: false }); }
-            catch (e) { ErrorHandler.showUserError('无法解析！\n\n错误: ' + e.message); return; }
+            try {
+                parsed = parseAIResponse(rawText, { strict: false });
+            } catch (e) {
+                ErrorHandler.showUserError('无法解析！\n\n错误: ' + e.message);
+                return;
+            }
             if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) {
-                ErrorHandler.showUserError('解析结果为空，请检查内容'); return;
+                ErrorHandler.showUserError('解析结果为空，请检查内容');
+                return;
             }
             editor.value = JSON.stringify(parsed, null, 2);
             pasteArea.value = '';
             const btn = detailDiv.querySelector('#ttw-parse-and-apply');
             btn.textContent = '✅ 已填入';
-            setTimeout(() => { btn.textContent = '📋 解析并填入上方'; }, 1500);
+            setTimeout(() => {
+                btn.textContent = '📋 解析并填入上方';
+            }, 1500);
         });
     }
 
@@ -593,9 +669,15 @@
         detailDiv.querySelector('#ttw-use-this-roll').addEventListener('click', async () => {
             const editArea = detailDiv.querySelector('#ttw-roll-edit-area');
             let resultToUse;
-            try { resultToUse = JSON.parse(editArea.value); }
-            catch (e) {
-                if (!await confirmAction('编辑框中的JSON格式有误，是否使用原始结果？\n\n点击"取消"可继续编辑修复。', { title: 'JSON 格式有误' })) return;
+            try {
+                resultToUse = JSON.parse(editArea.value);
+            } catch (e) {
+                if (
+                    !(await confirmAction('编辑框中的JSON格式有误，是否使用原始结果？\n\n点击"取消"可继续编辑修复。', {
+                        title: 'JSON 格式有误',
+                    }))
+                )
+                    return;
                 resultToUse = roll.result;
             }
             try {
@@ -608,7 +690,9 @@
                 updateMemoryQueueUI();
                 updateWorldbookPreview();
                 ModalFactory.close(modal);
-                ErrorHandler.showUserSuccess(`已使用 Roll #${rollIndex + 1}${resultToUse !== roll.result ? '（已编辑）' : ''}`);
+                ErrorHandler.showUserSuccess(
+                    `已使用 Roll #${rollIndex + 1}${resultToUse !== roll.result ? '（已编辑）' : ''}`,
+                );
             } catch (error) {
                 Logger.error('Reroll', '应用 Roll 结果失败:', error);
                 ErrorHandler.showUserError('应用结果失败: ' + error.message);
@@ -618,37 +702,58 @@
         detailDiv.querySelector('#ttw-save-edited-roll').addEventListener('click', async () => {
             const editArea = detailDiv.querySelector('#ttw-roll-edit-area');
             let parsed;
-            try { parsed = JSON.parse(editArea.value); }
-            catch (e) { ErrorHandler.showUserError('JSON格式错误，无法保存！\n\n错误信息: ' + e.message); return; }
+            try {
+                parsed = JSON.parse(editArea.value);
+            } catch (e) {
+                ErrorHandler.showUserError('JSON格式错误，无法保存！\n\n错误信息: ' + e.message);
+                return;
+            }
             roll.result = parsed;
-            try { await MemoryHistoryDB.saveRollResult(index, parsed); }
-            catch (dbErr) { Logger.error('DB', '保存到数据库失败:', dbErr); }
+            try {
+                await MemoryHistoryDB.saveRollResult(index, parsed);
+            } catch (dbErr) {
+                Logger.error('DB', '保存到数据库失败:', dbErr);
+            }
             const btn = detailDiv.querySelector('#ttw-save-edited-roll');
             btn.textContent = '✅ 已保存';
             btn.style.background = 'rgba(39,174,96,0.8)';
-            setTimeout(() => { btn.textContent = '💾 保存编辑'; btn.style.background = 'rgba(39,174,96,0.5)'; }, 1500);
+            setTimeout(() => {
+                btn.textContent = '💾 保存编辑';
+                btn.style.background = 'rgba(39,174,96,0.5)';
+            }, 1500);
         });
 
         detailDiv.querySelector('#ttw-parse-paste-json').addEventListener('click', () => {
             const pasteArea = detailDiv.querySelector('#ttw-roll-paste-area');
             const editArea = detailDiv.querySelector('#ttw-roll-edit-area');
             const rawText = pasteArea.value.trim();
-            if (!rawText) { ErrorHandler.showUserError('请先在下方粘贴JSON内容'); return; }
+            if (!rawText) {
+                ErrorHandler.showUserError('请先在下方粘贴JSON内容');
+                return;
+            }
             let parsed;
-            try { parsed = parseAIResponse(rawText, { strict: false }); }
-            catch (e) {
-                ErrorHandler.showUserError('无法解析粘贴的内容！\n\n支持的格式:\n1. 标准JSON\n2. 带```json```代码块的JSON\n3. 不完整但可修复的JSON\n\n错误: ' + e.message);
+            try {
+                parsed = parseAIResponse(rawText, { strict: false });
+            } catch (e) {
+                ErrorHandler.showUserError(
+                    '无法解析粘贴的内容！\n\n支持的格式:\n1. 标准JSON\n2. 带```json```代码块的JSON\n3. 不完整但可修复的JSON\n\n错误: ' +
+                        e.message,
+                );
                 return;
             }
             if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) {
-                ErrorHandler.showUserError('解析结果为空，请检查粘贴的内容是否正确'); return;
+                ErrorHandler.showUserError('解析结果为空，请检查粘贴的内容是否正确');
+                return;
             }
             editArea.value = JSON.stringify(parsed, null, 2);
             pasteArea.value = '';
             const btn = detailDiv.querySelector('#ttw-parse-paste-json');
             btn.textContent = '✅ 已替换到上方';
             btn.style.background = 'rgba(39,174,96,0.5)';
-            setTimeout(() => { btn.textContent = '📋 解析并替换到上方'; btn.style.background = 'rgba(155,89,182,0.5)'; }, 1500);
+            setTimeout(() => {
+                btn.textContent = '📋 解析并替换到上方';
+                btn.style.background = 'rgba(155,89,182,0.5)';
+            }, 1500);
         });
     }
 
@@ -717,7 +822,9 @@
                 btn.disabled = false;
                 btn.textContent = '🎲 重Roll';
                 stopRerollBtn.style.display = 'none';
-                if (error.message !== 'ABORTED') { ErrorHandler.showUserError('重Roll失败: ' + error.message); }
+                if (error.message !== 'ABORTED') {
+                    ErrorHandler.showUserError('重Roll失败: ' + error.message);
+                }
             }
         });
 
@@ -730,20 +837,25 @@
         });
 
         modal.querySelector('#ttw-clear-rolls').addEventListener('click', async () => {
-            if (await confirmAction(`确定清空 "${memory.title}" 的所有Roll历史？`, { title: '清空章节 Roll 历史', danger: true })) {
+            if (
+                await confirmAction(`确定清空 "${memory.title}" 的所有Roll历史？`, {
+                    title: '清空章节 Roll 历史',
+                    danger: true,
+                })
+            ) {
                 await MemoryHistoryDB.clearRollResults(index);
                 ModalFactory.close(modal);
                 ErrorHandler.showUserSuccess('已清空');
             }
         });
 
-        modal.querySelectorAll('.ttw-roll-item').forEach(item => {
+        modal.querySelectorAll('.ttw-roll-item').forEach((item) => {
             item.addEventListener('click', () => {
                 const rollIndex = parseInt(item.dataset.rollIndex, 10);
                 const roll = rollResults[rollIndex];
                 const detailDiv = modal.querySelector('#ttw-roll-detail');
 
-                modal.querySelectorAll('.ttw-roll-item').forEach(i => i.classList.remove('active'));
+                modal.querySelectorAll('.ttw-roll-item').forEach((i) => i.classList.remove('active'));
                 item.classList.add('active');
 
                 detailDiv.innerHTML = buildRollDetailEditorHtml(rollIndex, roll);

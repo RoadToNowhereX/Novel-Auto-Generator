@@ -37,7 +37,7 @@ export function createCategoryPersistenceService(deps) {
         const category = AppState.persistent.customCategories[index];
         if (!category) return;
 
-        const defaultCategory = defaultWorldbookCategories.find(item => item.name === category.name);
+        const defaultCategory = defaultWorldbookCategories.find((item) => item.name === category.name);
         if (defaultCategory) {
             AppState.persistent.customCategories[index] = JSON.parse(JSON.stringify(defaultCategory));
         } else {
@@ -48,7 +48,7 @@ export function createCategoryPersistenceService(deps) {
     }
 
     function getEnabledCategories() {
-        return AppState.persistent.customCategories.filter(category => category.enabled);
+        return AppState.persistent.customCategories.filter((category) => category.enabled);
     }
 
     function generateDynamicJsonTemplate() {
@@ -71,7 +71,7 @@ export function createCategoryPersistenceService(deps) {
     }
 
     function getEnabledCategoryNames() {
-        const names = getEnabledCategories().map(category => category.name);
+        const names = getEnabledCategories().map((category) => category.name);
         names.push(...extendedCategoryNames);
         return names;
     }

@@ -16,15 +16,23 @@
             return currentLevel;
         },
         log,
-        debug(tag, ...args) { log('DEBUG', tag, ...args); },
-        info(tag, ...args) { log('INFO', tag, ...args); },
-        warn(tag, ...args) { log('WARN', tag, ...args); },
-        error(tag, ...args) { log('ERROR', tag, ...args); },
+        debug(tag, ...args) {
+            log('DEBUG', tag, ...args);
+        },
+        info(tag, ...args) {
+            log('INFO', tag, ...args);
+        },
+        warn(tag, ...args) {
+            log('WARN', tag, ...args);
+        },
+        error(tag, ...args) {
+            log('ERROR', tag, ...args);
+        },
         setLevel(level) {
             if (levels[level] !== undefined) {
                 currentLevel = levels[level];
             }
-        }
+        },
     };
 }
 

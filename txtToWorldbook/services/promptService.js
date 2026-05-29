@@ -16,10 +16,12 @@ export function createPromptService(deps = {}) {
         if (typeof messages === 'string') return messages;
         if (!Array.isArray(messages) || messages.length === 0) return '';
         if (messages.length === 1) return messages[0].content || '';
-        return messages.map((m) => {
-            const roleLabel = m.role === 'system' ? '[System]' : m.role === 'assistant' ? '[Assistant]' : '[User]';
-            return `${roleLabel}\n${m.content}`;
-        }).join('\n\n');
+        return messages
+            .map((m) => {
+                const roleLabel = m.role === 'system' ? '[System]' : m.role === 'assistant' ? '[Assistant]' : '[User]';
+                return `${roleLabel}\n${m.content}`;
+            })
+            .join('\n\n');
     }
 
     function applyMessageChain(prompt) {
@@ -31,10 +33,12 @@ export function createPromptService(deps = {}) {
         if (enabledMessages.length === 0) {
             return [{ role: 'user', content: prompt }];
         }
-        return enabledMessages.map((msg) => ({
-            role: msg.role || 'user',
-            content: (msg.content || '').replace(/\{PROMPT\}/g, prompt),
-        })).filter((m) => m.content.trim().length > 0);
+        return enabledMessages
+            .map((msg) => ({
+                role: msg.role || 'user',
+                content: (msg.content || '').replace(/\{PROMPT\}/g, prompt),
+            }))
+            .filter((m) => m.content.trim().length > 0);
     }
 
     function convertToGeminiContents(messages) {
@@ -86,7 +90,7 @@ export function createPromptService(deps = {}) {
 
         let fullPrompt = worldbookPrompt;
         const insertContent = ',\n' + additionalParts.join(',\n');
-        fullPrompt = fullPrompt.replace(/(\}\s*)\n\`\`\`/, `${insertContent}\n$1\n\`\`\``);
+        fullPrompt = fullPrompt.replace(/(\}\s*)\n```/, `${insertContent}\n$1\n\`\`\``);
         return fullPrompt;
     }
 
@@ -101,17 +105,23 @@ export function createPromptService(deps = {}) {
 
                 if (result['剧情大纲']) {
                     for (const entryName in result['剧情大纲']) {
-                        plotContext.push(`${entryName}: ${result['剧情大纲'][entryName]['内容']?.substring(0, 200) || ''}`);
+                        plotContext.push(
+                            `${entryName}: ${result['剧情大纲'][entryName]['内容']?.substring(0, 200) || ''}`,
+                        );
                     }
                 }
                 if (result['剧情节点']) {
                     for (const entryName in result['剧情节点']) {
-                        plotContext.push(`${entryName}: ${result['剧情节点'][entryName]['内容']?.substring(0, 200) || ''}`);
+                        plotContext.push(
+                            `${entryName}: ${result['剧情节点'][entryName]['内容']?.substring(0, 200) || ''}`,
+                        );
                     }
                 }
                 if (result['章节剧情']) {
                     for (const entryName in result['章节剧情']) {
-                        plotContext.push(`${entryName}: ${result['章节剧情'][entryName]['内容']?.substring(0, 200) || ''}`);
+                        plotContext.push(
+                            `${entryName}: ${result['章节剧情'][entryName]['内容']?.substring(0, 200) || ''}`,
+                        );
                     }
                 }
 

@@ -29,13 +29,14 @@ export function createMemoryQueueView(deps = {}) {
 
         const itemsHtml = ListRenderer.renderItems(
             AppState.memory.queue,
-            (memory, index) => ListRenderer.renderMemoryItem(memory, index, {
-                multiSelect: AppState.ui.isMultiSelectMode,
-                selected: AppState.ui.selectedIndices.has(index),
-                useChapterLabel: true,
-                useApproxK: true,
-            }),
-            { emptyMessage: '暂无章节数据' }
+            (memory, index) =>
+                ListRenderer.renderMemoryItem(memory, index, {
+                    multiSelect: AppState.ui.isMultiSelectMode,
+                    selected: AppState.ui.selectedIndices.has(index),
+                    useChapterLabel: true,
+                    useApproxK: true,
+                }),
+            { emptyMessage: '暂无章节数据' },
         );
 
         ListRenderer.updateContainer(container, itemsHtml);
@@ -65,7 +66,10 @@ export function createMemoryQueueView(deps = {}) {
         let optionsHtml = '';
         AppState.memory.queue.forEach((memory, index) => {
             const status = memory.processed ? (memory.failed ? '❗' : '✅') : '⏳';
-            const currentSelected = AppState.memory.userSelectedIndex !== null ? AppState.memory.userSelectedIndex : AppState.memory.startIndex;
+            const currentSelected =
+                AppState.memory.userSelectedIndex !== null
+                    ? AppState.memory.userSelectedIndex
+                    : AppState.memory.startIndex;
             optionsHtml += `<option value="${index}" ${index === currentSelected ? 'selected' : ''}>${status} 第${index + 1}章 - ${ListRenderer.escapeHtml(memory.title)} (${memory.content.length.toLocaleString()}字)</option>`;
         });
 
@@ -90,7 +94,9 @@ export function createMemoryQueueView(deps = {}) {
             maxWidth: '500px',
         });
 
-        selectorModal.querySelector('#ttw-cancel-start-select').addEventListener('click', () => ModalFactory.close(selectorModal));
+        selectorModal
+            .querySelector('#ttw-cancel-start-select')
+            .addEventListener('click', () => ModalFactory.close(selectorModal));
         selectorModal.querySelector('#ttw-confirm-start-select').addEventListener('click', () => {
             const selectedIndex = parseInt(document.getElementById('ttw-start-from-select').value, 10);
             AppState.memory.userSelectedIndex = selectedIndex;
@@ -109,8 +115,20 @@ export function createMemoryQueueView(deps = {}) {
         const existingModal = document.getElementById('ttw-memory-content-modal');
         if (existingModal) existingModal.remove();
 
-        const statusText = memory.processing ? '🔄 处理中' : (memory.processed ? (memory.failed ? '❗ 失败' : '✅ 完成') : '⏳ 等待');
-        const statusColor = memory.processing ? '#3498db' : (memory.processed ? (memory.failed ? '#e74c3c' : '#27ae60') : '#f39c12');
+        const statusText = memory.processing
+            ? '🔄 处理中'
+            : memory.processed
+              ? memory.failed
+                  ? '❗ 失败'
+                  : '✅ 完成'
+              : '⏳ 等待';
+        const statusColor = memory.processing
+            ? '#3498db'
+            : memory.processed
+              ? memory.failed
+                  ? '#e74c3c'
+                  : '#27ae60'
+              : '#f39c12';
 
         let resultHtml = '';
         if (memory.processed && memory.result && !memory.failed) {
@@ -169,7 +187,9 @@ ${resultHtml}
         }, 100);
         editor.addEventListener('input', updateCharCount);
 
-        contentModal.querySelector('#ttw-cancel-memory-edit').addEventListener('click', () => ModalFactory.close(contentModal));
+        contentModal
+            .querySelector('#ttw-cancel-memory-edit')
+            .addEventListener('click', () => ModalFactory.close(contentModal));
 
         contentModal.querySelector('#ttw-save-memory-edit').addEventListener('click', () => {
             const newContent = editor.value;
@@ -207,7 +227,12 @@ ${resultHtml}
         contentModal.querySelector('#ttw-append-to-prev').addEventListener('click', async () => {
             if (index === 0) return;
             const prevMemory = AppState.memory.queue[index - 1];
-            if (await confirmAction(`将当前内容合并到 "${prevMemory.title}" 的末尾？\n\n⚠️ 合并后当前章将被删除！`, { title: '合并到上一章', danger: true })) {
+            if (
+                await confirmAction(`将当前内容合并到 "${prevMemory.title}" 的末尾？\n\n⚠️ 合并后当前章将被删除！`, {
+                    title: '合并到上一章',
+                    danger: true,
+                })
+            ) {
                 prevMemory.content += '\n\n' + editor.value;
                 prevMemory.processed = false;
                 prevMemory.failed = false;
@@ -216,11 +241,15 @@ ${resultHtml}
                 AppState.memory.queue.forEach((m, i) => {
                     if (!m.title.includes('-')) m.title = `记忆${i + 1}`;
                 });
-                if (AppState.memory.startIndex > index) AppState.memory.startIndex = Math.max(0, AppState.memory.startIndex - 1);
-                else if (AppState.memory.startIndex >= AppState.memory.queue.length) AppState.memory.startIndex = Math.max(0, AppState.memory.queue.length - 1);
+                if (AppState.memory.startIndex > index)
+                    AppState.memory.startIndex = Math.max(0, AppState.memory.startIndex - 1);
+                else if (AppState.memory.startIndex >= AppState.memory.queue.length)
+                    AppState.memory.startIndex = Math.max(0, AppState.memory.queue.length - 1);
                 if (AppState.memory.userSelectedIndex !== null) {
-                    if (AppState.memory.userSelectedIndex > index) AppState.memory.userSelectedIndex = Math.max(0, AppState.memory.userSelectedIndex - 1);
-                    else if (AppState.memory.userSelectedIndex >= AppState.memory.queue.length) AppState.memory.userSelectedIndex = null;
+                    if (AppState.memory.userSelectedIndex > index)
+                        AppState.memory.userSelectedIndex = Math.max(0, AppState.memory.userSelectedIndex - 1);
+                    else if (AppState.memory.userSelectedIndex >= AppState.memory.queue.length)
+                        AppState.memory.userSelectedIndex = null;
                 }
                 updateMemoryQueueUI();
                 updateStartButtonState(false);
@@ -232,7 +261,12 @@ ${resultHtml}
         contentModal.querySelector('#ttw-append-to-next').addEventListener('click', async () => {
             if (index === AppState.memory.queue.length - 1) return;
             const nextMemory = AppState.memory.queue[index + 1];
-            if (await confirmAction(`将当前内容合并到 "${nextMemory.title}" 的开头？\n\n⚠️ 合并后当前章将被删除！`, { title: '合并到下一章', danger: true })) {
+            if (
+                await confirmAction(`将当前内容合并到 "${nextMemory.title}" 的开头？\n\n⚠️ 合并后当前章将被删除！`, {
+                    title: '合并到下一章',
+                    danger: true,
+                })
+            ) {
                 nextMemory.content = editor.value + '\n\n' + nextMemory.content;
                 nextMemory.processed = false;
                 nextMemory.failed = false;
@@ -241,11 +275,15 @@ ${resultHtml}
                 AppState.memory.queue.forEach((m, i) => {
                     if (!m.title.includes('-')) m.title = `记忆${i + 1}`;
                 });
-                if (AppState.memory.startIndex > index) AppState.memory.startIndex = Math.max(0, AppState.memory.startIndex - 1);
-                else if (AppState.memory.startIndex >= AppState.memory.queue.length) AppState.memory.startIndex = Math.max(0, AppState.memory.queue.length - 1);
+                if (AppState.memory.startIndex > index)
+                    AppState.memory.startIndex = Math.max(0, AppState.memory.startIndex - 1);
+                else if (AppState.memory.startIndex >= AppState.memory.queue.length)
+                    AppState.memory.startIndex = Math.max(0, AppState.memory.queue.length - 1);
                 if (AppState.memory.userSelectedIndex !== null) {
-                    if (AppState.memory.userSelectedIndex > index) AppState.memory.userSelectedIndex = Math.max(0, AppState.memory.userSelectedIndex - 1);
-                    else if (AppState.memory.userSelectedIndex >= AppState.memory.queue.length) AppState.memory.userSelectedIndex = null;
+                    if (AppState.memory.userSelectedIndex > index)
+                        AppState.memory.userSelectedIndex = Math.max(0, AppState.memory.userSelectedIndex - 1);
+                    else if (AppState.memory.userSelectedIndex >= AppState.memory.queue.length)
+                        AppState.memory.userSelectedIndex = null;
                 }
                 updateMemoryQueueUI();
                 updateStartButtonState(false);
@@ -269,7 +307,11 @@ ${resultHtml}
         processedMemories.forEach((memory) => {
             const realIndex = AppState.memory.queue.indexOf(memory);
             const entryCount = memory.result
-                ? Object.keys(memory.result).reduce((sum, cat) => sum + (typeof memory.result[cat] === 'object' ? Object.keys(memory.result[cat]).length : 0), 0)
+                ? Object.keys(memory.result).reduce(
+                      (sum, cat) =>
+                          sum + (typeof memory.result[cat] === 'object' ? Object.keys(memory.result[cat]).length : 0),
+                      0,
+                  )
                 : 0;
             listHtml += `
 <div class="ttw-processed-item" data-index="${realIndex}" style="padding:6px 8px;background:rgba(0,0,0,0.2);border-radius:4px;margin-bottom:4px;cursor:pointer;border-left:2px solid #27ae60;">
@@ -298,7 +340,9 @@ ${resultHtml}
             maxWidth: '900px',
         });
 
-        resultsModal.querySelector('#ttw-close-processed-results').addEventListener('click', () => ModalFactory.close(resultsModal));
+        resultsModal
+            .querySelector('#ttw-close-processed-results')
+            .addEventListener('click', () => ModalFactory.close(resultsModal));
 
         resultsModal.querySelectorAll('.ttw-processed-item').forEach((item) => {
             item.addEventListener('click', () => {

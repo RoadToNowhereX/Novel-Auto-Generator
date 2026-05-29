@@ -1,9 +1,5 @@
 export function createSettingsActionsFacade(deps = {}) {
-    const {
-        apiModeView,
-        modelActionsView,
-        promptPreviewModal,
-    } = deps;
+    const { apiModeView, modelActionsView, promptPreviewModal } = deps;
 
     function handleUseTavernApiChange() {
         if (!apiModeView) return;

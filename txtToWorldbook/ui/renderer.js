@@ -4,7 +4,7 @@
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/\"/g, '&quot;')
+        .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
 
@@ -33,7 +33,7 @@ export function highlightEscapedText(text, keyword) {
 
     return safeText.replace(
         new RegExp(escapedRegex, 'g'),
-        `<span style="background:#f1c40f;color:#000;padding:1px 2px;border-radius:2px;">${safeKeyword}</span>`
+        `<span style="background:#f1c40f;color:#000;padding:1px 2px;border-radius:2px;">${safeKeyword}</span>`,
     );
 }
 
@@ -66,7 +66,8 @@ export function createListRenderer(deps = {}) {
         },
 
         updateContainer(containerOrId, html) {
-            const container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
+            const container =
+                typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
             if (container && typeof smartUpdate === 'function') {
                 smartUpdate(container, html);
             }
@@ -93,7 +94,9 @@ export function createListRenderer(deps = {}) {
                 ? `<input type="checkbox" class="ttw-memory-checkbox" data-index="${index}" ${selected ? 'checked' : ''} style="width:16px;height:16px;accent-color:#e74c3c;">`
                 : '';
             const failedHtml = memory.failed ? '<small style="color:#e74c3c;font-size:11px;">错误</small>' : '';
-            const titleText = context.useChapterLabel ? `第${index + 1}章` : this.escapeHtml(memory.title || `记忆 ${index + 1}`);
+            const titleText = context.useChapterLabel
+                ? `第${index + 1}章`
+                : this.escapeHtml(memory.title || `记忆 ${index + 1}`);
             const sizeText = context.useApproxK
                 ? `${((memory.content || '').length / 1000).toFixed(1)}k`
                 : `${typeof tokenCacheGet === 'function' ? tokenCacheGet(memory.content || '') : 0} tokens`;
@@ -151,38 +154,52 @@ export function createListRenderer(deps = {}) {
             const safeCategoryAttr = context.safeCategoryAttr || this.escapeAttribute(category);
             const safeEntryNameText = this.escapeHtml(entryName);
             const safeEntryNameAttr = this.escapeAttribute(entryName);
-            const config = context.config || (typeof getEntryConfig === 'function' ? getEntryConfig(category, entryName) : {});
-            const autoIncrement = context.autoIncrement ?? (typeof getCategoryAutoIncrement === 'function' ? getCategoryAutoIncrement(category) : false);
+            const config =
+                context.config || (typeof getEntryConfig === 'function' ? getEntryConfig(category, entryName) : {});
+            const autoIncrement =
+                context.autoIncrement ??
+                (typeof getCategoryAutoIncrement === 'function' ? getCategoryAutoIncrement(category) : false);
             const displayOrder = context.displayOrder ?? config.order;
-            const entryTokens = context.entryTokens ?? (typeof getEntryTotalTokens === 'function' ? getEntryTotalTokens(entry) : 0);
+            const entryTokens =
+                context.entryTokens ?? (typeof getEntryTotalTokens === 'function' ? getEntryTotalTokens(entry) : 0);
             const isBelowThreshold = !!context.isBelowThreshold;
             const isManualMergedHighlight = !!context.isManualMergedHighlight;
             const warningIcon = isBelowThreshold ? '⚠️ ' : '';
-            const highlightStyle = isBelowThreshold ? 'background:#7f1d1d;border-left:3px solid #ef4444;' : 'border-left:3px solid #3498db;';
+            const highlightStyle = isBelowThreshold
+                ? 'background:#7f1d1d;border-left:3px solid #ef4444;'
+                : 'border-left:3px solid #3498db;';
             const tokenStyle = isBelowThreshold ? 'color:#ef4444;font-weight:bold;' : 'color:#f1c40f;';
             const mergedBadge = isManualMergedHighlight
                 ? `<span style="font-size:10px;color:#f1c40f;background:rgba(241,196,15,0.2);border:1px solid rgba(241,196,15,0.45);padding:1px 6px;border-radius:999px;">✨ 新合并</span>`
                 : '';
-            const keywordSource = Array.isArray(entry?.['关键词']) ? entry['关键词'].join(', ') : (entry?.['关键词'] || '');
-            const keywordTokens = keywordSource && typeof estimateTokenCount === 'function' ? estimateTokenCount(keywordSource) : 0;
+            const keywordSource = Array.isArray(entry?.['关键词'])
+                ? entry['关键词'].join(', ')
+                : entry?.['关键词'] || '';
+            const keywordTokens =
+                keywordSource && typeof estimateTokenCount === 'function' ? estimateTokenCount(keywordSource) : 0;
             const contentSource = entry?.['内容'] || '';
-            const contentTokens = contentSource && typeof estimateTokenCount === 'function' ? estimateTokenCount(contentSource) : 0;
-            const keywordHtml = keywordSource ? `
+            const contentTokens =
+                contentSource && typeof estimateTokenCount === 'function' ? estimateTokenCount(contentSource) : 0;
+            const keywordHtml = keywordSource
+                ? `
                 <div style="margin-bottom:8px;padding:8px;background:#252525;border-left:3px solid #9b59b6;border-radius:4px;">
                     <div style="color:#9b59b6;font-size:11px;margin-bottom:4px;display:flex;justify-content:space-between;">
                         <span>🔑 关键词</span>
                         <span style="color:#888;">~${keywordTokens} tk</span>
                     </div>
                     <div style="font-size:13px;">${highlightEscapedText(keywordSource, context.searchKeyword || '')}</div>
-                </div>` : '';
-            const contentHtml = contentSource ? `
+                </div>`
+                : '';
+            const contentHtml = contentSource
+                ? `
                 <div style="padding:8px;background:#252525;border-left:3px solid #27ae60;border-radius:4px;line-height:1.6;">
                     <div style="color:#27ae60;font-size:11px;margin-bottom:4px;display:flex;justify-content:space-between;">
                         <span>📝 内容</span>
                         <span style="color:#888;">~${contentTokens} tk</span>
                     </div>
                     <div style="font-size:13px;">${formatEscapedMultilineContent(contentSource, context.searchKeyword || '', true)}</div>
-                </div>` : '';
+                </div>`
+                : '';
 
             return `
                 <div class="${isManualMergedHighlight ? 'ttw-entry-merged-highlight' : ''}" style="margin:8px;border:1px solid #555;border-radius:6px;overflow:hidden;">
@@ -211,9 +228,10 @@ export function createListRenderer(deps = {}) {
         },
 
         renderWorldbookSummary(stats) {
-            const thresholdInfo = stats.tokenThreshold > 0
-                ? ` | <span style="color:#ef4444;">⚠️ ${stats.belowThresholdCount}个条目低于${stats.tokenThreshold}tk</span>`
-                : '';
+            const thresholdInfo =
+                stats.tokenThreshold > 0
+                    ? ` | <span style="color:#ef4444;">⚠️ ${stats.belowThresholdCount}个条目低于${stats.tokenThreshold}tk</span>`
+                    : '';
             return `<div style="margin-bottom:12px;font-size:13px;">共 ${stats.categoryCount} 个分类, ${stats.totalEntries} 个条目 | <span style="color:#f1c40f;">总计 ~${stats.totalTokens} tk</span>${thresholdInfo}</div>`;
         },
 

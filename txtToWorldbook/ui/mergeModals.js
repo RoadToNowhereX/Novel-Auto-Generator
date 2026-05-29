@@ -1,15 +1,17 @@
 ﻿export function buildAliasCategorySelectModal(availableCategories, worldbookByCategory, escapeHtml) {
-    return availableCategories.map((cat) => {
-        const count = Object.keys(worldbookByCategory[cat] || {}).length;
-        const isChecked = cat === '角色' ? 'checked' : '';
-        return `
+    return availableCategories
+        .map((cat) => {
+            const count = Object.keys(worldbookByCategory[cat] || {}).length;
+            const isChecked = cat === '角色' ? 'checked' : '';
+            return `
 <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(155,89,182,0.1);border-radius:6px;margin-bottom:6px;cursor:pointer;">
 <input type="checkbox" class="ttw-alias-cat-cb" data-cat="${cat}" ${isChecked} style="width:16px;height:16px;accent-color:#9b59b6;">
 <span style="color:#e67e22;font-weight:bold;font-size:13px;">${escapeHtml(cat)}</span>
 <span style="color:#888;font-size:11px;margin-left:auto;">${count} 个条目</span>
 </label>
 `;
-    }).join('');
+        })
+        .join('');
 }
 
 export function buildAliasGroupsListHtml(allSuspectedByCategory, worldbookByCategory, groupCategoryMap, escapeHtml) {
@@ -24,11 +26,13 @@ export function buildAliasGroupsListHtml(allSuspectedByCategory, worldbookByCate
 
         suspected.forEach((group, localIdx) => {
             const pairCount = (group.length * (group.length - 1)) / 2;
-            const groupInfo = group.map((name) => {
-                const entry = entries[name];
-                const keywords = (entry?.['关键词'] || []).slice(0, 3).join(', ');
-                return `${escapeHtml(name)}${keywords ? ` [${escapeHtml(keywords)}]` : ''}`;
-            }).join(' / ');
+            const groupInfo = group
+                .map((name) => {
+                    const entry = entries[name];
+                    const keywords = (entry?.['关键词'] || []).slice(0, 3).join(', ');
+                    return `${escapeHtml(name)}${keywords ? ` [${escapeHtml(keywords)}]` : ''}`;
+                })
+                .join(' / ');
 
             groupsHtml += `
 <label style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:rgba(155,89,182,0.1);border-radius:6px;margin-bottom:6px;cursor:pointer;">
@@ -83,7 +87,8 @@ export function buildAliasMergePlanHtml(aiResultByCategory, escapeHtml) {
     }
 
     if (hasAnyMerge) {
-        mergePlanHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:11px;color:#888;">取消勾选可排除不想合并的组</span><label style="font-size:11px;cursor:pointer;"><input type="checkbox" id="ttw-select-all-merge-groups" checked> 全选</label></div>';
+        mergePlanHtml +=
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:11px;color:#888;">取消勾选可排除不想合并的组</span><label style="font-size:11px;cursor:pointer;"><input type="checkbox" id="ttw-select-all-merge-groups" checked> 全选</label></div>';
 
         for (const cat of Object.keys(aiResultByCategory)) {
             const catResult = aiResultByCategory[cat];

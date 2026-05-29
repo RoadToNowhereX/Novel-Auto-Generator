@@ -6,20 +6,20 @@ initTxtToWorldbookBridge().catch((error) => {
     console.error('[NovelGen] TxtToWorldbook bridge init failed:', error);
 });
 
-const extensionName = "novel-auto-generator";
+const extensionName = 'novel-auto-generator';
 
 const defaultSettings = {
     totalChapters: 1000,
     currentChapter: 0,
-    prompt: "继续推进剧情，保证剧情流畅自然，注意人物性格一致性",
+    prompt: '继续推进剧情，保证剧情流畅自然，注意人物性格一致性',
     isRunning: false,
     isPaused: false,
-    
+
     // 发送检测设置
     enableSendToastDetection: true,
     sendToastWaitTimeout: 60000,
     sendPostToastWaitTime: 1000,
-    
+
     // 回复等待设置
     replyWaitTime: 5000,
     stabilityCheckInterval: 1000,
@@ -27,12 +27,12 @@ const defaultSettings = {
     enableReplyToastDetection: true,
     replyToastWaitTimeout: 300000,
     replyPostToastWaitTime: 2000,
-    
+
     // 生成设置
     autoSaveInterval: 50,
     maxRetries: 3,
     minChapterLength: 100,
-    
+
     // 导出设置
     exportAll: true,
     exportStartFloor: 0,
@@ -44,7 +44,7 @@ const defaultSettings = {
     excludeTags: '',
     extractMode: 'all',
     tagSeparator: '\n\n',
-    
+
     panelCollapsed: {
         generate: false,
         export: false,
@@ -61,7 +61,7 @@ let generationStats = { startTime: null, chaptersGenerated: 0, totalCharacters: 
 // 工具函数
 // ============================================
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function log(msg, type = 'info') {
     const p = { info: '📘', success: '✅', warning: '⚠️', error: '❌', debug: '🔍' }[type] || 'ℹ️';
@@ -70,8 +70,10 @@ function log(msg, type = 'info') {
 
 function formatDuration(ms) {
     if (!ms || ms < 0) return '--:--:--';
-    const s = Math.floor(ms/1000)%60, m = Math.floor(ms/60000)%60, h = Math.floor(ms/3600000);
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    const s = Math.floor(ms / 1000) % 60,
+        m = Math.floor(ms / 60000) % 60,
+        h = Math.floor(ms / 3600000);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
 function escapeHtml(text) {
@@ -90,18 +92,18 @@ function getSTChat() {
             const ctx = SillyTavern.getContext();
             if (ctx?.chat && Array.isArray(ctx.chat)) return ctx.chat;
         }
-    } catch(e) {}
-    
+    } catch (e) {}
+
     try {
         if (typeof getContext === 'function') {
             const ctx = getContext();
             if (ctx?.chat && Array.isArray(ctx.chat)) return ctx.chat;
         }
-    } catch(e) {}
-    
+    } catch (e) {}
+
     if (window.chat && Array.isArray(window.chat)) return window.chat;
     if (typeof chat !== 'undefined' && Array.isArray(chat)) return chat;
-    
+
     return null;
 }
 
@@ -119,11 +121,11 @@ function getRawMessages(startFloor, endFloor, opts = {}) {
     const { includeUser = false, includeAI = true } = opts;
     const stChat = getSTChat();
     if (!stChat) return null;
-    
+
     const messages = [];
     const start = Math.max(0, startFloor);
     const end = Math.min(stChat.length - 1, endFloor);
-    
+
     for (let i = start; i <= end; i++) {
         const msg = stChat[i];
         if (!msg) continue;
@@ -155,7 +157,10 @@ function getLastAIMessageLength() {
 
 function parseTagInput(s) {
     if (!s || typeof s !== 'string') return [];
-    return s.split(/[,;，；\s\n\r]+/).map(t => t.trim()).filter(t => t.length > 0);
+    return s
+        .split(/[,;，；\s\n\r]+/)
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
 }
 
 function escapeTagName(tag) {
@@ -194,12 +199,7 @@ function removeTagContents(text, tags) {
 }
 
 function applyTagFilters(text, options = {}) {
-    const {
-        extractTags = [],
-        excludeTags = [],
-        extractMode = 'all',
-        separator = '\n\n',
-    } = options;
+    const { extractTags = [], excludeTags = [], extractMode = 'all', separator = '\n\n' } = options;
     if (!text) return '';
 
     let result = text;
@@ -225,33 +225,41 @@ function getAllChapters() {
     const useTagExtract = settings.extractMode === 'tags' && extractTags.length > 0;
     const useTagFilters = useTagExtract || excludeTags.length > 0;
     const chapters = [];
-    
-    let startFloor = settings.exportAll ? 0 : settings.exportStartFloor;
-    let endFloor = settings.exportAll ? getMaxFloorIndex() : settings.exportEndFloor;
-    
+
+    const startFloor = settings.exportAll ? 0 : settings.exportStartFloor;
+    const endFloor = settings.exportAll ? getMaxFloorIndex() : settings.exportEndFloor;
+
     if (settings.useRawContent) {
         const rawMessages = getRawMessages(startFloor, endFloor, {
             includeUser: settings.exportIncludeUser,
             includeAI: settings.exportIncludeAI,
         });
-        
+
         if (rawMessages?.length) {
             for (const msg of rawMessages) {
-                let content = useTagFilters ? applyTagFilters(msg.content, {
-                    extractTags,
-                    excludeTags,
-                    extractMode: settings.extractMode,
-                    separator: settings.tagSeparator,
-                }) : msg.content;
+                const content = useTagFilters
+                    ? applyTagFilters(msg.content, {
+                          extractTags,
+                          excludeTags,
+                          extractMode: settings.extractMode,
+                          separator: settings.tagSeparator,
+                      })
+                    : msg.content;
                 if (!content && useTagFilters) continue;
                 if (content?.length > 10) {
-                    chapters.push({ floor: msg.floor, index: chapters.length + 1, isUser: msg.isUser, name: msg.name, content });
+                    chapters.push({
+                        floor: msg.floor,
+                        index: chapters.length + 1,
+                        isUser: msg.isUser,
+                        name: msg.name,
+                        content,
+                    });
                 }
             }
             return chapters;
         }
     }
-    
+
     document.querySelectorAll('#chat .mes').forEach((msg, idx) => {
         if (idx < startFloor || idx > endFloor) return;
         const isUser = msg.getAttribute('is_user') === 'true';
@@ -259,12 +267,14 @@ function getAllChapters() {
         if (!isUser && !settings.exportIncludeAI) return;
         const text = msg.querySelector('.mes_text')?.innerText?.trim();
         if (!text) return;
-        let content = useTagFilters ? applyTagFilters(text, {
-            extractTags,
-            excludeTags,
-            extractMode: settings.extractMode,
-            separator: settings.tagSeparator,
-        }) : text;
+        const content = useTagFilters
+            ? applyTagFilters(text, {
+                  extractTags,
+                  excludeTags,
+                  extractMode: settings.extractMode,
+                  separator: settings.tagSeparator,
+              })
+            : text;
         if (content?.length > 10) {
             chapters.push({ floor: idx, index: chapters.length + 1, isUser, content });
         }
@@ -285,7 +295,7 @@ function showHelp(topic) {
 <p>设置要自动生成的章节总数。</p>
 <h4>📌 提示词</h4>
 <p>每次自动发送给 AI 的消息内容。</p>
-            `
+            `,
         },
         export: {
             title: '📤 导出设置说明',
@@ -297,7 +307,7 @@ function showHelp(topic) {
     <li><b>✅ 勾选</b>：读取原始内容</li>
     <li><b>❌ 不勾选</b>：读取显示内容（经过正则处理）</li>
 </ul>
-            `
+            `,
         },
         extract: {
             title: '🏷️ 标签提取说明',
@@ -325,7 +335,7 @@ function showHelp(topic) {
 <p>若移除 <code>thinking</code>，预览和导出将只保留其他内容。</p>
 <h4>📌 调试</h4>
 <p>控制台输入 <code>nagDebug()</code></p>
-            `
+            `,
         },
         advanced: {
             title: '⚙️ 高级设置说明',
@@ -353,18 +363,18 @@ function showHelp(topic) {
     <li><b>最大重试</b>：单章生成失败的最大重试次数</li>
     <li><b>最小长度</b>：AI回复少于此字数视为失败</li>
 </ul>
-            `
+            `,
         },
     };
-    
+
     const helpData = helps[topic] || { title: '帮助', content: '<p>暂无帮助内容</p>' };
-    
+
     // 移除已存在的弹窗
     const existingModal = document.getElementById('nag-help-modal');
     if (existingModal) {
         existingModal.remove();
     }
-    
+
     // 创建弹窗容器
     const modalContainer = document.createElement('div');
     modalContainer.className = 'nag-modal-container';
@@ -378,7 +388,7 @@ function showHelp(topic) {
             <div class="nag-modal-body">${helpData.content}</div>
         </div>
     `;
-    
+
     // 关闭弹窗函数
     const closeModal = (e) => {
         if (e) {
@@ -388,7 +398,7 @@ function showHelp(topic) {
         modalContainer.remove();
         document.removeEventListener('keydown', escHandler, true);
     };
-    
+
     // ESC 关闭 - 使用捕获阶段，优先处理
     const escHandler = (e) => {
         if (e.key === 'Escape') {
@@ -399,45 +409,73 @@ function showHelp(topic) {
         }
     };
     document.addEventListener('keydown', escHandler, true);
-    
+
     // 关闭按钮点击
-    modalContainer.querySelector('.nag-modal-close').addEventListener('click', (e) => {
-        closeModal(e);
-    }, false);
-    
-    // 阻止弹窗内部点击冒泡
-    modalContainer.querySelector('.nag-modal').addEventListener('click', (e) => {
-        e.stopPropagation();
-    }, false);
-    
-    modalContainer.querySelector('.nag-modal').addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-    }, false);
-    
-    modalContainer.querySelector('.nag-modal').addEventListener('touchstart', (e) => {
-        e.stopPropagation();
-    }, { passive: true });
-    
-    // 点击容器背景关闭
-    modalContainer.addEventListener('click', (e) => {
-        if (e.target === modalContainer) {
+    modalContainer.querySelector('.nag-modal-close').addEventListener(
+        'click',
+        (e) => {
             closeModal(e);
-        }
-    }, false);
-    
-    modalContainer.addEventListener('mousedown', (e) => {
-        if (e.target === modalContainer) {
+        },
+        false,
+    );
+
+    // 阻止弹窗内部点击冒泡
+    modalContainer.querySelector('.nag-modal').addEventListener(
+        'click',
+        (e) => {
             e.stopPropagation();
-        }
-    }, false);
-    
-    modalContainer.addEventListener('touchstart', (e) => {
-        e.stopPropagation();
-    }, { passive: true });
-    
+        },
+        false,
+    );
+
+    modalContainer.querySelector('.nag-modal').addEventListener(
+        'mousedown',
+        (e) => {
+            e.stopPropagation();
+        },
+        false,
+    );
+
+    modalContainer.querySelector('.nag-modal').addEventListener(
+        'touchstart',
+        (e) => {
+            e.stopPropagation();
+        },
+        { passive: true },
+    );
+
+    // 点击容器背景关闭
+    modalContainer.addEventListener(
+        'click',
+        (e) => {
+            if (e.target === modalContainer) {
+                closeModal(e);
+            }
+        },
+        false,
+    );
+
+    modalContainer.addEventListener(
+        'mousedown',
+        (e) => {
+            if (e.target === modalContainer) {
+                e.stopPropagation();
+            }
+        },
+        false,
+    );
+
+    modalContainer.addEventListener(
+        'touchstart',
+        (e) => {
+            e.stopPropagation();
+        },
+        { passive: true },
+    );
+
     // 添加到 body 最后，确保在最顶层
     document.body.appendChild(modalContainer);
-    
+
     // 强制重新计算位置（修复某些浏览器的渲染问题）
     requestAnimationFrame(() => {
         modalContainer.style.opacity = '1';
@@ -454,13 +492,14 @@ function refreshPreview() {
     const excludeTags = parseTagInput(settings.excludeTags);
     const useTagExtract = settings.extractMode === 'tags' && extractTags.length > 0;
     const useTagExclude = excludeTags.length > 0;
-    
+
     if (!stChat || stChat.length === 0) {
         $('#nag-preview-content').html(`<div class="nag-preview-warning"><b>⚠️ 无法获取聊天数据</b></div>`);
         return;
     }
-    
-    let rawContent = '', floor = -1;
+
+    let rawContent = '',
+        floor = -1;
     for (let i = stChat.length - 1; i >= 0; i--) {
         const msg = stChat[i];
         if (msg && !msg.is_user && !msg.is_human && msg.mes) {
@@ -469,18 +508,18 @@ function refreshPreview() {
             break;
         }
     }
-    
+
     if (!rawContent) {
         $('#nag-preview-content').html('<i style="opacity:0.6">没有 AI 消息</i>');
         return;
     }
-    
+
     const rawPreview = rawContent.substring(0, 200).replace(/</g, '&lt;').replace(/>/g, '&gt;');
     let html = `
         <div class="nag-preview-source">楼层 ${floor} | 长度 ${rawContent.length} 字</div>
         <div class="nag-preview-raw">${rawPreview}${rawContent.length > 200 ? '...' : ''}</div>
     `;
-    
+
     if (useTagExtract || useTagExclude) {
         let previewText = rawContent;
         if (useTagExtract) {
@@ -509,28 +548,37 @@ function refreshPreview() {
     } else {
         html += `<div class="nag-preview-info"><b>📄 全部内容模式</b></div>`;
     }
-    
+
     $('#nag-preview-content').html(html);
 }
 
 function debugRawContent(floorIndex) {
     const stChat = getSTChat();
-    if (!stChat) { console.log('❌ 无法获取 chat'); return; }
-    
+    if (!stChat) {
+        console.log('❌ 无法获取 chat');
+        return;
+    }
+
     console.log(`✅ chat 获取成功，共 ${stChat.length} 条`);
-    
+
     if (floorIndex === undefined) {
         for (let i = stChat.length - 1; i >= 0; i--) {
-            if (stChat[i] && !stChat[i].is_user) { floorIndex = i; break; }
+            if (stChat[i] && !stChat[i].is_user) {
+                floorIndex = i;
+                break;
+            }
         }
     }
-    
+
     const msg = stChat[floorIndex];
-    if (!msg) { console.log(`楼层 ${floorIndex} 不存在`); return; }
-    
+    if (!msg) {
+        console.log(`楼层 ${floorIndex} 不存在`);
+        return;
+    }
+
     console.log(`\n----- 楼层 ${floorIndex} -----`);
     console.log('mes:', msg.mes?.substring(0, 500));
-    
+
     const extractTags = parseTagInput(settings.extractTags);
     const excludeTags = parseTagInput(settings.excludeTags);
     if (extractTags.length > 0 || excludeTags.length > 0) {
@@ -543,12 +591,15 @@ function debugRawContent(floorIndex) {
             console.log(`移除标签: [${excludeTags.join(', ')}]`);
             console.log('移除结果:', removeTagContents(msg.mes, excludeTags) || '(移除后为空)');
         }
-        console.log('最终结果:', applyTagFilters(msg.mes, {
-            extractTags,
-            excludeTags,
-            extractMode: settings.extractMode,
-            separator: settings.tagSeparator,
-        }) || '(无结果)');
+        console.log(
+            '最终结果:',
+            applyTagFilters(msg.mes, {
+                extractTags,
+                excludeTags,
+                extractMode: settings.extractMode,
+                separator: settings.tagSeparator,
+            }) || '(无结果)',
+        );
     }
 }
 
@@ -587,30 +638,30 @@ async function waitForToastsClear(timeout, postWaitTime, phase = '') {
         log(`${phase}无弹窗，跳过等待`, 'debug');
         return;
     }
-    
+
     log(`${phase}检测到弹窗，等待消失...`, 'info');
     const startTime = Date.now();
     let lastLogTime = 0;
-    
+
     while (hasActiveToast()) {
         if (abortGeneration) throw new Error('用户中止');
-        
+
         const elapsed = Date.now() - startTime;
         if (elapsed > timeout) {
             log(`${phase}弹窗等待超时，继续执行`, 'warning');
             return;
         }
-        
+
         if (elapsed - lastLogTime >= 5000) {
-            log(`${phase}等待弹窗... (${Math.round(elapsed/1000)}s) ${getToastText()}`, 'debug');
+            log(`${phase}等待弹窗... (${Math.round(elapsed / 1000)}s) ${getToastText()}`, 'debug');
             lastLogTime = elapsed;
         }
-        
+
         await sleep(500);
     }
-    
+
     log(`${phase}弹窗已消失`, 'success');
-    
+
     if (postWaitTime > 0) {
         log(`${phase}额外等待 ${postWaitTime}ms`, 'debug');
         await sleep(postWaitTime);
@@ -627,30 +678,26 @@ async function waitForToastsClear(timeout, postWaitTime, phase = '') {
 async function sendMessage(text) {
     const $ta = $('#send_textarea');
     const $btn = $('#send_but');
-    
+
     if (!$ta.length || !$btn.length) {
         throw new Error('找不到输入框或发送按钮');
     }
-    
+
     // 清空并填入文本
     $ta.val(text);
     $ta[0].value = text;
     $ta.trigger('input').trigger('change');
-    
+
     await sleep(100);
-    
+
     // 点击发送
     $btn.trigger('click');
     log('消息已发送', 'success');
-    
+
     // 发送阶段弹窗检测
     if (settings.enableSendToastDetection) {
         await sleep(500); // 短暂等待让弹窗有时间出现
-        await waitForToastsClear(
-            settings.sendToastWaitTimeout,
-            settings.sendPostToastWaitTime,
-            '[发送阶段] '
-        );
+        await waitForToastsClear(settings.sendToastWaitTimeout, settings.sendPostToastWaitTime, '[发送阶段] ');
     }
 }
 
@@ -665,7 +712,7 @@ function getAIMessageCountRobust() {
     let chatCount = 0;
     const stChat = getSTChat();
     if (stChat) {
-        chatCount = stChat.filter(msg => msg && !msg.is_user && !msg.is_human).length;
+        chatCount = stChat.filter((msg) => msg && !msg.is_user && !msg.is_human).length;
     }
 
     // 返回较大的值，确保能检测到新消息
@@ -686,7 +733,7 @@ async function waitForAIResponse(prevCount) {
 
         const elapsed = Date.now() - waitStartTime;
         if (elapsed > maxWaitForStart) {
-            log(`等待AI开始回复超时 (${Math.round(elapsed/1000)}s)，可能AI已回复但未检测到`, 'warning');
+            log(`等待AI开始回复超时 (${Math.round(elapsed / 1000)}s)，可能AI已回复但未检测到`, 'warning');
             // 尝试用 chat 数组再检查一次
             const stChat = getSTChat();
             if (stChat && stChat.length > prevCount) {
@@ -698,23 +745,23 @@ async function waitForAIResponse(prevCount) {
 
         // 每10秒输出一次等待日志
         if (elapsed > 0 && elapsed % 10000 < 500) {
-            log(`仍在等待AI开始回复... (${Math.round(elapsed/1000)}s)`, 'debug');
+            log(`仍在等待AI开始回复... (${Math.round(elapsed / 1000)}s)`, 'debug');
         }
 
         await sleep(500);
     }
     log('检测到新的AI回复', 'success');
-    
+
     // 阶段2：等待内容稳定（长度不再变化）
     log('等待AI回复完成...', 'debug');
     let lastLength = 0;
     let stableCount = 0;
-    
+
     while (stableCount < settings.stabilityRequiredCount) {
         if (abortGeneration) throw new Error('用户中止');
-        
+
         await sleep(settings.stabilityCheckInterval);
-        
+
         const currentLength = getLastAIMessageLength();
         if (currentLength === lastLength && currentLength > 0) {
             stableCount++;
@@ -724,32 +771,28 @@ async function waitForAIResponse(prevCount) {
         }
     }
     log(`AI回复已稳定 (${lastLength} 字)`, 'success');
-    
+
     // 阶段3：固定等待时间
     if (settings.replyWaitTime > 0) {
         log(`等待 ${settings.replyWaitTime}ms...`, 'debug');
         await sleep(settings.replyWaitTime);
     }
-    
+
     // 阶段4：回复阶段弹窗检测
     if (settings.enableReplyToastDetection) {
-        await waitForToastsClear(
-            settings.replyToastWaitTimeout,
-            settings.replyPostToastWaitTime,
-            '[回复阶段] '
-        );
+        await waitForToastsClear(settings.replyToastWaitTimeout, settings.replyPostToastWaitTime, '[回复阶段] ');
     }
-    
+
     // 阶段5：再次稳定性检查（确保总结注入完成）
     log('最终稳定性检查...', 'debug');
     lastLength = 0;
     stableCount = 0;
-    
+
     while (stableCount < settings.stabilityRequiredCount) {
         if (abortGeneration) throw new Error('用户中止');
-        
+
         await sleep(settings.stabilityCheckInterval);
-        
+
         const currentLength = getLastAIMessageLength();
         if (currentLength === lastLength && currentLength > 0) {
             stableCount++;
@@ -758,7 +801,7 @@ async function waitForAIResponse(prevCount) {
             lastLength = currentLength;
         }
     }
-    
+
     log('回复处理完成', 'success');
     return lastLength;
 }
@@ -768,22 +811,22 @@ async function waitForAIResponse(prevCount) {
  */
 async function generateSingleChapter(num) {
     const prevCount = getAIMessageCountRobust();
-    
+
     // 发送消息
     await sendMessage(settings.prompt);
-    
+
     // 等待回复完成
     const length = await waitForAIResponse(prevCount);
-    
+
     // 检查长度
     if (length < settings.minChapterLength) {
         throw new Error(`响应过短 (${length} 字)`);
     }
-    
+
     generationStats.chaptersGenerated++;
     generationStats.totalCharacters += length;
     log(`第 ${num} 章完成 (${length} 字)`, 'success');
-    
+
     return length;
 }
 
@@ -791,104 +834,104 @@ async function generateSingleChapter(num) {
  * 开始生成
  */
 async function startGeneration() {
-    if (settings.isRunning) { 
-        toastr.warning('已在运行'); 
-        return; 
+    if (settings.isRunning) {
+        toastr.warning('已在运行');
+        return;
     }
-    
-    settings.isRunning = true; 
-    settings.isPaused = false; 
+
+    settings.isRunning = true;
+    settings.isPaused = false;
     abortGeneration = false;
     generationStats = { startTime: Date.now(), chaptersGenerated: 0, totalCharacters: 0, errors: [] };
-    saveSettings(); 
+    saveSettings();
     updateUI();
     toastr.info(`开始生成 ${settings.totalChapters - settings.currentChapter} 章`);
-    
+
     try {
         for (let i = settings.currentChapter; i < settings.totalChapters; i++) {
             if (abortGeneration) {
                 log('检测到停止信号', 'info');
                 break;
             }
-            
+
             while (settings.isPaused && !abortGeneration) {
                 await sleep(500);
             }
-            
+
             if (abortGeneration) break;
-            
+
             let success = false;
             let retries = 0;
-            
+
             while (!success && retries < settings.maxRetries && !abortGeneration) {
                 try {
                     await generateSingleChapter(i + 1);
                     success = true;
                     settings.currentChapter = i + 1;
-                    saveSettings(); 
+                    saveSettings();
                     updateUI();
-                } catch(e) {
+                } catch (e) {
                     if (abortGeneration || e.message === '用户中止') break;
-                    
+
                     retries++;
-                    log(`第 ${i+1} 章失败: ${e.message}`, 'error');
+                    log(`第 ${i + 1} 章失败: ${e.message}`, 'error');
                     generationStats.errors.push({ chapter: i + 1, error: e.message });
-                    
+
                     if (retries < settings.maxRetries) {
                         log(`等待5秒后重试...`, 'info');
                         await sleep(5000);
                     }
                 }
             }
-            
+
             if (abortGeneration) break;
             if (!success) settings.currentChapter = i + 1;
-            
+
             if (settings.currentChapter % settings.autoSaveInterval === 0) {
                 await exportNovel(true);
             }
         }
-        
-        if (!abortGeneration) { 
-            toastr.success('生成完成!'); 
-            await exportNovel(false); 
+
+        if (!abortGeneration) {
+            toastr.success('生成完成!');
+            await exportNovel(false);
         }
     } finally {
-        settings.isRunning = false; 
+        settings.isRunning = false;
         settings.isPaused = false;
-        saveSettings(); 
+        saveSettings();
         updateUI();
     }
 }
 
-function pauseGeneration() { 
-    settings.isPaused = true; 
-    updateUI(); 
-    toastr.info('已暂停'); 
+function pauseGeneration() {
+    settings.isPaused = true;
+    updateUI();
+    toastr.info('已暂停');
 }
 
-function resumeGeneration() { 
-    settings.isPaused = false; 
-    updateUI(); 
-    toastr.info('已恢复'); 
+function resumeGeneration() {
+    settings.isPaused = false;
+    updateUI();
+    toastr.info('已恢复');
 }
 
-function stopGeneration() { 
-    abortGeneration = true; 
-    settings.isRunning = false; 
-    updateUI(); 
-    toastr.warning('已停止'); 
+function stopGeneration() {
+    abortGeneration = true;
+    settings.isRunning = false;
+    updateUI();
+    toastr.warning('已停止');
 }
 
 function resetProgress() {
-    if (settings.isRunning) { 
-        toastr.warning('请先停止'); 
-        return; 
+    if (settings.isRunning) {
+        toastr.warning('请先停止');
+        return;
     }
     settings.currentChapter = 0;
     generationStats = { startTime: null, chaptersGenerated: 0, totalCharacters: 0, errors: [] };
-    saveSettings(); 
-    updateUI(); 
+    saveSettings();
+    updateUI();
     toastr.info('已重置');
 }
 
@@ -901,35 +944,39 @@ function downloadFile(content, filename, type = 'text/plain') {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = filename;
-    document.body.appendChild(a); 
-    a.click(); 
+    document.body.appendChild(a);
+    a.click();
     document.body.removeChild(a);
 }
 
 async function exportNovel(silent = false) {
     const chapters = getAllChapters();
-    if (!chapters.length) { 
-        if (!silent) toastr.warning('没有内容'); 
-        return; 
+    if (!chapters.length) {
+        if (!silent) toastr.warning('没有内容');
+        return;
     }
-    
+
     const totalChars = chapters.reduce((s, c) => s + c.content.length, 0);
     let text = `导出时间: ${new Date().toLocaleString()}\n总章节: ${chapters.length}\n总字数: ${totalChars}\n${'═'.repeat(40)}\n\n`;
-    chapters.forEach(ch => {
+    chapters.forEach((ch) => {
         text += `══ [${ch.floor}楼] ${ch.isUser ? '用户' : 'AI'} ══\n\n${ch.content}\n\n`;
     });
-    
+
     downloadFile(text, `novel_${chapters.length}ch_${Date.now()}.txt`);
     if (!silent) toastr.success(`已导出 ${chapters.length} 条`);
 }
 
 async function exportAsJSON(silent = false) {
     const chapters = getAllChapters();
-    if (!chapters.length) { 
-        if (!silent) toastr.warning('没有内容'); 
-        return; 
+    if (!chapters.length) {
+        if (!silent) toastr.warning('没有内容');
+        return;
     }
-    downloadFile(JSON.stringify({ time: new Date().toISOString(), chapters }, null, 2), `novel_${Date.now()}.json`, 'application/json');
+    downloadFile(
+        JSON.stringify({ time: new Date().toISOString(), chapters }, null, 2),
+        `novel_${Date.now()}.json`,
+        'application/json',
+    );
     if (!silent) toastr.success('已导出 JSON');
 }
 
@@ -941,7 +988,7 @@ function loadSettings() {
     extension_settings[extensionName] = extension_settings[extensionName] || {};
     settings = Object.assign({}, defaultSettings, extension_settings[extensionName]);
     settings.panelCollapsed = Object.assign({}, defaultSettings.panelCollapsed, settings.panelCollapsed || {});
-    settings.isRunning = false; 
+    settings.isRunning = false;
     settings.isPaused = false;
 }
 
@@ -951,21 +998,23 @@ function saveSettings() {
 }
 
 function updateUI() {
-    const pct = settings.totalChapters > 0 ? (settings.currentChapter / settings.totalChapters * 100).toFixed(1) : 0;
+    const pct = settings.totalChapters > 0 ? ((settings.currentChapter / settings.totalChapters) * 100).toFixed(1) : 0;
     $('#nag-progress-fill').css('width', `${pct}%`);
     $('#nag-progress-text').text(`${settings.currentChapter} / ${settings.totalChapters} (${pct}%)`);
-    
-    const [txt, cls] = settings.isRunning 
-        ? (settings.isPaused ? ['⏸️ 已暂停', 'paused'] : ['▶️ 运行中', 'running']) 
+
+    const [txt, cls] = settings.isRunning
+        ? settings.isPaused
+            ? ['⏸️ 已暂停', 'paused']
+            : ['▶️ 运行中', 'running']
         : ['⏹️ 已停止', 'stopped'];
     $('#nag-status').text(txt).removeClass('stopped paused running').addClass(cls);
-    
+
     $('#nag-btn-start').prop('disabled', settings.isRunning);
     $('#nag-btn-pause').prop('disabled', !settings.isRunning || settings.isPaused);
     $('#nag-btn-resume').prop('disabled', !settings.isPaused);
     $('#nag-btn-stop').prop('disabled', !settings.isRunning);
     $('#nag-btn-reset').prop('disabled', settings.isRunning);
-    
+
     if (settings.isRunning && generationStats.startTime && generationStats.chaptersGenerated > 0) {
         const elapsed = Date.now() - generationStats.startTime;
         const avg = elapsed / generationStats.chaptersGenerated;
@@ -973,17 +1022,23 @@ function updateUI() {
         $('#nag-time-remaining').text(formatDuration(avg * (settings.totalChapters - settings.currentChapter)));
     }
     $('#nag-stat-errors').text(generationStats.errors.length);
-    
+
     $('#nag-set-start-floor, #nag-set-end-floor').prop('disabled', settings.exportAll);
     $('#nag-floor-inputs').toggleClass('disabled', settings.exportAll);
-    
+
     // 发送阶段弹窗设置
     $('#nag-send-toast-settings').toggleClass('disabled', !settings.enableSendToastDetection);
-    $('#nag-set-send-toast-timeout, #nag-set-send-post-toast-wait').prop('disabled', !settings.enableSendToastDetection);
-    
+    $('#nag-set-send-toast-timeout, #nag-set-send-post-toast-wait').prop(
+        'disabled',
+        !settings.enableSendToastDetection,
+    );
+
     // 回复阶段弹窗设置
     $('#nag-reply-toast-settings').toggleClass('disabled', !settings.enableReplyToastDetection);
-    $('#nag-set-reply-toast-timeout, #nag-set-reply-post-toast-wait').prop('disabled', !settings.enableReplyToastDetection);
+    $('#nag-set-reply-toast-timeout, #nag-set-reply-post-toast-wait').prop(
+        'disabled',
+        !settings.enableReplyToastDetection,
+    );
 }
 
 function toggleTagSettings() {
@@ -993,7 +1048,7 @@ function toggleTagSettings() {
 function togglePanel(panelId) {
     const panel = $(`#nag-panel-${panelId}`);
     const isCollapsed = panel.hasClass('collapsed');
-    
+
     if (isCollapsed) {
         panel.removeClass('collapsed');
         settings.panelCollapsed[panelId] = false;
@@ -1001,7 +1056,7 @@ function togglePanel(panelId) {
         panel.addClass('collapsed');
         settings.panelCollapsed[panelId] = true;
     }
-    
+
     saveSettings();
 }
 
@@ -1248,7 +1303,7 @@ function createUI() {
             </div>
         </div>
     </div>`;
-    
+
     $('#extensions_settings').append(html);
     bindEvents();
     syncUI();
@@ -1283,7 +1338,7 @@ function bindEvents() {
     });
 
     // 面板折叠 - 排除帮助按钮
-    $('.nag-panel-header').on('click', function(e) {
+    $('.nag-panel-header').on('click', function (e) {
         // 如果点击的是帮助按钮区域，不处理折叠
         if ($(e.target).closest('.nag-help-btn').length > 0) {
             return;
@@ -1291,146 +1346,162 @@ function bindEvents() {
         const panelId = $(this).data('panel');
         togglePanel(panelId);
     });
-    
+
     // 帮助按钮 - 使用原生事件绑定
-    document.querySelectorAll('.nag-help-btn').forEach(btn => {
+    document.querySelectorAll('.nag-help-btn').forEach((btn) => {
         const topic = btn.getAttribute('data-help');
-        
+
         // 阻止事件冒泡（不使用 preventDefault，否则会阻止 click）
-        btn.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-        }, false);
-        
-        btn.addEventListener('touchstart', (e) => {
-            e.stopPropagation();
-        }, { passive: true }); // passive: true 表示不会调用 preventDefault
-        
-        btn.addEventListener('touchend', (e) => {
-            e.stopPropagation();
-        }, { passive: true });
-        
+        btn.addEventListener(
+            'mousedown',
+            (e) => {
+                e.stopPropagation();
+            },
+            false,
+        );
+
+        btn.addEventListener(
+            'touchstart',
+            (e) => {
+                e.stopPropagation();
+            },
+            { passive: true },
+        ); // passive: true 表示不会调用 preventDefault
+
+        btn.addEventListener(
+            'touchend',
+            (e) => {
+                e.stopPropagation();
+            },
+            { passive: true },
+        );
+
         // 点击打开帮助
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            showHelp(topic);
-        }, false);
+        btn.addEventListener(
+            'click',
+            (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                showHelp(topic);
+            },
+            false,
+        );
     });
-    
+
     // 导出设置
-    $('#nag-set-export-all').on('change', function() { 
-        settings.exportAll = $(this).prop('checked'); 
-        updateUI(); 
-        saveSettings(); 
+    $('#nag-set-export-all').on('change', function () {
+        settings.exportAll = $(this).prop('checked');
+        updateUI();
+        saveSettings();
     });
-    $('#nag-set-start-floor').on('change', function() { 
-        settings.exportStartFloor = +$(this).val() || 0; 
-        saveSettings(); 
+    $('#nag-set-start-floor').on('change', function () {
+        settings.exportStartFloor = +$(this).val() || 0;
+        saveSettings();
     });
-    $('#nag-set-end-floor').on('change', function() { 
-        settings.exportEndFloor = +$(this).val() || 99999; 
-        saveSettings(); 
+    $('#nag-set-end-floor').on('change', function () {
+        settings.exportEndFloor = +$(this).val() || 99999;
+        saveSettings();
     });
-    $('#nag-set-include-user').on('change', function() { 
-        settings.exportIncludeUser = $(this).prop('checked'); 
-        saveSettings(); 
+    $('#nag-set-include-user').on('change', function () {
+        settings.exportIncludeUser = $(this).prop('checked');
+        saveSettings();
     });
-    $('#nag-set-include-ai').on('change', function() { 
-        settings.exportIncludeAI = $(this).prop('checked'); 
-        saveSettings(); 
+    $('#nag-set-include-ai').on('change', function () {
+        settings.exportIncludeAI = $(this).prop('checked');
+        saveSettings();
     });
-    $('#nag-set-use-raw').on('change', function() { 
-        settings.useRawContent = $(this).prop('checked'); 
-        saveSettings(); 
-        refreshPreview(); 
+    $('#nag-set-use-raw').on('change', function () {
+        settings.useRawContent = $(this).prop('checked');
+        saveSettings();
+        refreshPreview();
     });
-    
+
     // 标签提取
-    $('#nag-set-extract-mode').on('change', function() { 
-        settings.extractMode = $(this).val(); 
-        toggleTagSettings(); 
-        saveSettings(); 
-        refreshPreview(); 
+    $('#nag-set-extract-mode').on('change', function () {
+        settings.extractMode = $(this).val();
+        toggleTagSettings();
+        saveSettings();
+        refreshPreview();
     });
-    $('#nag-set-tags').on('change', function() { 
-        settings.extractTags = $(this).val(); 
-        saveSettings(); 
-        refreshPreview(); 
+    $('#nag-set-tags').on('change', function () {
+        settings.extractTags = $(this).val();
+        saveSettings();
+        refreshPreview();
     });
-    $('#nag-set-exclude-tags').on('change', function() {
+    $('#nag-set-exclude-tags').on('change', function () {
         settings.excludeTags = $(this).val();
         saveSettings();
         refreshPreview();
     });
-    $('#nag-set-separator').on('change', function() { 
-        settings.tagSeparator = $(this).val().replace(/\\n/g, '\n'); 
-        saveSettings(); 
+    $('#nag-set-separator').on('change', function () {
+        settings.tagSeparator = $(this).val().replace(/\\n/g, '\n');
+        saveSettings();
         refreshPreview();
     });
-    
+
     // 发送阶段弹窗检测
-    $('#nag-set-send-toast-detection').on('change', function() { 
-        settings.enableSendToastDetection = $(this).prop('checked'); 
+    $('#nag-set-send-toast-detection').on('change', function () {
+        settings.enableSendToastDetection = $(this).prop('checked');
         updateUI();
-        saveSettings(); 
+        saveSettings();
     });
-    $('#nag-set-send-toast-timeout').on('change', function() { 
-        settings.sendToastWaitTimeout = +$(this).val() || 60000; 
-        saveSettings(); 
+    $('#nag-set-send-toast-timeout').on('change', function () {
+        settings.sendToastWaitTimeout = +$(this).val() || 60000;
+        saveSettings();
     });
-    $('#nag-set-send-post-toast-wait').on('change', function() { 
-        settings.sendPostToastWaitTime = +$(this).val() || 1000; 
-        saveSettings(); 
+    $('#nag-set-send-post-toast-wait').on('change', function () {
+        settings.sendPostToastWaitTime = +$(this).val() || 1000;
+        saveSettings();
     });
-    
+
     // 回复阶段设置
-    $('#nag-set-reply-wait').on('change', function() { 
-        settings.replyWaitTime = +$(this).val() || 5000; 
-        saveSettings(); 
+    $('#nag-set-reply-wait').on('change', function () {
+        settings.replyWaitTime = +$(this).val() || 5000;
+        saveSettings();
     });
-    $('#nag-set-stability-interval').on('change', function() { 
-        settings.stabilityCheckInterval = +$(this).val() || 1000; 
-        saveSettings(); 
+    $('#nag-set-stability-interval').on('change', function () {
+        settings.stabilityCheckInterval = +$(this).val() || 1000;
+        saveSettings();
     });
-    $('#nag-set-stability-count').on('change', function() { 
-        settings.stabilityRequiredCount = +$(this).val() || 3; 
-        saveSettings(); 
+    $('#nag-set-stability-count').on('change', function () {
+        settings.stabilityRequiredCount = +$(this).val() || 3;
+        saveSettings();
     });
-    $('#nag-set-reply-toast-detection').on('change', function() { 
-        settings.enableReplyToastDetection = $(this).prop('checked'); 
+    $('#nag-set-reply-toast-detection').on('change', function () {
+        settings.enableReplyToastDetection = $(this).prop('checked');
         updateUI();
-        saveSettings(); 
+        saveSettings();
     });
-    $('#nag-set-reply-toast-timeout').on('change', function() { 
-        settings.replyToastWaitTimeout = +$(this).val() || 300000; 
-        saveSettings(); 
+    $('#nag-set-reply-toast-timeout').on('change', function () {
+        settings.replyToastWaitTimeout = +$(this).val() || 300000;
+        saveSettings();
     });
-    $('#nag-set-reply-post-toast-wait').on('change', function() { 
-        settings.replyPostToastWaitTime = +$(this).val() || 2000; 
-        saveSettings(); 
+    $('#nag-set-reply-post-toast-wait').on('change', function () {
+        settings.replyPostToastWaitTime = +$(this).val() || 2000;
+        saveSettings();
     });
-    
+
     // 生成控制
-    $('#nag-set-total').on('change', function() { 
-        settings.totalChapters = +$(this).val() || 1000; 
-        saveSettings(); 
-        updateUI(); 
+    $('#nag-set-total').on('change', function () {
+        settings.totalChapters = +$(this).val() || 1000;
+        saveSettings();
+        updateUI();
     });
-    $('#nag-set-prompt').on('change', function() { 
-        settings.prompt = $(this).val(); 
-        saveSettings(); 
+    $('#nag-set-prompt').on('change', function () {
+        settings.prompt = $(this).val();
+        saveSettings();
     });
-    $('#nag-set-autosave').on('change', function() { 
-        settings.autoSaveInterval = +$(this).val() || 50; 
-        saveSettings(); 
+    $('#nag-set-autosave').on('change', function () {
+        settings.autoSaveInterval = +$(this).val() || 50;
+        saveSettings();
     });
-    $('#nag-set-retries').on('change', function() { 
-        settings.maxRetries = +$(this).val() || 3; 
-        saveSettings(); 
+    $('#nag-set-retries').on('change', function () {
+        settings.maxRetries = +$(this).val() || 3;
+        saveSettings();
     });
-    $('#nag-set-minlen').on('change', function() { 
-        settings.minChapterLength = +$(this).val() || 100; 
-        saveSettings(); 
+    $('#nag-set-minlen').on('change', function () {
+        settings.minChapterLength = +$(this).val() || 100;
+        saveSettings();
     });
 }
 
@@ -1438,7 +1509,7 @@ function syncUI() {
     // 生成设置
     $('#nag-set-total').val(settings.totalChapters);
     $('#nag-set-prompt').val(settings.prompt);
-    
+
     // 导出设置
     $('#nag-set-export-all').prop('checked', settings.exportAll);
     $('#nag-set-start-floor').val(settings.exportStartFloor);
@@ -1446,18 +1517,18 @@ function syncUI() {
     $('#nag-set-include-user').prop('checked', settings.exportIncludeUser);
     $('#nag-set-include-ai').prop('checked', settings.exportIncludeAI);
     $('#nag-set-use-raw').prop('checked', settings.useRawContent);
-    
+
     // 标签提取
     $('#nag-set-extract-mode').val(settings.extractMode);
     $('#nag-set-tags').val(settings.extractTags);
     $('#nag-set-exclude-tags').val(settings.excludeTags);
     $('#nag-set-separator').val(settings.tagSeparator.replace(/\n/g, '\\n'));
-    
+
     // 发送阶段弹窗检测
     $('#nag-set-send-toast-detection').prop('checked', settings.enableSendToastDetection);
     $('#nag-set-send-toast-timeout').val(settings.sendToastWaitTimeout);
     $('#nag-set-send-post-toast-wait').val(settings.sendPostToastWaitTime);
-    
+
     // 回复阶段设置
     $('#nag-set-reply-wait').val(settings.replyWaitTime);
     $('#nag-set-stability-interval').val(settings.stabilityCheckInterval);
@@ -1465,12 +1536,12 @@ function syncUI() {
     $('#nag-set-reply-toast-detection').prop('checked', settings.enableReplyToastDetection);
     $('#nag-set-reply-toast-timeout').val(settings.replyToastWaitTimeout);
     $('#nag-set-reply-post-toast-wait').val(settings.replyPostToastWaitTime);
-    
+
     // 生成控制
     $('#nag-set-autosave').val(settings.autoSaveInterval);
     $('#nag-set-retries').val(settings.maxRetries);
     $('#nag-set-minlen').val(settings.minChapterLength);
-    
+
     toggleTagSettings();
     updateUI();
 }
@@ -1482,7 +1553,8 @@ function syncUI() {
 jQuery(async () => {
     loadSettings();
     createUI();
-    setInterval(() => { if (settings.isRunning) updateUI(); }, 1000);
+    setInterval(() => {
+        if (settings.isRunning) updateUI();
+    }, 1000);
     log('扩展已加载', 'success');
 });
-

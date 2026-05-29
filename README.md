@@ -50,13 +50,13 @@
 
 ### 控制按钮
 
-| 按钮 | 功能 |
-|:---:|:---|
+|  按钮   | 功能                |
+| :-----: | :------------------ |
 | ▶️ 开始 | 从当前进度开始/继续 |
-| ⏸️ 暂停 | 当前章节完成后暂停 |
-| ⏯️ 恢复 | 从暂停状态恢复 |
-| ⏹️ 停止 | 完全停止任务 |
-| 🔄 重置 | 进度归零 |
+| ⏸️ 暂停 | 当前章节完成后暂停  |
+| ⏯️ 恢复 | 从暂停状态恢复      |
+| ⏹️ 停止 | 完全停止任务        |
+| 🔄 重置 | 进度归零            |
 
 ### 断点续传
 
@@ -77,16 +77,17 @@
 ```
 
 **使用方法：**
+
 1. 勾选「原始 (chat.mes)」读取未经正则处理的原始内容
 2. 模式选择「只提取指定标签」或「全部内容」
 3. 填写要提取/移除的标签名（空格或逗号分隔）
 4. 点击「刷新预览」确认效果
 
-| 模式 | 示例 | 效果 |
-|:---|:---|:---|
-| 白名单提取 | `content` | 只保留 `<content>` 内的内容 |
-| 黑名单移除 | `thinking note` | 删除这些标签及其内容 |
-| 组合使用 | 提取 `content`，移除 `thinking` | 两者同时生效 |
+| 模式       | 示例                            | 效果                        |
+| :--------- | :------------------------------ | :-------------------------- |
+| 白名单提取 | `content`                       | 只保留 `<content>` 内的内容 |
+| 黑名单移除 | `thinking note`                 | 删除这些标签及其内容        |
+| 组合使用   | 提取 `content`，移除 `thinking` | 两者同时生效                |
 
 ### 弹窗检测（插件兼容）
 
@@ -103,11 +104,11 @@
 
 ### 生成控制参数
 
-| 参数 | 默认值 | 说明 |
-|:---|:---:|:---|
-| 自动保存间隔 | 50 章 | 每 N 章自动导出备份 |
-| 最大重试 | 3 次 | 单章失败后重试次数 |
-| 最小章节长度 | 100 字 | 低于此字数视为失败 |
+| 参数         | 默认值 | 说明                |
+| :----------- | :----: | :------------------ |
+| 自动保存间隔 | 50 章  | 每 N 章自动导出备份 |
+| 最大重试     |  3 次  | 单章失败后重试次数  |
+| 最小章节长度 | 100 字 | 低于此字数视为失败  |
 
 ---
 
@@ -116,6 +117,7 @@
 将 TXT 小说转换为 SillyTavern 世界书格式。这是一个功能丰富的独立模块，详细文档见 **[txtToWorldbook.md](txtToWorldbook.md)**。
 
 快速上手：
+
 1. 点击插件面板中的「TXT转世界书」按钮
 2. 选择 API（可直接使用酒馆当前连接的 AI）
 3. 上传 TXT 文件 → 开始转换
@@ -145,18 +147,21 @@
 <summary><b>使用其他插件时冲突？</b></summary>
 
 展开高级设置，在对应阶段开启弹窗检测，适当增加等待超时和额外等待时间。
+
 </details>
 
 <details>
 <summary><b>导出内容为空？</b></summary>
 
 检查是否勾选了 AI 回复、楼层范围是否正确、标签名是否匹配。
+
 </details>
 
 <details>
 <summary><b>TXT转世界书相关问题？</b></summary>
 
 请参阅 [txtToWorldbook.md](txtToWorldbook.md) 中的常见问题章节。
+
 </details>
 
 ---
@@ -166,8 +171,8 @@
 浏览器控制台 (F12) 中可用：
 
 ```javascript
-nagDebug()    // 查看最后一条 AI 消息的原始内容
-nagDebug(5)   // 查看第 5 楼的原始内容
+nagDebug(); // 查看最后一条 AI 消息的原始内容
+nagDebug(5); // 查看第 5 楼的原始内容
 ```
 
 ---
@@ -218,13 +223,13 @@ npm run test:watch
 
 ### 测试覆盖范围
 
-| 模块 | 测试文件 | 用例数 |
-|:---|:---|:---:|
-| 工具函数 (estimateTokenCount, chineseNumToInt 等) | `tests/core/utils.test.js` | 21 |
-| 响应解析 (filterTags, parseAIResponse, JSON 修复) | `tests/services/parserService.test.js` | 12 |
-| 世界书服务 (normalize, merge, diff, history) | `tests/services/worldbookService.test.js` | 21 |
-| IndexedDB 持久化 (6 个存储表全 CRUD 测试) | `tests/infra/memoryHistoryDB.test.js` | 32 |
-| **合计** | | **86** |
+| 模块                                              | 测试文件                                  | 用例数 |
+| :------------------------------------------------ | :---------------------------------------- | :----: |
+| 工具函数 (estimateTokenCount, chineseNumToInt 等) | `tests/core/utils.test.js`                |   21   |
+| 响应解析 (filterTags, parseAIResponse, JSON 修复) | `tests/services/parserService.test.js`    |   12   |
+| 世界书服务 (normalize, merge, diff, history)      | `tests/services/worldbookService.test.js` |   21   |
+| IndexedDB 持久化 (6 个存储表全 CRUD 测试)         | `tests/infra/memoryHistoryDB.test.js`     |   32   |
+| **合计**                                          |                                           | **86** |
 
 ### 手动回归测试
 

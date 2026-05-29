@@ -117,7 +117,9 @@ export function createImportMergeService(deps = {}) {
             items.forEach((item) => {
                 const globalIdx = allDuplicates.indexOf(item);
                 const isInternal = internalDuplicates.includes(item);
-                const badge = isInternal ? '<span style="font-size:9px;color:#9b59b6;margin-left:4px;">(内部重复)</span>' : '';
+                const badge = isInternal
+                    ? '<span style="font-size:9px;color:#9b59b6;margin-left:4px;">(内部重复)</span>'
+                    : '';
                 html += `
             <label style="display:flex;align-items:center;gap:6px;padding:3px 6px;font-size:11px;cursor:pointer;">
                 <input type="checkbox" class="ttw-dup-entry-cb" data-index="${globalIdx}" data-category="${category}" checked>
@@ -199,20 +201,27 @@ export function createImportMergeService(deps = {}) {
             const result = parseAIResponse(response);
             if (result['关键词'] || result['内容']) {
                 return {
-                    '关键词': result['关键词'] || [...(entryA['关键词'] || []), ...(entryB['关键词'] || [])],
-                    '内容': result['内容'] || entryA['内容'] || entryB['内容'],
+                    关键词: result['关键词'] || [...(entryA['关键词'] || []), ...(entryB['关键词'] || [])],
+                    内容: result['内容'] || entryA['内容'] || entryB['内容'],
                 };
             }
             return result;
         } catch (e) {
             return {
-                '关键词': [...new Set([...(entryA['关键词'] || []), ...(entryB['关键词'] || [])])],
-                '内容': `${entryA['内容'] || ''}\n\n---\n\n${entryB['内容'] || ''}`,
+                关键词: [...new Set([...(entryA['关键词'] || []), ...(entryB['关键词'] || [])])],
+                内容: `${entryA['内容'] || ''}\n\n---\n\n${entryB['内容'] || ''}`,
             };
         }
     }
 
-    async function performMergeInternal(importedWorldbook, duplicates, newEntries, mergeMode, customPrompt, concurrency = 3) {
+    async function performMergeInternal(
+        importedWorldbook,
+        duplicates,
+        newEntries,
+        mergeMode,
+        customPrompt,
+        concurrency = 3,
+    ) {
         showProgressSection(true);
         setProcessingStatus('running');
         updateProgress(0, '开始处理...');
@@ -252,7 +261,10 @@ export function createImportMergeService(deps = {}) {
                         resultWorldbook[dup.category][dup.name] = mergedEntry;
 
                         completed++;
-                        updateProgress((completed / duplicates.length) * 100, `AI合并中 (${completed}/${duplicates.length})`);
+                        updateProgress(
+                            (completed / duplicates.length) * 100,
+                            `AI合并中 (${completed}/${duplicates.length})`,
+                        );
                         updateStreamContent('   ✅ 完成\n');
                     } catch (error) {
                         failed++;
@@ -290,9 +302,11 @@ export function createImportMergeService(deps = {}) {
                         updateStreamContent(`   ✅ 添加为: ${newName}\n`);
                     } else if (mergeMode === 'append') {
                         const existing = resultWorldbook[dup.category][dup.name] || dup.existing;
-                        const keywords = [...new Set([...(existing['关键词'] || []), ...(dup.imported['关键词'] || [])])];
+                        const keywords = [
+                            ...new Set([...(existing['关键词'] || []), ...(dup.imported['关键词'] || [])]),
+                        ];
                         const content = (existing['内容'] || '') + '\n\n---\n\n' + (dup.imported['内容'] || '');
-                        resultWorldbook[dup.category][dup.name] = { '关键词': keywords, '内容': content };
+                        resultWorldbook[dup.category][dup.name] = { 关键词: keywords, 内容: content };
                         updateStreamContent('   ✅ 内容已叠加\n');
                     }
                 }
@@ -320,16 +334,24 @@ export function createImportMergeService(deps = {}) {
         const selectAllNewCb = modal.querySelector('#ttw-select-all-new');
         if (selectAllNewCb) {
             selectAllNewCb.addEventListener('change', (e) => {
-                modal.querySelectorAll('.ttw-new-entry-cb').forEach((cb) => { cb.checked = e.target.checked; });
-                modal.querySelectorAll('.ttw-new-category-cb').forEach((cb) => { cb.checked = e.target.checked; });
+                modal.querySelectorAll('.ttw-new-entry-cb').forEach((cb) => {
+                    cb.checked = e.target.checked;
+                });
+                modal.querySelectorAll('.ttw-new-category-cb').forEach((cb) => {
+                    cb.checked = e.target.checked;
+                });
             });
         }
 
         const selectAllDupCb = modal.querySelector('#ttw-select-all-dup');
         if (selectAllDupCb) {
             selectAllDupCb.addEventListener('change', (e) => {
-                modal.querySelectorAll('.ttw-dup-entry-cb').forEach((cb) => { cb.checked = e.target.checked; });
-                modal.querySelectorAll('.ttw-dup-category-cb').forEach((cb) => { cb.checked = e.target.checked; });
+                modal.querySelectorAll('.ttw-dup-entry-cb').forEach((cb) => {
+                    cb.checked = e.target.checked;
+                });
+                modal.querySelectorAll('.ttw-dup-category-cb').forEach((cb) => {
+                    cb.checked = e.target.checked;
+                });
             });
         }
 
@@ -371,7 +393,8 @@ export function createImportMergeService(deps = {}) {
                     body: `<textarea readonly style="width: 100%; height: 300px; resize: vertical; box-sizing: border-box; background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid #555; padding: 10px; font-family: monospace; border-radius: 4px; white-space: pre-wrap;">${defaultMergePrompt}</textarea>`,
                     footer: '<button class="ttw-btn ttw-btn-primary" id="ttw-close-merge-prompt">关闭</button>',
                 });
-                previewModal.querySelector('#ttw-close-merge-prompt')
+                previewModal
+                    .querySelector('#ttw-close-merge-prompt')
                     .addEventListener('click', () => ModalFactory.close(previewModal));
             });
         }
@@ -379,21 +402,31 @@ export function createImportMergeService(deps = {}) {
         modal.querySelector('#ttw-confirm-merge').addEventListener('click', async () => {
             const mergeMode = modal.querySelector('input[name="merge-mode"]:checked')?.value || 'keep';
             const customPrompt = modal.querySelector('#ttw-merge-prompt')?.value || '';
-            const mergeConcurrency = parseInt(modal.querySelector('#ttw-merge-concurrency')?.value, 10)
-                || AppState.config.parallel.concurrency;
+            const mergeConcurrency =
+                parseInt(modal.querySelector('#ttw-merge-concurrency')?.value, 10) ||
+                AppState.config.parallel.concurrency;
             AppState.settings.customMergePrompt = customPrompt;
             saveCurrentSettings();
 
-            const selectedNewIndices = [...modal.querySelectorAll('.ttw-new-entry-cb:checked')]
-                .map((cb) => parseInt(cb.dataset.index, 10));
-            const selectedDupIndices = [...modal.querySelectorAll('.ttw-dup-entry-cb:checked')]
-                .map((cb) => parseInt(cb.dataset.index, 10));
+            const selectedNewIndices = [...modal.querySelectorAll('.ttw-new-entry-cb:checked')].map((cb) =>
+                parseInt(cb.dataset.index, 10),
+            );
+            const selectedDupIndices = [...modal.querySelectorAll('.ttw-dup-entry-cb:checked')].map((cb) =>
+                parseInt(cb.dataset.index, 10),
+            );
 
             const selectedNew = selectedNewIndices.map((i) => newEntries[i]).filter(Boolean);
             const selectedDup = selectedDupIndices.map((i) => allDuplicates[i]).filter(Boolean);
 
             ModalFactory.close(modal);
-            await performMergeInternal(importedWorldbook, selectedDup, selectedNew, mergeMode, customPrompt, mergeConcurrency);
+            await performMergeInternal(
+                importedWorldbook,
+                selectedDup,
+                selectedNew,
+                mergeMode,
+                customPrompt,
+                mergeConcurrency,
+            );
         });
     }
 
@@ -419,8 +452,7 @@ export function createImportMergeService(deps = {}) {
         const groupedNew = groupEntriesByCategory(newEntries);
         const groupedDup = groupEntriesByCategory(allDuplicates);
 
-        const totalEntries = Object.values(importedWorldbook)
-            .reduce((sum, cat) => sum + Object.keys(cat).length, 0);
+        const totalEntries = Object.values(importedWorldbook).reduce((sum, cat) => sum + Object.keys(cat).length, 0);
         const internalDupCount = internalDuplicates.length;
         const externalDupCount = duplicatesWithExisting.length;
 
@@ -467,9 +499,7 @@ export function createImportMergeService(deps = {}) {
             return collectDuplicates ? { worldbook: result, duplicates: internalDuplicates } : result;
         }
 
-        const entriesArray = Array.isArray(stData.entries)
-            ? stData.entries
-            : Object.values(stData.entries);
+        const entriesArray = Array.isArray(stData.entries) ? stData.entries : Object.values(stData.entries);
 
         for (const entry of entriesArray) {
             if (!entry || typeof entry !== 'object') continue;
@@ -501,8 +531,8 @@ export function createImportMergeService(deps = {}) {
             }
 
             const newEntry = {
-                '关键词': Array.isArray(entry.key) ? entry.key : (entry.key ? [entry.key] : []),
-                '内容': entry.content || '',
+                关键词: Array.isArray(entry.key) ? entry.key : entry.key ? [entry.key] : [],
+                内容: entry.content || '',
             };
 
             if (result[category][name]) {

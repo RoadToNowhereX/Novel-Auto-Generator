@@ -28,7 +28,7 @@ export function createTaskStateService(deps = {}) {
         autoSaveTimerId = setInterval(async () => {
             if (!AppState.processing.isRunning) return;
             try {
-                const processedCount = AppState.memory.queue.filter(m => m.processed).length;
+                const processedCount = AppState.memory.queue.filter((m) => m.processed).length;
                 await MemoryHistoryDB.saveState(processedCount);
             } catch (e) {
                 Logger.warn('AutoSave', '自动保存失败:', e.message);
@@ -37,8 +37,10 @@ export function createTaskStateService(deps = {}) {
 
         beforeUnloadHandler = () => {
             if (AppState.processing.isRunning && AppState.memory.queue.length > 0) {
-                const processedCount = AppState.memory.queue.filter(m => m.processed).length;
-                try { MemoryHistoryDB.saveState(processedCount); } catch (e) {}
+                const processedCount = AppState.memory.queue.filter((m) => m.processed).length;
+                try {
+                    MemoryHistoryDB.saveState(processedCount);
+                } catch (e) {}
             }
         };
         window.addEventListener('beforeunload', beforeUnloadHandler);
@@ -76,7 +78,13 @@ export function createTaskStateService(deps = {}) {
             novelName: AppState.file.novelName || '',
         };
         const timeString = new Date()
-            .toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+            .toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            })
             .replace(/[:/\s]/g, '')
             .replace(/,/g, '-');
 
@@ -112,11 +120,18 @@ export function createTaskStateService(deps = {}) {
                 AppState.file.hash = state.fileHash || null;
 
                 if (state.settings) AppState.settings = { ...defaultSettings, ...state.settings };
-                if (state.parallelConfig) AppState.config.parallel = { ...AppState.config.parallel, ...state.parallelConfig };
-                if (state.categoryLightSettings) AppState.config.categoryLight = { ...AppState.config.categoryLight, ...state.categoryLightSettings };
-                if (state.customWorldbookCategories) AppState.persistent.customCategories = state.customWorldbookCategories;
+                if (state.parallelConfig)
+                    AppState.config.parallel = { ...AppState.config.parallel, ...state.parallelConfig };
+                if (state.categoryLightSettings)
+                    AppState.config.categoryLight = {
+                        ...AppState.config.categoryLight,
+                        ...state.categoryLightSettings,
+                    };
+                if (state.customWorldbookCategories)
+                    AppState.persistent.customCategories = state.customWorldbookCategories;
                 if (state.chapterRegexSettings) AppState.config.chapterRegex = state.chapterRegexSettings;
-                if (state.defaultWorldbookEntriesUI) AppState.persistent.defaultEntries = state.defaultWorldbookEntriesUI;
+                if (state.defaultWorldbookEntriesUI)
+                    AppState.persistent.defaultEntries = state.defaultWorldbookEntriesUI;
                 if (state.categoryDefaultConfig) AppState.config.categoryDefault = state.categoryDefaultConfig;
                 if (state.entryPositionConfig) AppState.config.entryPosition = state.entryPositionConfig;
 
@@ -173,9 +188,12 @@ export function createTaskStateService(deps = {}) {
         if (AppState.memory.queue.length > 0) {
             document.getElementById('ttw-upload-area').style.display = 'none';
             document.getElementById('ttw-file-info').style.display = 'flex';
-            document.getElementById('ttw-file-name').textContent = AppState.file.current ? AppState.file.current.name : '已加载的文件';
+            document.getElementById('ttw-file-name').textContent = AppState.file.current
+                ? AppState.file.current.name
+                : '已加载的文件';
             const totalChars = AppState.memory.queue.reduce((sum, m) => sum + m.content.length, 0);
-            document.getElementById('ttw-file-size').textContent = `(${(totalChars / 1024).toFixed(1)} KB, ${AppState.memory.queue.length}章)`;
+            document.getElementById('ttw-file-size').textContent =
+                `(${(totalChars / 1024).toFixed(1)} KB, ${AppState.memory.queue.length}章)`;
             if (AppState.file.novelName) {
                 const novelNameRow = document.getElementById('ttw-novel-name-row');
                 if (novelNameRow) novelNameRow.style.display = 'flex';
@@ -226,7 +244,12 @@ export function createTaskStateService(deps = {}) {
             const savedState = await MemoryHistoryDB.loadState();
             if (savedState && savedState.memoryQueue && savedState.memoryQueue.length > 0) {
                 const processedCount = savedState.memoryQueue.filter((m) => m.processed).length;
-                if (await confirmAction(`检测到未完成任务\n已处理: ${processedCount}/${savedState.memoryQueue.length}\n\n是否恢复？`, { title: '恢复未完成任务' })) {
+                if (
+                    await confirmAction(
+                        `检测到未完成任务\n已处理: ${processedCount}/${savedState.memoryQueue.length}\n\n是否恢复？`,
+                        { title: '恢复未完成任务' },
+                    )
+                ) {
                     AppState.memory.queue = savedState.memoryQueue;
                     AppState.worldbook.generated = savedState.generatedWorldbook || {};
                     AppState.worldbook.volumes = savedState.worldbookVolumes || [];
@@ -246,7 +269,10 @@ export function createTaskStateService(deps = {}) {
                     showQueueSection(true);
                     updateMemoryQueueUI();
                     if (AppState.processing.volumeMode) updateVolumeIndicator();
-                    if (AppState.memory.startIndex >= AppState.memory.queue.length || Object.keys(AppState.worldbook.generated).length > 0) {
+                    if (
+                        AppState.memory.startIndex >= AppState.memory.queue.length ||
+                        Object.keys(AppState.worldbook.generated).length > 0
+                    ) {
                         showResultSection(true);
                         updateWorldbookPreview();
                     }
@@ -258,7 +284,8 @@ export function createTaskStateService(deps = {}) {
                     document.getElementById('ttw-file-info').style.display = 'flex';
                     document.getElementById('ttw-file-name').textContent = '已恢复的任务';
                     const totalChars = AppState.memory.queue.reduce((sum, m) => sum + m.content.length, 0);
-                    document.getElementById('ttw-file-size').textContent = `(${(totalChars / 1024).toFixed(1)} KB, ${AppState.memory.queue.length}章)`;
+                    document.getElementById('ttw-file-size').textContent =
+                        `(${(totalChars / 1024).toFixed(1)} KB, ${AppState.memory.queue.length}章)`;
                     const novelNameRow = document.getElementById('ttw-novel-name-row');
                     if (novelNameRow) novelNameRow.style.display = 'flex';
                     const novelNameInput = document.getElementById('ttw-novel-name-input');

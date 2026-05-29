@@ -77,7 +77,9 @@ export function createWorldbookRuntimeService(deps = {}) {
         for (const category in AppState.worldbook.generated) {
             if (!merged[category]) merged[category] = {};
             for (const entryName in AppState.worldbook.generated[category]) {
-                const key = merged[category][entryName] ? `${entryName}_卷${AppState.worldbook.currentVolumeIndex + 1}` : entryName;
+                const key = merged[category][entryName]
+                    ? `${entryName}_卷${AppState.worldbook.currentVolumeIndex + 1}`
+                    : entryName;
                 merged[category][key] = AppState.worldbook.generated[category][entryName];
             }
         }
@@ -104,8 +106,8 @@ export function createWorldbookRuntimeService(deps = {}) {
                     AppState.worldbook.generated[entry.category] = {};
                 }
                 AppState.worldbook.generated[entry.category][entry.name] = {
-                    '关键词': entry.keywords || [],
-                    '内容': entry.content || '',
+                    关键词: entry.keywords || [],
+                    内容: entry.content || '',
                 };
 
                 if (entry.position !== undefined || entry.depth !== undefined || entry.order !== undefined) {

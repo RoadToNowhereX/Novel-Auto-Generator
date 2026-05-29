@@ -8,7 +8,7 @@ export function createFileUtils(deps = {}) {
                 const data = encoder.encode(content);
                 const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
             } catch (e) {
                 if (typeof onHashFallback === 'function') onHashFallback(e);
             }
@@ -17,13 +17,14 @@ export function createFileUtils(deps = {}) {
         let hash = 0;
         const len = content.length;
         if (len === 0) return 'hash-empty';
-        const sample = len < 100000
-            ? content
-            : content.slice(0, 1000)
-                + content.slice(Math.floor(len / 2), Math.floor(len / 2) + 1000)
-                + content.slice(-1000);
+        const sample =
+            len < 100000
+                ? content
+                : content.slice(0, 1000) +
+                  content.slice(Math.floor(len / 2), Math.floor(len / 2) + 1000) +
+                  content.slice(-1000);
         for (let i = 0; i < sample.length; i++) {
-            hash = ((hash << 5) - hash) + sample.charCodeAt(i);
+            hash = (hash << 5) - hash + sample.charCodeAt(i);
             hash = hash & hash;
         }
         return `simple-${Math.abs(hash).toString(16)}-${len}`;
@@ -31,7 +32,7 @@ export function createFileUtils(deps = {}) {
 
     async function detectBestEncoding(file) {
         const encodings = ['UTF-8', 'GBK', 'GB2312', 'GB18030', 'Big5'];
-        const replacementChar = String.fromCharCode(0xFFFD);
+        const replacementChar = String.fromCharCode(0xfffd);
         for (const encoding of encodings) {
             try {
                 const content = await readFileWithEncoding(file, encoding);

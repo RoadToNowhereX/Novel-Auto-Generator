@@ -1,11 +1,5 @@
 export function createSettingsPersistenceService(deps) {
-    const {
-        AppState,
-        defaultSettings,
-        updateSettingsUI,
-        updateChapterRegexUI,
-        handleProviderChange,
-    } = deps;
+    const { AppState, defaultSettings, updateSettingsUI, updateChapterRegexUI, handleProviderChange } = deps;
 
     function saveCurrentSettings() {
         AppState.settings.chunkSize = parseInt(document.getElementById('ttw-chunk-size')?.value) || 15000;
@@ -24,7 +18,8 @@ export function createSettingsPersistenceService(deps) {
         AppState.settings.parallelMode = AppState.config.parallel.mode;
         AppState.settings.categoryLightSettings = { ...AppState.config.categoryLight };
         AppState.settings.forceChapterMarker = document.getElementById('ttw-force-chapter-marker')?.checked ?? true;
-        AppState.settings.chapterRegexPattern = document.getElementById('ttw-chapter-regex')?.value || AppState.config.chapterRegex.pattern;
+        AppState.settings.chapterRegexPattern =
+            document.getElementById('ttw-chapter-regex')?.value || AppState.config.chapterRegex.pattern;
         AppState.settings.defaultWorldbookEntriesUI = AppState.persistent.defaultEntries;
         AppState.settings.categoryDefaultConfig = AppState.config.categoryDefault;
         AppState.settings.entryPositionConfig = AppState.config.entryPosition;
@@ -62,7 +57,8 @@ export function createSettingsPersistenceService(deps) {
                 const parsed = JSON.parse(saved);
                 AppState.settings = { ...defaultSettings, ...parsed };
                 AppState.processing.volumeMode = AppState.settings.useVolumeMode || false;
-                AppState.config.parallel.enabled = AppState.settings.parallelEnabled !== undefined ? AppState.settings.parallelEnabled : true;
+                AppState.config.parallel.enabled =
+                    AppState.settings.parallelEnabled !== undefined ? AppState.settings.parallelEnabled : true;
                 AppState.config.parallel.concurrency = AppState.settings.parallelConcurrency || 3;
                 AppState.config.parallel.mode = AppState.settings.parallelMode || 'independent';
 

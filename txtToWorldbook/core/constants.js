@@ -1,30 +1,30 @@
 ﻿export const DEFAULT_CHAPTER_REGEX = {
     pattern: '第[零一二三四五六七八九十百千万0-9]+[章回卷节部篇]',
-    useCustomRegex: false
+    useCustomRegex: false,
 };
 
 export const DEFAULT_CATEGORY_LIGHT = {
-    '角色': false,
-    '地点': true,
-    '组织': false,
-    '剧情大纲': true,
-    '知识书': false,
-    '文风配置': false,
-    '地图环境': true,
-    '剧情节点': true
+    角色: false,
+    地点: true,
+    组织: false,
+    剧情大纲: true,
+    知识书: false,
+    文风配置: false,
+    地图环境: true,
+    剧情节点: true,
 };
 
 export const DEFAULT_PLOT_OUTLINE_CONFIG = {
     position: 0,
     depth: 4,
     order: 100,
-    autoIncrementOrder: true
+    autoIncrementOrder: true,
 };
 
 export const DEFAULT_PARALLEL_CONFIG = {
     enabled: true,
     concurrency: 3,
-    mode: 'independent'
+    mode: 'independent',
 };
 
 export const DEFAULT_WORLDBOOK_CATEGORIES = [
@@ -34,7 +34,8 @@ export const DEFAULT_WORLDBOOK_CATEGORIES = [
         isBuiltin: true,
         entryExample: '角色真实姓名',
         keywordsExample: ['真实姓名', '称呼1', '称呼2', '绰号'],
-        contentGuide: '基于原文的角色描述，包含但不限于**名称**:（必须要）、**性别**:、**MBTI(必须要，如变化请说明背景)**:、**貌龄**:、**年龄**:、**身份**:、**背景**:、**性格**:、**外貌**:、**技能**:、**重要事件**:、**话语示例**:、**弱点**:、**背景故事**:等（实际嵌套或者排列方式按合理的逻辑）',
+        contentGuide:
+            '基于原文的角色描述，包含但不限于**名称**:（必须要）、**性别**:、**MBTI(必须要，如变化请说明背景)**:、**貌龄**:、**年龄**:、**身份**:、**背景**:、**性格**:、**外貌**:、**技能**:、**重要事件**:、**话语示例**:、**弱点**:、**背景故事**:等（实际嵌套或者排列方式按合理的逻辑）',
         defaultPosition: 0,
         defaultDepth: 4,
         defaultOrder: 100,
@@ -46,7 +47,8 @@ export const DEFAULT_WORLDBOOK_CATEGORIES = [
         isBuiltin: true,
         entryExample: '地点真实名称',
         keywordsExample: ['地点名', '别称', '俗称'],
-        contentGuide: '基于原文的地点描述，包含但不限于**名称**:（必须要）、**位置**:、**特征**:、**重要事件**:等（实际嵌套或者排列方式按合理的逻辑）',
+        contentGuide:
+            '基于原文的地点描述，包含但不限于**名称**:（必须要）、**位置**:、**特征**:、**重要事件**:等（实际嵌套或者排列方式按合理的逻辑）',
         defaultPosition: 0,
         defaultDepth: 4,
         defaultOrder: 100,
@@ -58,7 +60,8 @@ export const DEFAULT_WORLDBOOK_CATEGORIES = [
         isBuiltin: true,
         entryExample: '组织真实名称',
         keywordsExample: ['组织名', '简称', '代号'],
-        contentGuide: '基于原文的组织描述，包含但不限于**名称**:（必须要）、**性质**:、**成员**:、**目标**:等（实际嵌套或者排列方式按合理的逻辑）',
+        contentGuide:
+            '基于原文的组织描述，包含但不限于**名称**:（必须要）、**性质**:、**成员**:、**目标**:等（实际嵌套或者排列方式按合理的逻辑）',
         defaultPosition: 0,
         defaultDepth: 4,
         defaultOrder: 100,
@@ -94,7 +97,8 @@ export const DEFAULT_WORLDBOOK_CATEGORIES = [
         isBuiltin: false,
         entryExample: '第X章',
         keywordsExample: ['章节名', '章节号'],
-        contentGuide: '该章节的剧情概要，包含但不限于**章节标题**:、**主要事件**:、**出场角色**:、**关键转折**:、**伏笔线索**:等',
+        contentGuide:
+            '该章节的剧情概要，包含但不限于**章节标题**:、**主要事件**:、**出场角色**:、**关键转折**:、**伏笔线索**:等',
         defaultPosition: 0,
         defaultDepth: 4,
         defaultOrder: 100,
@@ -106,7 +110,8 @@ export const DEFAULT_WORLDBOOK_CATEGORIES = [
         isBuiltin: false,
         entryExample: '角色名-内心世界',
         keywordsExample: ['角色名', '内心', '心理'],
-        contentGuide: '角色的内心想法和心理活动，包含但不限于**原文内容**:、**内心独白**:、**情感变化**:、**动机分析**:、**心理矛盾**:等',
+        contentGuide:
+            '角色的内心想法和心理活动，包含但不限于**原文内容**:、**内心独白**:、**情感变化**:、**动机分析**:、**心理矛盾**:等',
         defaultPosition: 0,
         defaultDepth: 4,
         defaultOrder: 100,
@@ -218,9 +223,7 @@ export const defaultSettings = {
     categoryDefaultConfig: {},
     entryPositionConfig: {},
     customSuffixPrompt: '',
-    promptMessageChain: [
-        { role: 'user', content: '{PROMPT}', enabled: true }
-    ],
+    promptMessageChain: [{ role: 'user', content: '{PROMPT}', enabled: true }],
     allowRecursion: false,
     filterResponseTags: 'thinking,/think',
     debugMode: false,

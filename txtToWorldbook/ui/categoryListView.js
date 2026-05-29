@@ -16,9 +16,10 @@ export function createCategoryListView(deps = {}) {
 
         const html = ListRenderer.renderItems(
             AppState.persistent.customCategories,
-            (cat, index) => ListRenderer.renderCategoryItem(cat, index, {
-                hasDefault: hasDefaultCategory(cat.name),
-            }),
+            (cat, index) =>
+                ListRenderer.renderCategoryItem(cat, index, {
+                    hasDefault: hasDefaultCategory(cat.name),
+                }),
             { emptyMessage: '暂无分类配置' },
         );
 

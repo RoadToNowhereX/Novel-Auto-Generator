@@ -56,40 +56,43 @@
             const lightTitle = isGreen ? '绿灯(触发式) - 点击切换为蓝灯' : '蓝灯(常驻) - 点击切换为绿灯';
 
             let categoryTokens = 0;
-            const entriesHtml = entryNames.map((entryName) => {
-                const entry = entries[entryName];
-                const config = getEntryConfig(category, entryName);
-                const autoIncrement = getCategoryAutoIncrement(category);
-                const baseOrder = getCategoryBaseOrder(category);
-                let displayOrder = config.order;
-                if (autoIncrement) {
-                    const entryIndex = entryNames.indexOf(entryName);
-                    displayOrder = baseOrder + entryIndex;
-                }
+            const entriesHtml = entryNames
+                .map((entryName) => {
+                    const entry = entries[entryName];
+                    const config = getEntryConfig(category, entryName);
+                    const autoIncrement = getCategoryAutoIncrement(category);
+                    const baseOrder = getCategoryBaseOrder(category);
+                    let displayOrder = config.order;
+                    if (autoIncrement) {
+                        const entryIndex = entryNames.indexOf(entryName);
+                        displayOrder = baseOrder + entryIndex;
+                    }
 
-                const entryTokens = getEntryTotalTokens(entry);
-                categoryTokens += entryTokens;
+                    const entryTokens = getEntryTotalTokens(entry);
+                    categoryTokens += entryTokens;
 
-                const tokenThreshold = getTokenThreshold();
-                const isBelowThreshold = tokenThreshold > 0 && entryTokens < tokenThreshold;
-                if (isBelowThreshold) belowThresholdCount++;
+                    const tokenThreshold = getTokenThreshold();
+                    const isBelowThreshold = tokenThreshold > 0 && entryTokens < tokenThreshold;
+                    if (isBelowThreshold) belowThresholdCount++;
 
-                const mergeHighlight = getManualMergeHighlight();
-                const isManualMergedHighlight = !!mergeHighlight
-                    && mergeHighlight.category === category
-                    && mergeHighlight.entryName === entryName;
+                    const mergeHighlight = getManualMergeHighlight();
+                    const isManualMergedHighlight =
+                        !!mergeHighlight &&
+                        mergeHighlight.category === category &&
+                        mergeHighlight.entryName === entryName;
 
-                return ListRenderer.renderWorldbookEntry(category, entryName, entry, {
-                    safeCategoryAttr,
-                    config,
-                    autoIncrement,
-                    displayOrder,
-                    entryTokens,
-                    isBelowThreshold,
-                    isManualMergedHighlight,
-                    searchKeyword: getSearchKeyword(),
-                });
-            }).join('');
+                    return ListRenderer.renderWorldbookEntry(category, entryName, entry, {
+                        safeCategoryAttr,
+                        config,
+                        autoIncrement,
+                        displayOrder,
+                        entryTokens,
+                        isBelowThreshold,
+                        isManualMergedHighlight,
+                        searchKeyword: getSearchKeyword(),
+                    });
+                })
+                .join('');
 
             totalTokens += categoryTokens;
             html += ListRenderer.renderWorldbookCategory({
@@ -104,13 +107,15 @@
             });
         }
 
-        return ListRenderer.renderWorldbookSummary({
-            categoryCount: visibleCategories.length,
-            totalEntries,
-            totalTokens,
-            belowThresholdCount,
-            tokenThreshold: getTokenThreshold(),
-        }) + html;
+        return (
+            ListRenderer.renderWorldbookSummary({
+                categoryCount: visibleCategories.length,
+                totalEntries,
+                totalTokens,
+                belowThresholdCount,
+                tokenThreshold: getTokenThreshold(),
+            }) + html
+        );
     }
 
     function bindWorldbookCollapseEvents(container) {

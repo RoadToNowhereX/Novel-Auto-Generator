@@ -1,12 +1,7 @@
 import { escapeHtmlForDisplay } from './renderer.js';
 
 export function createChapterRegexView(deps = {}) {
-    const {
-        AppState,
-        ModalFactory,
-        ErrorHandler,
-        Logger,
-    } = deps;
+    const { AppState, ModalFactory, ErrorHandler, Logger } = deps;
 
     function detectChaptersWithRegex(content, regexPattern) {
         try {
@@ -39,9 +34,7 @@ export function createChapterRegexView(deps = {}) {
         const regexInput = document.getElementById('ttw-chapter-regex');
         const pattern = regexInput?.value || AppState.config.chapterRegex.pattern;
 
-        const content = AppState.memory.queue.length > 0
-            ? AppState.memory.queue.map((m) => m.content).join('')
-            : '';
+        const content = AppState.memory.queue.length > 0 ? AppState.memory.queue.map((m) => m.content).join('') : '';
         if (!content) {
             ErrorHandler.showUserError('请先上传并加载文件');
             return;
@@ -56,20 +49,21 @@ export function createChapterRegexView(deps = {}) {
                 body: `<div style="white-space: pre-wrap; padding: 10px;">当前正则: <code>${escapeHtmlForDisplay(pattern)}</code>\n\n建议:\n1. 尝试使用快速选择按钮\n2. 检查正则表达式是否正确</div>`,
                 footer: '<button class="ttw-btn ttw-btn-primary" id="ttw-close-regex-test">关闭</button>',
             });
-            modal.querySelector('#ttw-close-regex-test')
-                .addEventListener('click', () => ModalFactory.close(modal));
+            modal.querySelector('#ttw-close-regex-test').addEventListener('click', () => ModalFactory.close(modal));
             return;
         }
 
-        const previewChapters = matches.slice(0, 10).map((m) => escapeHtmlForDisplay(m[0])).join('\n');
+        const previewChapters = matches
+            .slice(0, 10)
+            .map((m) => escapeHtmlForDisplay(m[0]))
+            .join('\n');
         const modal = ModalFactory.create({
             id: 'ttw-regex-test-modal',
             title: `✅ 检测到 ${matches.length} 个章节`,
             body: `<div style="white-space: pre-wrap; padding: 10px; max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.3); color: #ccc; border-radius: 4px; border: 1px solid #555;">前10个章节预览:\n\n${previewChapters}${matches.length > 10 ? '\n...' : ''}</div>`,
             footer: '<button class="ttw-btn ttw-btn-primary" id="ttw-close-regex-test">关闭</button>',
         });
-        modal.querySelector('#ttw-close-regex-test')
-            .addEventListener('click', () => ModalFactory.close(modal));
+        modal.querySelector('#ttw-close-regex-test').addEventListener('click', () => ModalFactory.close(modal));
     }
 
     return {

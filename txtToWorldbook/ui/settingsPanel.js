@@ -486,12 +486,7 @@ export function buildModalHtml() {
 }
 
 export function hydrateSettingsFromState(deps = {}) {
-    const {
-        AppState,
-        handleUseTavernApiChange,
-        handleProviderChange,
-        renderMessageChainUI,
-    } = deps;
+    const { AppState, handleUseTavernApiChange, handleProviderChange, renderMessageChainUI } = deps;
 
     if (!AppState) return;
 

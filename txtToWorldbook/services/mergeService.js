@@ -77,25 +77,45 @@
             const targetVolumeIndex = parseInt(suffixMatch[2], 10) - 1;
 
             if (targetVolumeIndex === AppState.worldbook.currentVolumeIndex && categoryFromGenerated?.[baseName]) {
-                return { sourceType: 'generated', volumeIndex: AppState.worldbook.currentVolumeIndex, actualName: baseName, entry: categoryFromGenerated[baseName] };
+                return {
+                    sourceType: 'generated',
+                    volumeIndex: AppState.worldbook.currentVolumeIndex,
+                    actualName: baseName,
+                    entry: categoryFromGenerated[baseName],
+                };
             }
 
-            const volume = volumes.find(v => v.volumeIndex === targetVolumeIndex);
+            const volume = volumes.find((v) => v.volumeIndex === targetVolumeIndex);
             const fromVolume = volume?.worldbook?.[category]?.[baseName];
             if (fromVolume) {
-                return { sourceType: 'volume', volumeIndex: targetVolumeIndex, actualName: baseName, entry: fromVolume };
+                return {
+                    sourceType: 'volume',
+                    volumeIndex: targetVolumeIndex,
+                    actualName: baseName,
+                    entry: fromVolume,
+                };
             }
         }
 
         for (const volume of volumes) {
             const fromVolume = volume?.worldbook?.[category]?.[displayedName];
             if (fromVolume) {
-                return { sourceType: 'volume', volumeIndex: volume.volumeIndex, actualName: displayedName, entry: fromVolume };
+                return {
+                    sourceType: 'volume',
+                    volumeIndex: volume.volumeIndex,
+                    actualName: displayedName,
+                    entry: fromVolume,
+                };
             }
         }
 
         if (categoryFromGenerated?.[displayedName]) {
-            return { sourceType: 'generated', volumeIndex: AppState.worldbook.currentVolumeIndex, actualName: displayedName, entry: categoryFromGenerated[displayedName] };
+            return {
+                sourceType: 'generated',
+                volumeIndex: AppState.worldbook.currentVolumeIndex,
+                actualName: displayedName,
+                entry: categoryFromGenerated[displayedName],
+            };
         }
 
         return null;
@@ -110,7 +130,7 @@
                 if (entry) return { ...entryRef, entry };
             }
             if (entryRef.sourceType === 'volume' && Number.isInteger(entryRef.volumeIndex)) {
-                const volume = (AppState.worldbook.volumes || []).find(v => v.volumeIndex === entryRef.volumeIndex);
+                const volume = (AppState.worldbook.volumes || []).find((v) => v.volumeIndex === entryRef.volumeIndex);
                 const entry = volume?.worldbook?.[entryRef.category]?.[entryRef.actualName];
                 if (entry) return { ...entryRef, entry };
             }
@@ -123,7 +143,7 @@
             sourceType: fallback.sourceType,
             volumeIndex: fallback.volumeIndex,
             actualName: fallback.actualName,
-            entry: fallback.entry
+            entry: fallback.entry,
         };
     }
 
@@ -139,7 +159,10 @@
         const uniqueResolvedEntries = [...uniqueResolvedMap.values()];
 
         if (uniqueResolvedEntries.length < 2) {
-            Logger.warn('手动合并', `未命中足够条目: 已选${selectedEntries.length}，命中${uniqueResolvedEntries.length}`);
+            Logger.warn(
+                '手动合并',
+                `未命中足够条目: 已选${selectedEntries.length}，命中${uniqueResolvedEntries.length}`,
+            );
             return { success: false, error: '未命中足够的有效条目，请重新选择后重试' };
         }
 
@@ -178,14 +201,17 @@
             if (entry.sourceType === 'generated') {
                 sourceCategoryEntries = AppState.worldbook.generated?.[entry.category];
             } else if (entry.sourceType === 'volume' && Number.isInteger(entry.volumeIndex)) {
-                const volume = (AppState.worldbook.volumes || []).find(v => v.volumeIndex === entry.volumeIndex);
+                const volume = (AppState.worldbook.volumes || []).find((v) => v.volumeIndex === entry.volumeIndex);
                 sourceCategoryEntries = volume?.worldbook?.[entry.category];
             }
 
             if (sourceCategoryEntries && sourceCategoryEntries[entry.actualName]) {
                 delete sourceCategoryEntries[entry.actualName];
                 deletedCount++;
-                Logger.info('手动合并', `已删除原条目: [${entry.category}] ${entry.actualName} (${entry.sourceType}${entry.sourceType === 'volume' ? `#${entry.volumeIndex + 1}` : ''})`);
+                Logger.info(
+                    '手动合并',
+                    `已删除原条目: [${entry.category}] ${entry.actualName} (${entry.sourceType}${entry.sourceType === 'volume' ? `#${entry.volumeIndex + 1}` : ''})`,
+                );
             }
         }
 
@@ -194,11 +220,14 @@
         }
 
         worldbook[targetCategory][mainName] = {
-            '关键词': mergedKeywords,
-            '内容': mergedContent
+            关键词: mergedKeywords,
+            内容: mergedContent,
         };
 
-        Logger.info('手动合并', `手动合并完成: 共${selectedEntries.length}个条目，命中${uniqueResolvedEntries.length}个，删除了${deletedCount}个原条目，合并为 [${targetCategory}] ${mainName}`);
+        Logger.info(
+            '手动合并',
+            `手动合并完成: 共${selectedEntries.length}个条目，命中${uniqueResolvedEntries.length}个，删除了${deletedCount}个原条目，合并为 [${targetCategory}] ${mainName}`,
+        );
         return { success: true, deletedCount, mergedCount: uniqueResolvedEntries.length };
     }
 
@@ -253,7 +282,9 @@
     function normalizeSameFlag(value) {
         if (value === true || value === 1) return true;
         if (value === false || value === 0) return false;
-        const text = String(value ?? '').trim().toLowerCase();
+        const text = String(value ?? '')
+            .trim()
+            .toLowerCase();
         if (['true', 'yes', 'y', 'same', '同一', '相同', '是'].includes(text)) return true;
         return text.includes('同一') || text.includes('相同') || text.includes('同个') || text.includes('same');
     }
@@ -283,7 +314,10 @@
         if (resultNameA && resultNameB) {
             for (let i = 0; i < pairs.length; i++) {
                 const [nameA, nameB] = pairs[i];
-                if ((nameA === resultNameA && nameB === resultNameB) || (nameA === resultNameB && nameB === resultNameA)) {
+                if (
+                    (nameA === resultNameA && nameB === resultNameB) ||
+                    (nameA === resultNameB && nameB === resultNameA)
+                ) {
                     return batchStartIndex + i;
                 }
             }
@@ -311,26 +345,30 @@
         if (allPairs.length === 0) return { pairResults: [], mergedGroups: [] };
 
         const buildPairContent = (pairs, startIndex = 0) => {
-            return pairs.map((pair, i) => {
-                const [nameA, nameB] = pair;
-                const entryA = entries[nameA];
-                const entryB = entries[nameB];
-                const keywordsA = entryA?.['关键词']?.join(', ') || '无';
-                const keywordsB = entryB?.['关键词']?.join(', ') || '无';
-                const contentA = (entryA?.['内容'] || '').substring(0, 300);
-                const contentB = (entryB?.['内容'] || '').substring(0, 300);
+            return pairs
+                .map((pair, i) => {
+                    const [nameA, nameB] = pair;
+                    const entryA = entries[nameA];
+                    const entryB = entries[nameB];
+                    const keywordsA = entryA?.['关键词']?.join(', ') || '无';
+                    const keywordsB = entryB?.['关键词']?.join(', ') || '无';
+                    const contentA = (entryA?.['内容'] || '').substring(0, 300);
+                    const contentB = (entryB?.['内容'] || '').substring(0, 300);
 
-                return `配对${startIndex + i + 1}: 「${nameA}」vs「${nameB}」
+                    return `配对${startIndex + i + 1}: 「${nameA}」vs「${nameB}」
   【${nameA}】关键词: ${keywordsA}
   内容摘要: ${contentA}${contentA.length >= 300 ? '...' : ''}
   【${nameB}】关键词: ${keywordsB}
   内容摘要: ${contentB}${contentB.length >= 300 ? '...' : ''}`;
-            }).join('\n\n');
+                })
+                .join('\n\n');
         };
 
         const categoryLabel = categoryName === '角色' ? '角色' : `「${categoryName}」分类的条目`;
         const buildPrompt = (pairsContent) => {
-            return getLanguagePrefix() + `你是${categoryName}识别专家。请对以下每一对${categoryLabel}进行判断，判断它们是否为同一${categoryName === '角色' ? '人物' : '事物'}。
+            return (
+                getLanguagePrefix() +
+                `你是${categoryName}识别专家。请对以下每一对${categoryLabel}进行判断，判断它们是否为同一${categoryName === '角色' ? '人物' : '事物'}。
 
 ## 待判断的${categoryLabel}配对
 ${pairsContent}
@@ -354,7 +392,8 @@ ${pairsContent}
         {"pair": 1, "nameA": "条目A名", "nameB": "条目B名", "isSamePerson": true, "mainName": "保留的名称", "reason": "判断依据"},
         {"pair": 2, "nameA": "条目A名", "nameB": "条目B名", "isSamePerson": false, "reason": "不是同一${categoryName === '角色' ? '人' : '事物'}的原因"}
     ]
-}`;
+}`
+            );
         };
 
         const pairResults = [];
@@ -372,10 +411,21 @@ ${pairsContent}
                 pairResults.push({
                     nameA: result.nameA || result.a || result.entryA || result.itemA || nameA,
                     nameB: result.nameB || result.b || result.entryB || result.itemB || nameB,
-                    isSamePerson: normalizeSameFlag(result.isSamePerson ?? result.isSame ?? result.same ?? result.samePerson ?? result.result),
-                    mainName: result.mainName || result.primaryName || result.keepName || result.name || (normalizeSameFlag(result.isSamePerson ?? result.isSame ?? result.same ?? result.samePerson ?? result.result) ? nameA : ''),
+                    isSamePerson: normalizeSameFlag(
+                        result.isSamePerson ?? result.isSame ?? result.same ?? result.samePerson ?? result.result,
+                    ),
+                    mainName:
+                        result.mainName ||
+                        result.primaryName ||
+                        result.keepName ||
+                        result.name ||
+                        (normalizeSameFlag(
+                            result.isSamePerson ?? result.isSame ?? result.same ?? result.samePerson ?? result.result,
+                        )
+                            ? nameA
+                            : ''),
                     reason: result.reason || result.explanation || result.note || '',
-                    _globalIndex: globalPairIndex
+                    _globalIndex: globalPairIndex,
                 });
             }
         };
@@ -387,7 +437,7 @@ ${pairsContent}
             for (let i = 0; i < allPairs.length; i += threshold) {
                 batches.push({
                     pairs: allPairs.slice(i, Math.min(i + threshold, allPairs.length)),
-                    startIndex: i
+                    startIndex: i,
                 });
             }
 
@@ -399,7 +449,9 @@ ${pairsContent}
             const processBatch = async (batch, batchIndex) => {
                 await semaphore.acquire();
                 try {
-                    updateStreamContent(`🔄 [批次${batchIndex + 1}/${batches.length}] 处理 ${batch.pairs.length} 对...\n`);
+                    updateStreamContent(
+                        `🔄 [批次${batchIndex + 1}/${batches.length}] 处理 ${batch.pairs.length} 对...\n`,
+                    );
 
                     const pairsContent = buildPairContent(batch.pairs, batch.startIndex);
                     const prompt = buildPrompt(pairsContent);
@@ -429,7 +481,9 @@ ${pairsContent}
         }
 
         if (pairResults.length === 0 && failedBatches.length > 0) {
-            throw new Error(`所有别名判断批次都失败，最后错误: ${failedBatches[failedBatches.length - 1].error.message}`);
+            throw new Error(
+                `所有别名判断批次都失败，最后错误: ${failedBatches[failedBatches.length - 1].error.message}`,
+            );
         }
 
         const uf = new UnionFind([...allNames]);
@@ -468,7 +522,7 @@ ${pairsContent}
         return {
             pairResults,
             mergedGroups: finalGroups,
-            _allPairs: allPairs
+            _allPairs: allPairs,
         };
     }
 
@@ -481,7 +535,7 @@ ${pairsContent}
             const { names, mainName } = groupInfo;
             if (!names || names.length < 2 || !mainName) continue;
 
-            let mergedKeywords = [];
+            const mergedKeywords = [];
             let mergedContent = '';
 
             for (const name of names) {
@@ -494,8 +548,8 @@ ${pairsContent}
             }
 
             entries[mainName] = {
-                '关键词': [...new Set(mergedKeywords)],
-                '内容': mergedContent.replace(/\n\n---\n\n$/, '')
+                关键词: [...new Set(mergedKeywords)],
+                内容: mergedContent.replace(/\n\n---\n\n$/, ''),
             };
 
             for (const name of names) {
@@ -528,7 +582,7 @@ ${pairsContent}
         for (const cat in mergeByCategory) {
             const filteredResult = {
                 pairResults: aiResultByCategory[cat].pairResults,
-                mergedGroups: mergeByCategory[cat]
+                mergedGroups: mergeByCategory[cat],
             };
             const mergedCount = await mergeConfirmedDuplicates(filteredResult, cat);
             totalMerged += mergedCount;

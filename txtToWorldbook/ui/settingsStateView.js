@@ -1,12 +1,7 @@
 import { hydrateSettingsFromState } from './settingsPanel.js';
 
 export function createSettingsStateView(deps = {}) {
-    const {
-        AppState,
-        handleUseTavernApiChange,
-        handleProviderChange,
-        renderMessageChainUI,
-    } = deps;
+    const { AppState, handleUseTavernApiChange, handleProviderChange, renderMessageChainUI } = deps;
 
     function updateSettingsUI() {
         hydrateSettingsFromState({

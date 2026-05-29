@@ -1,9 +1,5 @@
 export function createErrorHandler(deps = {}) {
-    const {
-        Logger,
-        ModalFactory,
-        confirmAction,
-    } = deps;
+    const { Logger, ModalFactory, confirmAction } = deps;
 
     return {
         handle(error, context = '') {
@@ -21,7 +17,11 @@ export function createErrorHandler(deps = {}) {
                 return this.handleAPIError(error);
             }
 
-            if (error.message?.includes('network') || error.message?.includes('网络') || error.message?.includes('fetch')) {
+            if (
+                error.message?.includes('network') ||
+                error.message?.includes('网络') ||
+                error.message?.includes('fetch')
+            ) {
                 this.showUserError('网络连接失败，请检查网络设置');
                 return { handled: true, message: '网络错误' };
             }
@@ -56,7 +56,8 @@ export function createErrorHandler(deps = {}) {
 
         showUserError(message) {
             const bodyNode = document.createElement('div');
-            bodyNode.style.cssText = 'white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #ff6b6b; padding: 10px;';
+            bodyNode.style.cssText =
+                'white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #ff6b6b; padding: 10px;';
             bodyNode.textContent = String(message ?? '未知错误');
 
             const footerNode = document.createElement('button');

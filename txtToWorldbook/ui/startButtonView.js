@@ -1,7 +1,5 @@
 export function createStartButtonView(deps = {}) {
-    const {
-        AppState,
-    } = deps;
+    const { AppState } = deps;
 
     function updateStartButtonState(isProcessing) {
         const startBtn = document.getElementById('ttw-start-btn');
@@ -29,7 +27,10 @@ export function createStartButtonView(deps = {}) {
         if (hasProcessedMemories && firstUnprocessed !== -1 && firstUnprocessed < AppState.memory.queue.length) {
             startBtn.textContent = `▶️ 继续转换 (从第${firstUnprocessed + 1}章)`;
             AppState.memory.startIndex = firstUnprocessed;
-        } else if (AppState.memory.queue.length > 0 && AppState.memory.queue.every((memory) => memory.processed && !memory.failed)) {
+        } else if (
+            AppState.memory.queue.length > 0 &&
+            AppState.memory.queue.every((memory) => memory.processed && !memory.failed)
+        ) {
             startBtn.textContent = '🚀 重新转换';
             AppState.memory.startIndex = 0;
         } else {

@@ -70,7 +70,11 @@
             memory.processing = true;
             updateMemoryQueueUI();
 
-            const result = await processMemoryChunkIndependent({ index, retryCount: 0, customPromptSuffix: customPrompt });
+            const result = await processMemoryChunkIndependent({
+                index,
+                retryCount: 0,
+                customPromptSuffix: customPrompt,
+            });
 
             memory.processing = false;
 
@@ -124,7 +128,7 @@
         let prompt = chapterForcePrompt;
         prompt += getLanguagePrefix();
 
-        const categoryConfig = AppState.persistent.customCategories.find(c => c.name === category);
+        const categoryConfig = AppState.persistent.customCategories.find((c) => c.name === category);
         const contentGuide = categoryConfig ? categoryConfig.contentGuide : '';
 
         prompt += '\n你是一个专业的小说世界书条目生成助手。请根据以下原文内容，专门重新生成指定的条目。\n';
@@ -160,7 +164,10 @@
             prompt += `\n\n【用户额外要求】\n${customPrompt}`;
         }
 
-        if (AppState.settings.forceChapterMarker && (category === '剧情大纲' || category === '剧情节点' || category === '章节剧情')) {
+        if (
+            AppState.settings.forceChapterMarker &&
+            (category === '剧情大纲' || category === '剧情节点' || category === '章节剧情')
+        ) {
             prompt += `\n\n【重要提醒】条目名称必须包含"第${chapterIndex}章"！`;
         }
 
@@ -183,7 +190,7 @@
                 throw new Error('ABORTED');
             }
 
-            let entryUpdate = parseAIResponse(response);
+            const entryUpdate = parseAIResponse(response);
 
             if (!entryUpdate || !entryUpdate[category] || !entryUpdate[category][entryName]) {
                 if (entryUpdate && entryUpdate[category]) {
@@ -205,7 +212,13 @@
                 memory.result[category][entryName] = entryUpdate[category][entryName];
 
                 await MemoryHistoryDB.saveRollResult(memoryIndex, memory.result);
-                await MemoryHistoryDB.saveEntryRollResult(category, entryName, memoryIndex, entryUpdate[category][entryName], customPrompt);
+                await MemoryHistoryDB.saveEntryRollResult(
+                    category,
+                    entryName,
+                    memoryIndex,
+                    entryUpdate[category][entryName],
+                    customPrompt,
+                );
 
                 if (!AppState.worldbook.generated[category]) {
                     AppState.worldbook.generated[category] = {};
@@ -252,7 +265,9 @@
         let completed = 0;
 
         if (useParallel) {
-            updateStreamContent(`\n🚀 批量重Roll开始 (并行模式, ${AppState.config.parallel.concurrency}并发)\n${'='.repeat(50)}\n`);
+            updateStreamContent(
+                `\n🚀 批量重Roll开始 (并行模式, ${AppState.config.parallel.concurrency}并发)\n${'='.repeat(50)}\n`,
+            );
 
             const semaphore = new Semaphore(AppState.config.parallel.concurrency);
             const processOne = async (index) => {
@@ -282,7 +297,10 @@
                     return null;
                 } finally {
                     completed++;
-                    updateProgress((completed / memoryIndices.length) * 100, `批量重Roll中 (${completed}/${memoryIndices.length})`);
+                    updateProgress(
+                        (completed / memoryIndices.length) * 100,
+                        `批量重Roll中 (${completed}/${memoryIndices.length})`,
+                    );
                     if (typeof onStep === 'function') {
                         onStep({ completed, total: memoryIndices.length, successCount, failCount });
                     }
@@ -305,7 +323,10 @@
                     updateStreamContent(`❌ 第${index + 1}章重Roll失败: ${error.message}\n`);
                 } finally {
                     completed++;
-                    updateProgress((completed / memoryIndices.length) * 100, `批量重Roll中 (${completed}/${memoryIndices.length})`);
+                    updateProgress(
+                        (completed / memoryIndices.length) * 100,
+                        `批量重Roll中 (${completed}/${memoryIndices.length})`,
+                    );
                     if (typeof onStep === 'function') {
                         onStep({ completed, total: memoryIndices.length, successCount, failCount });
                     }

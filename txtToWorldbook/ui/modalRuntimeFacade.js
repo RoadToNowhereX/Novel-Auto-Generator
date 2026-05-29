@@ -1,11 +1,5 @@
 export function createModalRuntimeFacade(deps = {}) {
-    const {
-        settingsPersistenceService,
-        modalLifecycle,
-        modalEventBinder,
-        modalController,
-        getModalContainer,
-    } = deps;
+    const { settingsPersistenceService, modalLifecycle, modalEventBinder, modalController, getModalContainer } = deps;
 
     function initializeModalState() {
         if (!modalLifecycle) return;

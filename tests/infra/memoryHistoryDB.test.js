@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import 'fake-indexeddb/auto';
-import * as fakeIndexedDB from 'fake-indexeddb';
 import { createMemoryHistoryDB } from '../../txtToWorldbook/infra/memoryHistoryDB.js';
 
 // ============================================================
@@ -43,7 +42,9 @@ describe('MemoryHistoryDB', () => {
                 req.onerror = () => resolve();
                 req.onblocked = () => resolve();
             });
-        } catch (_) { /* ignore */ }
+        } catch (_) {
+            /* ignore */
+        }
 
         testDB = createTestDB();
         await testDB.db.openDB();
@@ -92,7 +93,7 @@ describe('MemoryHistoryDB', () => {
     // ============================================================
     describe('历史管理', () => {
         it('保存历史记录', async () => {
-            const id = await testDB.db.saveHistory(0, '第1章', {}, { '角色': {} }, []);
+            const id = await testDB.db.saveHistory(0, '第1章', {}, { 角色: {} }, []);
             expect(id).toBeGreaterThan(0);
         });
 
@@ -116,7 +117,7 @@ describe('MemoryHistoryDB', () => {
             await testDB.db.saveHistory(0, '第1章', {}, { old: 1 }, []);
             await testDB.db.saveHistory(0, '第1章', {}, { new: 2 }, []);
             const history = await testDB.db.getAllHistory();
-            const filtered = history.filter(h => h.memoryTitle === '第1章');
+            const filtered = history.filter((h) => h.memoryTitle === '第1章');
             expect(filtered.length).toBe(1);
             expect(filtered[0].newWorldbook.new).toBe(2);
         });
@@ -125,7 +126,7 @@ describe('MemoryHistoryDB', () => {
             await testDB.db.saveHistory(0, '记忆-优化', {}, { v1: 1 }, []);
             await testDB.db.saveHistory(0, '记忆-优化', {}, { v2: 2 }, []);
             const history = await testDB.db.getAllHistory();
-            const filtered = history.filter(h => h.memoryTitle === '记忆-优化');
+            const filtered = history.filter((h) => h.memoryTitle === '记忆-优化');
             expect(filtered.length).toBe(2);
         });
 
@@ -172,7 +173,7 @@ describe('MemoryHistoryDB', () => {
     describe('状态管理', () => {
         it('保存处理状态', async () => {
             testDB.AppState.memory.queue = [{ title: '章节A' }];
-            testDB.AppState.worldbook.generated = { '角色': { '张三': {} } };
+            testDB.AppState.worldbook.generated = { 角色: { 张三: {} } };
             await testDB.db.saveState(5);
 
             const state = await testDB.db.loadState();
@@ -246,7 +247,7 @@ describe('MemoryHistoryDB', () => {
 
         it('获取条目 Roll 结果（按时间倒序）', async () => {
             await testDB.db.saveEntryRollResult('角色', '张三', 0, { v: 1 });
-            await new Promise(r => setTimeout(r, 10)); // 确保时间戳不同
+            await new Promise((r) => setTimeout(r, 10)); // 确保时间戳不同
             await testDB.db.saveEntryRollResult('角色', '张三', 1, { v: 2 });
 
             const results = await testDB.db.getEntryRollResults('角色', '张三');
@@ -323,9 +324,9 @@ describe('MemoryHistoryDB', () => {
         });
 
         it('回滚恢复 AppState', async () => {
-            testDB.AppState.worldbook.generated = { '角色': { '张三': {} } };
-            const prevWB = { '角色': { '李四': {} } };
-            const id = await testDB.db.saveHistory(0, '第1章', prevWB, { '角色': { '张三': {} } }, []);
+            testDB.AppState.worldbook.generated = { 角色: { 张三: {} } };
+            const prevWB = { 角色: { 李四: {} } };
+            const id = await testDB.db.saveHistory(0, '第1章', prevWB, { 角色: { 张三: {} } }, []);
 
             await testDB.db.rollbackToHistory(id);
             expect(testDB.AppState.worldbook.generated['角色']['李四']).toBeDefined();

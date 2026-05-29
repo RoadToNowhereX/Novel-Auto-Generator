@@ -42,21 +42,25 @@ export function createCoreServices(deps = {}) {
     let rerollService = null;
     function getRerollService() {
         if (rerollService) return rerollService;
-        rerollService = createRerollService(resolveDeps(deps.rerollDeps, {
-            ...context,
-            getProcessingService,
-        }));
+        rerollService = createRerollService(
+            resolveDeps(deps.rerollDeps, {
+                ...context,
+                getProcessingService,
+            }),
+        );
         return rerollService;
     }
 
     let rerollModals = null;
     function getRerollModals() {
         if (rerollModals) return rerollModals;
-        rerollModals = createRerollModals(resolveDeps(deps.rerollModalsDeps, {
-            ...context,
-            getProcessingService,
-            getRerollService,
-        }));
+        rerollModals = createRerollModals(
+            resolveDeps(deps.rerollModalsDeps, {
+                ...context,
+                getProcessingService,
+                getRerollService,
+            }),
+        );
         return rerollModals;
     }
 

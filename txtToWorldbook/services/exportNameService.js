@@ -1,8 +1,5 @@
 export function createExportNameService(deps = {}) {
-    const {
-        AppState,
-        getNovelNameInput = () => document.getElementById('ttw-novel-name-input'),
-    } = deps;
+    const { AppState, getNovelNameInput = () => document.getElementById('ttw-novel-name-input') } = deps;
 
     function getExportBaseName(fallback) {
         if (AppState.file.novelName && AppState.file.novelName.trim()) {
