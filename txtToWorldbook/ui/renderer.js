@@ -1,4 +1,6 @@
-﻿function escapeHtml(value) {
+﻿import { t } from '../core/i18n.js';
+
+function escapeHtml(value) {
     if (value === null || value === undefined) return '';
     return String(value)
         .replace(/&/g, '&amp;')
@@ -141,11 +143,11 @@ export function createListRenderer(deps = {}) {
             return `
                 <div class="ttw-category-item">
                     <input type="checkbox" class="ttw-category-cb" data-index="${index}" ${cat.enabled ? 'checked' : ''}>
-                    <span class="ttw-category-name">${this.escapeHtml(cat.name)}${cat.isBuiltin ? ' <span style="color:#888;font-size:10px;">(内置)</span>' : ''}</span>
+                    <span class="ttw-category-name">${this.escapeHtml(cat.name)}${cat.isBuiltin ? ` <span style="color:#888;font-size:10px;">${t('renderer.entry.builtinTag')}</span>` : ''}</span>
                     <div class="ttw-category-actions">
-                        <button class="ttw-btn-tiny ttw-edit-cat" data-index="${index}" title="编辑">✏️</button>
-                        <button class="ttw-btn-tiny ttw-reset-single-cat" data-index="${index}" title="重置此项" ${hasDefault ? '' : 'style="opacity:0.3;" disabled'}>🔄</button>
-                        <button class="ttw-btn-tiny ttw-delete-cat" data-index="${index}" title="删除" ${cat.isBuiltin ? 'disabled style="opacity:0.3;"' : ''}>🗑️</button>
+                        <button class="ttw-btn-tiny ttw-edit-cat" data-index="${index}" title="${t('common.edit')}">✏️</button>
+                        <button class="ttw-btn-tiny ttw-reset-single-cat" data-index="${index}" title="${t('common.reset')}" ${hasDefault ? '' : 'style="opacity:0.3;" disabled'}>🔄</button>
+                        <button class="ttw-btn-tiny ttw-delete-cat" data-index="${index}" title="${t('common.delete')}" ${cat.isBuiltin ? 'disabled style="opacity:0.3;"' : ''}>🗑️</button>
                     </div>
                 </div>`;
         },
@@ -170,7 +172,7 @@ export function createListRenderer(deps = {}) {
                 : 'border-left:3px solid #3498db;';
             const tokenStyle = isBelowThreshold ? 'color:#ef4444;font-weight:bold;' : 'color:#f1c40f;';
             const mergedBadge = isManualMergedHighlight
-                ? `<span style="font-size:10px;color:#f1c40f;background:rgba(241,196,15,0.2);border:1px solid rgba(241,196,15,0.45);padding:1px 6px;border-radius:999px;">✨ 新合并</span>`
+                ? `<span style="font-size:10px;color:#f1c40f;background:rgba(241,196,15,0.2);border:1px solid rgba(241,196,15,0.45);padding:1px 6px;border-radius:999px;">${t('renderer.entry.newMergedBadge')}</span>`
                 : '';
             const keywordSource = Array.isArray(entry?.['关键词'])
                 ? entry['关键词'].join(', ')
@@ -184,7 +186,7 @@ export function createListRenderer(deps = {}) {
                 ? `
                 <div style="margin-bottom:8px;padding:8px;background:#252525;border-left:3px solid #9b59b6;border-radius:4px;">
                     <div style="color:#9b59b6;font-size:11px;margin-bottom:4px;display:flex;justify-content:space-between;">
-                        <span>🔑 关键词</span>
+                        <span>${t('renderer.entry.keywords')}</span>
                         <span style="color:#888;">~${keywordTokens} tk</span>
                     </div>
                     <div style="font-size:13px;">${highlightEscapedText(keywordSource, context.searchKeyword || '')}</div>
@@ -194,7 +196,7 @@ export function createListRenderer(deps = {}) {
                 ? `
                 <div style="padding:8px;background:#252525;border-left:3px solid #27ae60;border-radius:4px;line-height:1.6;">
                     <div style="color:#27ae60;font-size:11px;margin-bottom:4px;display:flex;justify-content:space-between;">
-                        <span>📝 内容</span>
+                        <span>${t('renderer.entry.content')}</span>
                         <span style="color:#888;">~${contentTokens} tk</span>
                     </div>
                     <div style="font-size:13px;">${formatEscapedMultilineContent(contentSource, context.searchKeyword || '', true)}</div>
@@ -204,10 +206,10 @@ export function createListRenderer(deps = {}) {
             return `
                 <div class="${isManualMergedHighlight ? 'ttw-entry-merged-highlight' : ''}" style="margin:8px;border:1px solid #555;border-radius:6px;overflow:hidden;">
                     <div class="ttw-entry-toggle" style="background:#3a3a3a;padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;${highlightStyle}">
-                        <span style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">${warningIcon}📄 ${safeEntryNameText}${mergedBadge}<button class="ttw-entry-config-btn ttw-config-btn" data-category="${safeCategoryAttr}" data-entry="${safeEntryNameAttr}" title="配置位置/深度/顺序">⚙️</button><button class="ttw-entry-reroll-btn" data-category="${safeCategoryAttr}" data-entry="${safeEntryNameAttr}" title="单独重Roll此条目" style="background:rgba(155,89,182,0.4);border:none;border-radius:4px;padding:2px 6px;cursor:pointer;font-size:11px;color:#fff;">🎯</button></span>
+                        <span style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">${warningIcon}📄 ${safeEntryNameText}${mergedBadge}<button class="ttw-entry-config-btn ttw-config-btn" data-category="${safeCategoryAttr}" data-entry="${safeEntryNameAttr}" title="${t('renderer.entry.configTitle')}">⚙️</button><button class="ttw-entry-reroll-btn" data-category="${safeCategoryAttr}" data-entry="${safeEntryNameAttr}" title="${t('renderer.entry.rerollTitle')}" style="background:rgba(155,89,182,0.4);border:none;border-radius:4px;padding:2px 6px;cursor:pointer;font-size:11px;color:#fff;">🎯</button></span>
                         <span style="font-size:9px;color:#888;display:flex;gap:4px;align-items:center;">
                             <span style="${tokenStyle}">${entryTokens}tk</span>
-                            <span>D${config.depth}O${displayOrder}${autoIncrement ? '↗' : ''}</span>
+                            <span>${t('renderer.entry.depthPrefix')}${config.depth}${t('renderer.entry.orderPrefix')}${displayOrder}${autoIncrement ? '↗' : ''}</span>
                         </span>
                     </div>
                     <div style="display:none;background:#1c1c1c;padding:12px;">
@@ -220,19 +222,24 @@ export function createListRenderer(deps = {}) {
         renderWorldbookCategory(config) {
             return `<div style="margin-bottom:12px;border:1px solid #e67e22;border-radius:8px;overflow:hidden;">
                 <div class="ttw-category-toggle" style="background:linear-gradient(135deg,#e67e22,#d35400);padding:10px 14px;cursor:pointer;font-weight:bold;display:flex;justify-content:space-between;align-items:center;">
-                    <span style="display:flex;align-items:center;">📁 ${config.safeCategoryText}<button class="ttw-light-toggle ${config.lightClass}" data-category="${config.safeCategoryAttr}" title="${this.escapeAttribute(config.lightTitle)}">${config.lightIcon}</button><button class="ttw-config-btn" data-category="${config.safeCategoryAttr}" title="配置分类默认位置/深度">⚙️</button></span>
-                    <span style="font-size:12px;">${config.entryCount} 条目 | <span style="color:#f1c40f;">~${config.categoryTokens} tk</span></span>
+                    <span style="display:flex;align-items:center;">📁 ${config.safeCategoryText}<button class="ttw-light-toggle ${config.lightClass}" data-category="${config.safeCategoryAttr}" title="${this.escapeAttribute(config.lightTitle)}">${config.lightIcon}</button><button class="ttw-config-btn" data-category="${config.safeCategoryAttr}" title="${t('renderer.entry.configTitle')}">⚙️</button></span>
+                    <span style="font-size:12px;">${config.entryCount} ${t('renderer.category.entriesLabel')} | <span style="color:#f1c40f;">~${config.categoryTokens} tk</span></span>
                 </div>
                 <div style="background:#2d2d2d;display:none;">${config.entriesHtml}</div>
             </div>`;
         },
 
         renderWorldbookSummary(stats) {
-            const thresholdInfo =
+            const totalLine = t('renderer.summary.total', {
+                categoryCount: stats.categoryCount,
+                totalEntries: stats.totalEntries,
+                totalTokens: stats.totalTokens,
+            });
+            const thresholdLine =
                 stats.tokenThreshold > 0
-                    ? ` | <span style="color:#ef4444;">⚠️ ${stats.belowThresholdCount}个条目低于${stats.tokenThreshold}tk</span>`
+                    ? ` | <span style="color:#ef4444;">${t('renderer.summary.belowThreshold', { count: stats.belowThresholdCount, threshold: stats.tokenThreshold })}</span>`
                     : '';
-            return `<div style="margin-bottom:12px;font-size:13px;">共 ${stats.categoryCount} 个分类, ${stats.totalEntries} 个条目 | <span style="color:#f1c40f;">总计 ~${stats.totalTokens} tk</span>${thresholdInfo}</div>`;
+            return `<div style="margin-bottom:12px;font-size:13px;">${totalLine}${thresholdLine}</div>`;
         },
 
         getStatusIcon(item) {
