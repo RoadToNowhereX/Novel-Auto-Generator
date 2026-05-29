@@ -10,8 +10,8 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint \"**/*.js\"",
     "lint:fix": "eslint \"**/*.js\" --fix",
-    "format": "prettier --write \"**/*.{js,json,md,css}\"",
-    "format:check": "prettier --check \"**/*.{js,json,md,css}\""
+    "format": "prettier --write \"**/*.{js,json,md,css,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md,css,yml,yaml}\""
   },
   "devDependencies": {
     "vitest": "^3.2.1",

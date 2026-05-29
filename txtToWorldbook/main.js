@@ -196,19 +196,19 @@ import { ensureModalStyles } from './ui/modalStyles.js';
     let _bindModalEvents = () => modalEventBinder?.bindModalEvents(shellRuntime?.getModalContainer?.());
     let closeModal = () => modalController?.closeModal();
     let open = () => modalController?.open();
-let {
-    importMergeService,
-    settingsPersistenceService,
-    categoryPersistenceService,
-    categoryLightService,
-    entryConfigService,
-    modalLifecycle,
-    modalController,
-    modalEventBinder,
-    handleFileSelect,
-    handleClearFile,
-    rechunkMemories,
-} = createShellPlaceholders();
+    let {
+        importMergeService,
+        settingsPersistenceService,
+        categoryPersistenceService,
+        categoryLightService,
+        entryConfigService,
+        modalLifecycle,
+        modalController,
+        modalEventBinder,
+        handleFileSelect,
+        handleClearFile,
+        rechunkMemories,
+    } = createShellPlaceholders();
     // ========== ListRenderer 列表渲染工具 ==========
     const ListRenderer = createListRenderer({
         smartUpdate: PerfUtils.smartUpdate,
@@ -527,12 +527,7 @@ let {
         getRerollService,
         getRerollModals,
     } = coreServices;
-    const {
-        buildSystemPrompt,
-        getPreviousMemoryContext,
-        getChapterForcePrompt,
-        getLanguagePrefix,
-    } = promptService;
+    const { buildSystemPrompt, getPreviousMemoryContext, getChapterForcePrompt, getLanguagePrefix } = promptService;
     const { filterResponseContent, parseAIResponse } = parserService;
     const { callSillyTavernAPI, callCustomAPI, handleFetchModelList, handleQuickTestModel, callAPI } = apiService;
     const { mergeWorldbookDataIncremental, mergeWorldbookDataWithHistory, saveWorldbookSnapshot } = worldbookService;

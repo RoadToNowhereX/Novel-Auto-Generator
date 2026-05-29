@@ -66,11 +66,13 @@ function createTestService(overrides = {}) {
         applyDefaultWorldbookEntries: vi.fn(),
         ErrorHandler: { showError: vi.fn() },
         handleRepairMemoryWithSplit: vi.fn(),
-        setProcessingStatus: overrides.setProcessingStatus || vi.fn((s) => {
-            AppState.processing.status = s;
-            AppState.processing.isStopped = s === 'stopped';
-            AppState.processing.isRunning = s === 'running' || s === 'rerolling' || s === 'repairing';
-        }),
+        setProcessingStatus:
+            overrides.setProcessingStatus ||
+            vi.fn((s) => {
+                AppState.processing.status = s;
+                AppState.processing.isStopped = s === 'stopped';
+                AppState.processing.isRunning = s === 'running' || s === 'rerolling' || s === 'repairing';
+            }),
         getProcessingStatus: overrides.getProcessingStatus || vi.fn(() => AppState.processing.status),
         buildWorldbookSummary: vi.fn().mockReturnValue(''),
         estimateTokenCount: vi.fn().mockReturnValue(100),
@@ -101,7 +103,7 @@ describe('processMemoryChunkIndependent', () => {
     });
 
     it('成功处理单个记忆块', async () => {
-        const mockResult = { '角色': { '张三': { '关键词': ['张三'], '内容': '测试' } } };
+        const mockResult = { 角色: { 张三: { 关键词: ['张三'], 内容: '测试' } } };
         const { service, mocks } = createTestService({
             queue: [makeMemory('第1章', '内容A')],
             callAPI: vi.fn().mockResolvedValue('{"角色":{"张三":{}}}'),
@@ -120,7 +122,7 @@ describe('processMemoryChunkIndependent', () => {
             .mockRejectedValueOnce(new Error('网络错误'))
             .mockRejectedValueOnce(new Error('网络错误'))
             .mockResolvedValue('ok');
-        const mockResult = { '角色': {} };
+        const mockResult = { 角色: {} };
         const { service } = createTestService({
             queue: [makeMemory('第1章', '内容')],
             callAPI,
@@ -236,10 +238,7 @@ describe('processMemoryChunksParallel', () => {
     });
 
     it('并行处理多个记忆块', async () => {
-        const mockResults = [
-            { '角色': { 'A': { '关键词': [], '内容': 'a' } } },
-            { '角色': { 'B': { '关键词': [], '内容': 'b' } } },
-        ];
+        const mockResults = [{ 角色: { A: { 关键词: [], 内容: 'a' } } }, { 角色: { B: { 关键词: [], 内容: 'b' } } }];
         let callIdx = 0;
         const { service, AppState, mocks } = createTestService({
             queue: [makeMemory('第1章', 'A'), makeMemory('第2章', 'B')],

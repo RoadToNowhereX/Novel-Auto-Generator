@@ -162,7 +162,9 @@
         async saveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries) {
             const fileHash = AppState.file.hash || '';
             const queueKey = `history:${memoryTitle}:${fileHash}`;
-            return enqueue(queueKey, () => this._doSaveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries));
+            return enqueue(queueKey, () =>
+                this._doSaveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries),
+            );
         },
 
         async _doSaveHistory(memoryIndex, memoryTitle, previousWorldbook, newWorldbook, changedEntries) {
