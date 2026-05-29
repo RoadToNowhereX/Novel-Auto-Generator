@@ -1,0 +1,16 @@
+{
+  "name": "novel-auto-generator",
+  "version": "1.7.2",
+  "private": true,
+  "type": "module",
+  "description": "SillyTavern 扩展插件 — AI 自动续写小说 + TXT 转世界书",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.1",
+    "fake-indexeddb": "^6.0.1"
+  }
+}
