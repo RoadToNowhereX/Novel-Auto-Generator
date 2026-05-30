@@ -1,10 +1,12 @@
 export function createMemoryQueueActionsService(deps = {}) {
     const {
         AppState,
+        MemoryHistoryDB,
         ErrorHandler,
         confirmAction,
         updateMemoryQueueUI,
         updateStartButtonState,
+        showQueueSection,
     } = deps;
 
     function normalizeUntitledMemories() {
@@ -28,6 +30,99 @@ export function createMemoryQueueActionsService(deps = {}) {
             } else if (AppState.memory.userSelectedIndex >= AppState.memory.queue.length) {
                 AppState.memory.userSelectedIndex = null;
             }
+        }
+    }
+
+    function syncSelectedIndicesAfterInsert(insertIndex) {
+        if (!AppState.ui.selectedIndices || AppState.ui.selectedIndices.size === 0) return;
+
+        AppState.ui.selectedIndices = new Set(
+            [...AppState.ui.selectedIndices].map((index) => index >= insertIndex ? index + 1 : index)
+        );
+    }
+
+    function ensureManualQueueFileInfo() {
+        if (AppState.file.current) return;
+
+        if (!AppState.file.novelName) {
+            AppState.file.novelName = '手动世界书';
+        }
+
+        const uploadArea = document.getElementById('ttw-upload-area');
+        if (uploadArea) uploadArea.style.display = 'none';
+
+        const fileInfo = document.getElementById('ttw-file-info');
+        if (fileInfo) fileInfo.style.display = 'flex';
+
+        const fileNameEl = document.getElementById('ttw-file-name');
+        if (fileNameEl) fileNameEl.textContent = '手动添加的章节/记忆';
+
+        const totalChars = AppState.memory.queue.reduce((sum, memory) => sum + (memory.content || '').length, 0);
+        const fileSizeEl = document.getElementById('ttw-file-size');
+        if (fileSizeEl) fileSizeEl.textContent = `(${(totalChars / 1024).toFixed(1)} KB, ${AppState.memory.queue.length}章)`;
+
+        const novelNameRow = document.getElementById('ttw-novel-name-row');
+        if (novelNameRow) novelNameRow.style.display = 'flex';
+
+        const novelNameInput = document.getElementById('ttw-novel-name-input');
+        if (novelNameInput) novelNameInput.value = AppState.file.novelName;
+    }
+
+    function normalizeInsertIndex(insertIndex) {
+        const parsed = parseInt(insertIndex, 10);
+        if (Number.isNaN(parsed)) return AppState.memory.queue.length;
+        return Math.max(0, Math.min(parsed, AppState.memory.queue.length));
+    }
+
+    async function addManualMemory(options = {}) {
+        if (AppState.processing.isRunning) {
+            ErrorHandler.showUserError('处理中不能添加章节/记忆，请暂停或等待完成后再操作');
+            return false;
+        }
+
+        const content = String(options.content || '');
+        if (!content.trim()) {
+            ErrorHandler.showUserError('请输入章节/记忆内容');
+            return false;
+        }
+
+        const insertIndex = normalizeInsertIndex(options.insertIndex);
+        const manualCount = AppState.memory.queue.filter((memory) => memory.manual).length + 1;
+        const title = String(options.title || '').trim() || `手动记忆${manualCount}`;
+        const memory = {
+            title,
+            content,
+            processed: false,
+            failed: false,
+            processing: false,
+            result: null,
+            failedError: null,
+            manual: true,
+        };
+
+        try {
+            if (insertIndex < AppState.memory.queue.length && typeof MemoryHistoryDB?.shiftMemoryIndexesForInsert === 'function') {
+                await MemoryHistoryDB.shiftMemoryIndexesForInsert(insertIndex);
+            }
+
+            AppState.memory.queue.splice(insertIndex, 0, memory);
+            syncSelectedIndicesAfterInsert(insertIndex);
+            AppState.memory.userSelectedIndex = null;
+            const firstUnprocessed = AppState.memory.queue.findIndex((item) => !item.processed || item.failed);
+            AppState.memory.startIndex = firstUnprocessed !== -1 ? firstUnprocessed : 0;
+
+            if (typeof showQueueSection === 'function') {
+                showQueueSection(true);
+            }
+
+            ensureManualQueueFileInfo();
+            updateMemoryQueueUI();
+            updateStartButtonState(false);
+            ErrorHandler.showUserSuccess(`已添加 "${title}"`);
+            return true;
+        } catch (error) {
+            ErrorHandler.showUserError('添加章节/记忆失败: ' + error.message);
+            return false;
         }
     }
 
@@ -123,6 +218,7 @@ export function createMemoryQueueActionsService(deps = {}) {
     }
 
     return {
+        addManualMemory,
         splitMemoryIntoTwo,
         deleteMemoryAt,
         deleteSelectedMemories,

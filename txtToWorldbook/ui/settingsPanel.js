@@ -346,6 +346,7 @@ function buildFileUploadSectionHtml() {
         <div class="ttw-section-header">
             <span>📄 文件上传</span>
             <div style="display:flex;gap:8px;">
+                <button class="ttw-btn-small ttw-add-manual-memory">➕ 添加章节/记忆</button>
                 <button id="ttw-import-json" class="ttw-btn-small" title="导入已有世界书JSON进行合并">📥 合并世界书</button>
                 <button id="ttw-import-task" class="ttw-btn-small">📥 导入任务</button>
                 <button id="ttw-export-task" class="ttw-btn-small">📤 导出任务</button>
@@ -376,6 +377,7 @@ function buildQueueSectionHtml() {
         <div class="ttw-section-header">
             <span>📋 章节队列</span>
             <div style="display:flex;gap:8px;margin-left:auto;">
+                <button class="ttw-btn-small ttw-add-manual-memory">➕ 添加章节/记忆</button>
                 <button id="ttw-view-processed" class="ttw-btn-small">📊 已处理</button>
                 <button id="ttw-select-start" class="ttw-btn-small">📍 选择起始</button>
                 <button id="ttw-multi-delete-btn" class="ttw-btn-small ttw-btn-warning">🗑️ 多选删除</button>

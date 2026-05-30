@@ -8,6 +8,7 @@ export function createMemoryQueueView(deps = {}) {
         PerfUtils,
         ErrorHandler,
         confirmAction,
+        addManualMemory,
         deleteMemoryAt,
         updateStartButtonState,
         showRollHistorySelector,
@@ -51,6 +52,89 @@ export function createMemoryQueueView(deps = {}) {
         }
 
         updateMemoryQueueUI();
+    }
+
+    function buildManualInsertOptions() {
+        if (AppState.memory.queue.length === 0) {
+            return '<option value="0">追加到末尾</option>';
+        }
+
+        let optionsHtml = `<option value="${AppState.memory.queue.length}" selected>追加到末尾</option>`;
+        optionsHtml += '<option value="0">插入到开头</option>';
+        optionsHtml += '<optgroup label="插入到指定章节之后">';
+        AppState.memory.queue.forEach((memory, index) => {
+            const title = ListRenderer.escapeHtml(memory.title || `记忆${index + 1}`);
+            optionsHtml += `<option value="${index + 1}">第${index + 1}章之后 - ${title}</option>`;
+        });
+        optionsHtml += '</optgroup>';
+        return optionsHtml;
+    }
+
+    function showAddManualMemoryModal() {
+        if (typeof addManualMemory !== 'function') {
+            ErrorHandler.showUserError('手动添加功能未初始化');
+            return;
+        }
+
+        const existingModal = document.getElementById('ttw-add-manual-memory-modal');
+        if (existingModal) existingModal.remove();
+
+        const bodyHtml = `
+<div style="display:flex;flex-direction:column;gap:12px;">
+    <div>
+        <label style="display:block;margin-bottom:6px;font-size:12px;color:#bbb;">标题（可选）</label>
+        <input id="ttw-manual-memory-title" type="text" class="ttw-input" placeholder="留空将自动命名为手动记忆N">
+    </div>
+    <div>
+        <label style="display:block;margin-bottom:6px;font-size:12px;color:#bbb;">插入位置</label>
+        <select id="ttw-manual-memory-position" class="ttw-select">${buildManualInsertOptions()}</select>
+    </div>
+    <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <label style="font-size:12px;color:#bbb;">章节/记忆内容</label>
+            <span style="font-size:11px;color:#888;"><span id="ttw-manual-memory-count">0</span> 字</span>
+        </div>
+        <textarea id="ttw-manual-memory-content" class="ttw-textarea" style="min-height:260px;" placeholder="在这里粘贴一段章节原文、设定片段或记忆内容。"></textarea>
+    </div>
+</div>
+`;
+
+        const footerHtml = `
+<button class="ttw-btn" id="ttw-cancel-manual-memory">取消</button>
+<button class="ttw-btn ttw-btn-primary" id="ttw-save-manual-memory">➕ 添加</button>
+`;
+
+        const modal = ModalFactory.create({
+            id: 'ttw-add-manual-memory-modal',
+            title: '➕ 添加章节/记忆',
+            body: bodyHtml,
+            footer: footerHtml,
+            maxWidth: '720px',
+            maxHeight: '80vh',
+        });
+
+        const contentInput = modal.querySelector('#ttw-manual-memory-content');
+        const countEl = modal.querySelector('#ttw-manual-memory-count');
+        const updateCount = PerfUtils.debounce(() => {
+            countEl.textContent = contentInput.value.length.toLocaleString();
+        }, 100);
+        contentInput.addEventListener('input', updateCount);
+        setTimeout(() => contentInput.focus(), 0);
+
+        modal.querySelector('#ttw-cancel-manual-memory').addEventListener('click', () => ModalFactory.close(modal));
+        modal.querySelector('#ttw-save-manual-memory').addEventListener('click', async () => {
+            const title = modal.querySelector('#ttw-manual-memory-title').value;
+            const insertIndex = parseInt(modal.querySelector('#ttw-manual-memory-position').value, 10);
+            const content = contentInput.value;
+            if (!content.trim()) {
+                ErrorHandler.showUserError('请输入章节/记忆内容');
+                contentInput.focus();
+                return;
+            }
+
+            const added = await addManualMemory({ title, content, insertIndex });
+            if (added) ModalFactory.close(modal);
+        });
     }
 
     function showStartFromSelector() {
@@ -334,6 +418,7 @@ ${resultHtml}
     return {
         updateMemoryQueueUI,
         toggleMultiSelectMode,
+        showAddManualMemoryModal,
         showStartFromSelector,
         showMemoryContentModal,
         showProcessedResults,

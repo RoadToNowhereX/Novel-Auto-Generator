@@ -4,6 +4,7 @@
         handleStartConversion,
         handleStopProcessing,
         handleRepairFailedMemories,
+        showAddManualMemoryModal,
         showStartFromSelector,
         showProcessedResults,
         toggleMultiSelectMode,
@@ -21,6 +22,9 @@
     document.getElementById('ttw-start-btn').addEventListener('click', handleStartConversion);
     document.getElementById('ttw-stop-btn').addEventListener('click', handleStopProcessing);
     document.getElementById('ttw-repair-btn').addEventListener('click', handleRepairFailedMemories);
+    document.querySelectorAll('.ttw-add-manual-memory').forEach((btn) => {
+        btn.addEventListener('click', showAddManualMemoryModal);
+    });
     document.getElementById('ttw-select-start').addEventListener('click', showStartFromSelector);
     document.getElementById('ttw-view-processed').addEventListener('click', showProcessedResults);
 

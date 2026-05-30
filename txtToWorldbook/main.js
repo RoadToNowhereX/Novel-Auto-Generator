@@ -309,6 +309,7 @@ const memoryQueueView = createMemoryQueueView({
     PerfUtils,
     ErrorHandler,
     confirmAction,
+    addManualMemory: (...args) => addManualMemory(...args),
     deleteMemoryAt: (index) => deleteMemoryAt(index),
     updateStartButtonState: (isProcessing) => updateStartButtonState(isProcessing),
     showRollHistorySelector: (index) => showRollHistorySelector(index),
@@ -316,6 +317,7 @@ const memoryQueueView = createMemoryQueueView({
 const {
     updateMemoryQueueUI,
     toggleMultiSelectMode,
+    showAddManualMemoryModal,
     showStartFromSelector,
     showMemoryContentModal,
     showProcessedResults,
@@ -773,12 +775,15 @@ const {
 } = repairService;
 const memoryQueueActionsService = createMemoryQueueActionsService({
     AppState,
+    MemoryHistoryDB,
     ErrorHandler,
     confirmAction,
     updateMemoryQueueUI,
     updateStartButtonState,
+    showQueueSection: (...args) => showQueueSection(...args),
 });
 const {
+    addManualMemory,
     splitMemoryIntoTwo,
     deleteMemoryAt,
     deleteSelectedMemories,
@@ -1147,6 +1152,7 @@ shellRuntime = createShellRuntime(createShellRuntimeConfig({
     handleStartConversion: (...args) => handleStartConversion(...args),
     handleStopProcessing,
     handleRepairFailedMemories,
+    showAddManualMemoryModal,
     showStartFromSelector,
     showProcessedResults,
     toggleMultiSelectMode,

@@ -420,6 +420,42 @@
             });
         },
 
+        /**
+         * Shift stored memory indexes when a memory is inserted into the queue.
+         *
+         * @param {number} insertIndex
+         * @returns {Promise<void>}
+         */
+        async shiftMemoryIndexesForInsert(insertIndex) {
+            const normalizedIndex = Math.max(0, parseInt(insertIndex, 10) || 0);
+            const db = await this.openDB();
+            const storeNames = [this.storeName, this.rollStoreName, this.entryRollStoreName]
+                .filter((storeName) => db.objectStoreNames.contains(storeName));
+
+            if (storeNames.length === 0) return;
+
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(storeNames, 'readwrite');
+
+                for (const storeName of storeNames) {
+                    const store = transaction.objectStore(storeName);
+                    const request = store.getAll();
+                    request.onsuccess = () => {
+                        for (const record of request.result || []) {
+                            if (typeof record.memoryIndex !== 'number' || record.memoryIndex < normalizedIndex) continue;
+                            record.memoryIndex += 1;
+                            store.put(record);
+                        }
+                    };
+                    request.onerror = () => reject(request.error);
+                }
+
+                transaction.oncomplete = () => resolve();
+                transaction.onerror = () => reject(transaction.error);
+                transaction.onabort = () => reject(transaction.error);
+            });
+        },
+
         // ========== 新增：条目级别Roll历史方法 ==========
         async saveEntryRollResult(category, entryName, memoryIndex, result, customPrompt = '') {
             const db = await this.openDB();
