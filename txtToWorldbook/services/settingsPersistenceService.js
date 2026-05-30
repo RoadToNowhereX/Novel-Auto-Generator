@@ -24,7 +24,14 @@ export function createSettingsPersistenceService(deps) {
         AppState.settings.parallelMode = AppState.config.parallel.mode;
         AppState.settings.categoryLightSettings = { ...AppState.config.categoryLight };
         AppState.settings.forceChapterMarker = document.getElementById('ttw-force-chapter-marker')?.checked ?? true;
-        AppState.settings.chapterRegexPattern = document.getElementById('ttw-chapter-regex')?.value || AppState.config.chapterRegex.pattern;
+        const chapterRegexEnabledEl = document.getElementById('ttw-use-chapter-regex');
+        const chapterRegexEnabled = chapterRegexEnabledEl ? chapterRegexEnabledEl.checked : AppState.config.chapterRegex.useCustomRegex !== false;
+        AppState.config.chapterRegex.useCustomRegex = chapterRegexEnabled;
+        AppState.settings.useCustomChapterRegex = chapterRegexEnabled;
+        AppState.settings.chapterRegexToggleSaved = true;
+        const chapterRegexPattern = document.getElementById('ttw-chapter-regex')?.value || AppState.config.chapterRegex.pattern;
+        AppState.config.chapterRegex.pattern = chapterRegexPattern;
+        AppState.settings.chapterRegexPattern = chapterRegexPattern;
         AppState.settings.defaultWorldbookEntriesUI = AppState.persistent.defaultEntries;
         AppState.settings.categoryDefaultConfig = AppState.config.categoryDefault;
         AppState.settings.entryPositionConfig = AppState.config.entryPosition;
@@ -65,6 +72,11 @@ export function createSettingsPersistenceService(deps) {
                 AppState.config.parallel.enabled = AppState.settings.parallelEnabled !== undefined ? AppState.settings.parallelEnabled : true;
                 AppState.config.parallel.concurrency = AppState.settings.parallelConcurrency || 3;
                 AppState.config.parallel.mode = AppState.settings.parallelMode || 'independent';
+                const chapterRegexEnabled = parsed.chapterRegexToggleSaved === true
+                    ? AppState.settings.useCustomChapterRegex !== false
+                    : true;
+                AppState.config.chapterRegex.useCustomRegex = chapterRegexEnabled;
+                AppState.settings.useCustomChapterRegex = chapterRegexEnabled;
 
                 if (AppState.settings.chapterRegexPattern) {
                     AppState.config.chapterRegex.pattern = AppState.settings.chapterRegexPattern;

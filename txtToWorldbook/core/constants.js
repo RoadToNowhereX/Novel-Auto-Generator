@@ -1,6 +1,6 @@
-﻿export const DEFAULT_CHAPTER_REGEX = {
+export const DEFAULT_CHAPTER_REGEX = {
     pattern: '第[零一二三四五六七八九十百千万0-9]+[章回卷节部篇]',
-    useCustomRegex: false
+    useCustomRegex: true
 };
 
 export const DEFAULT_CATEGORY_LIGHT = {
@@ -213,7 +213,7 @@ export const defaultSettings = {
     customApiModel: 'gemini-2.5-flash',
     forceChapterMarker: true,
     chapterRegexPattern: '第[零一二三四五六七八九十百千万0-9]+[章回卷节部篇]',
-    useCustomChapterRegex: false,
+    useCustomChapterRegex: true,
     defaultWorldbookEntriesUI: [],
     categoryDefaultConfig: {},
     entryPositionConfig: {},

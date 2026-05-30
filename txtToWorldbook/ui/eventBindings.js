@@ -237,6 +237,7 @@ export function bindSettingEvents(deps = {}) {
         '#ttw-reset-categories': { click: async () => { if (await confirmAction('确定重置为默认分类配置吗？这将清除所有自定义分类。', { title: '重置分类', danger: true })) { await resetToDefaultCategories(); renderCategoriesList(); } } },
         '#ttw-add-default-entry': { click: showAddDefaultEntryModal },
         '#ttw-apply-default-entries': { click: () => { saveDefaultWorldbookEntriesUI(); const applied = applyDefaultWorldbookEntries(); if (applied) { showResultSection(true); updateWorldbookPreview(); ErrorHandler.showUserSuccess('默认世界书条目已应用！'); } else { ErrorHandler.showUserError('没有默认世界书条目'); } } },
+        '#ttw-use-chapter-regex': { change: (e) => { AppState.config.chapterRegex.useCustomRegex = e.target.checked; AppState.settings.useCustomChapterRegex = e.target.checked; saveCurrentSettings(); } },
         '#ttw-chapter-regex': { change: (e) => { AppState.config.chapterRegex.pattern = e.target.value; saveCurrentSettings(); } },
         '#ttw-test-chapter-regex': { click: testChapterRegex },
         '.ttw-chapter-preset': { click: (e, btn) => { const regex = btn.dataset.regex; document.getElementById('ttw-chapter-regex').value = regex; AppState.config.chapterRegex.pattern = regex; saveCurrentSettings(); } },

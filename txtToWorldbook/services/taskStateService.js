@@ -115,7 +115,18 @@ export function createTaskStateService(deps = {}) {
                 if (state.parallelConfig) AppState.config.parallel = { ...AppState.config.parallel, ...state.parallelConfig };
                 if (state.categoryLightSettings) AppState.config.categoryLight = { ...AppState.config.categoryLight, ...state.categoryLightSettings };
                 if (state.customWorldbookCategories) AppState.persistent.customCategories = state.customWorldbookCategories;
-                if (state.chapterRegexSettings) AppState.config.chapterRegex = state.chapterRegexSettings;
+                const hasSavedChapterRegexToggle = state.settings?.chapterRegexToggleSaved === true;
+                if (state.chapterRegexSettings) {
+                    AppState.config.chapterRegex = { ...AppState.config.chapterRegex, ...state.chapterRegexSettings };
+                    if (!hasSavedChapterRegexToggle && state.chapterRegexSettings.useCustomRegex === false) {
+                        AppState.config.chapterRegex.useCustomRegex = true;
+                    }
+                } else {
+                    AppState.config.chapterRegex.useCustomRegex = hasSavedChapterRegexToggle
+                        ? AppState.settings.useCustomChapterRegex !== false
+                        : true;
+                }
+                AppState.settings.useCustomChapterRegex = AppState.config.chapterRegex.useCustomRegex !== false;
                 if (state.defaultWorldbookEntriesUI) AppState.persistent.defaultEntries = state.defaultWorldbookEntriesUI;
                 if (state.categoryDefaultConfig) AppState.config.categoryDefault = state.categoryDefaultConfig;
                 if (state.entryPositionConfig) AppState.config.entryPosition = state.entryPositionConfig;

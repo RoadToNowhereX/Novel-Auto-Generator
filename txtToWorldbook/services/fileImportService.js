@@ -85,143 +85,82 @@ export function createFileImportService(deps = {}) {
         }
     }
 
-    function splitContentIntoMemory(content) {
-        const chunkSize = AppState.settings.chunkSize;
-        const minChunkSize = Math.max(chunkSize * 0.3, 5000);
-        AppState.memory.queue = [];
+    function isChapterRegexEnabled() {
+        return AppState.config.chapterRegex?.useCustomRegex !== false;
+    }
 
-        const chapterRegex = new RegExp(AppState.config.chapterRegex.pattern, 'g');
-        const matches = [];
-        const maxTime = 5000;
-        const startTime = Date.now();
-        let match;
-        while ((match = chapterRegex.exec(content)) !== null) {
-            matches.push(match);
-            if (Date.now() - startTime > maxTime) {
-                Logger.warn('FileImport', '章节正则匹配超时(5秒)，已中断');
-                break;
+    function collectChapterMatches(content) {
+        if (!isChapterRegexEnabled()) return [];
+
+        const pattern = AppState.config.chapterRegex?.pattern;
+        if (!pattern) return [];
+
+        try {
+            const chapterRegex = new RegExp(pattern, 'g');
+            const matches = [];
+            const maxTime = 5000;
+            const startTime = Date.now();
+            let match;
+            while ((match = chapterRegex.exec(content)) !== null) {
+                matches.push({ title: match[0], index: match.index });
+                if (Date.now() - startTime > maxTime) {
+                    Logger.warn('FileImport', '章节正则匹配超时(5秒)，已中断');
+                    break;
+                }
+                if (match[0].length === 0) chapterRegex.lastIndex++;
             }
-            if (match[0].length === 0) chapterRegex.lastIndex++;
+            return matches;
+        } catch (error) {
+            Logger.error('FileImport', '章节正则表达式错误:', error);
+            return [];
+        }
+    }
+
+    function findNaturalSplitPoint(text, maxLength) {
+        let endPos = Math.min(maxLength, text.length);
+        if (endPos < text.length) {
+            const paragraphBreak = text.lastIndexOf('\n\n', endPos);
+            if (paragraphBreak > endPos * 0.5) {
+                endPos = paragraphBreak + 2;
+            } else {
+                const sentenceBreak = text.lastIndexOf('\u3002', endPos);
+                if (sentenceBreak > endPos * 0.5) {
+                    endPos = sentenceBreak + 1;
+                }
+            }
+        }
+        return endPos;
+    }
+
+    function pushContentAsChunks(content, baseTitle, chunkIndex, chunkSize) {
+        if (content.length <= chunkSize) {
+            AppState.memory.queue.push(createMemoryChunk(content, chunkIndex, baseTitle));
+            return chunkIndex + 1;
         }
 
-        if (matches.length > 0) {
-            const chapters = [];
+        let remaining = content;
+        let partIndex = 1;
+        while (remaining.length > 0) {
+            const endPos = findNaturalSplitPoint(remaining, chunkSize);
+            const title = baseTitle ? `${baseTitle}-${partIndex}` : undefined;
+            AppState.memory.queue.push(createMemoryChunk(remaining.slice(0, endPos), chunkIndex, title));
+            remaining = remaining.slice(endPos);
+            chunkIndex++;
+            partIndex++;
+        }
 
-            for (let i = 0; i < matches.length; i++) {
-                const startIndex = matches[i].index;
-                const endIndex = i < matches.length - 1 ? matches[i + 1].index : content.length;
-                let chapterContent = content.slice(startIndex, endIndex);
+        return chunkIndex;
+    }
 
-                if (i === 0 && startIndex > 0) {
-                    const preContent = content.slice(0, startIndex);
-                    chapterContent = preContent + chapterContent;
-                }
+    function splitPlainContentIntoMemory(content, chunkSize, minChunkSize) {
+        let offset = 0;
+        let chunkIndex = 1;
 
-                chapters.push({ title: matches[i][0], content: chapterContent });
-            }
-
-            const mergedChapters = [];
-            let pendingChapter = null;
-
-            for (const chapter of chapters) {
-                if (pendingChapter) {
-                    if (pendingChapter.content.length + chapter.content.length <= chunkSize) {
-                        pendingChapter.content += chapter.content;
-                        pendingChapter.title += '+' + chapter.title;
-                    } else if (pendingChapter.content.length >= minChunkSize) {
-                        mergedChapters.push(pendingChapter);
-                        pendingChapter = chapter;
-                    } else {
-                        pendingChapter.content += chapter.content;
-                        pendingChapter.title += '+' + chapter.title;
-                    }
-                } else {
-                    pendingChapter = { ...chapter };
-                }
-            }
-
-            if (pendingChapter) {
-                mergedChapters.push(pendingChapter);
-            }
-
-            let currentChunk = '';
-            let chunkIndex = 1;
-
-            for (let i = 0; i < mergedChapters.length; i++) {
-                const chapter = mergedChapters[i];
-
-                if (chapter.content.length > chunkSize) {
-                    if (currentChunk.length > 0) {
-                        AppState.memory.queue.push(createMemoryChunk(currentChunk, chunkIndex));
-                        currentChunk = '';
-                        chunkIndex++;
-                    }
-
-                    let remaining = chapter.content;
-                    while (remaining.length > 0) {
-                        let endPos = Math.min(chunkSize, remaining.length);
-                        if (endPos < remaining.length) {
-                            const paragraphBreak = remaining.lastIndexOf('\n\n', endPos);
-                            if (paragraphBreak > endPos * 0.5) {
-                                endPos = paragraphBreak + 2;
-                            } else {
-                                const sentenceBreak = remaining.lastIndexOf('。', endPos);
-                                if (sentenceBreak > endPos * 0.5) {
-                                    endPos = sentenceBreak + 1;
-                                }
-                            }
-                        }
-
-                        AppState.memory.queue.push(createMemoryChunk(remaining.slice(0, endPos), chunkIndex));
-                        remaining = remaining.slice(endPos);
-                        chunkIndex++;
-                    }
-                    continue;
-                }
-
-                if (currentChunk.length + chapter.content.length > chunkSize && currentChunk.length > 0) {
-                    AppState.memory.queue.push(createMemoryChunk(currentChunk, chunkIndex));
-                    currentChunk = '';
-                    chunkIndex++;
-                }
-
-                currentChunk += chapter.content;
-            }
-
-            if (currentChunk.length > 0) {
-                if (currentChunk.length < minChunkSize && AppState.memory.queue.length > 0) {
-                    const lastMemory = AppState.memory.queue[AppState.memory.queue.length - 1];
-                    if (lastMemory.content.length + currentChunk.length <= chunkSize * 1.2) {
-                        lastMemory.content += currentChunk;
-                    } else {
-                        AppState.memory.queue.push(createMemoryChunk(currentChunk, chunkIndex));
-                    }
-                } else {
-                    AppState.memory.queue.push(createMemoryChunk(currentChunk, chunkIndex));
-                }
-            }
-        } else {
-            let i = 0;
-            let chunkIndex = 1;
-
-            while (i < content.length) {
-                let endIndex = Math.min(i + chunkSize, content.length);
-                if (endIndex < content.length) {
-                    const paragraphBreak = content.lastIndexOf('\n\n', endIndex);
-                    if (paragraphBreak > i + chunkSize * 0.5) {
-                        endIndex = paragraphBreak + 2;
-                    } else {
-                        const sentenceBreak = content.lastIndexOf('。', endIndex);
-                        if (sentenceBreak > i + chunkSize * 0.5) {
-                            endIndex = sentenceBreak + 1;
-                        }
-                    }
-                }
-
-                AppState.memory.queue.push(createMemoryChunk(content.slice(i, endIndex), chunkIndex));
-                i = endIndex;
-                chunkIndex++;
-            }
+        while (offset < content.length) {
+            const endOffset = offset + findNaturalSplitPoint(content.slice(offset), chunkSize);
+            AppState.memory.queue.push(createMemoryChunk(content.slice(offset, endOffset), chunkIndex));
+            offset = endOffset;
+            chunkIndex++;
         }
 
         for (let i = AppState.memory.queue.length - 1; i > 0; i--) {
@@ -237,6 +176,29 @@ export function createFileImportService(deps = {}) {
         AppState.memory.queue.forEach((memory, index) => {
             memory.title = `记忆${index + 1}`;
         });
+    }
+
+    function splitContentIntoMemory(content) {
+        const chunkSize = AppState.settings.chunkSize;
+        const minChunkSize = Math.max(chunkSize * 0.3, 5000);
+        AppState.memory.queue = [];
+
+        const matches = collectChapterMatches(content);
+        if (matches.length > 0) {
+            let chunkIndex = 1;
+
+            for (let i = 0; i < matches.length; i++) {
+                const startIndex = matches[i].index;
+                const endIndex = i < matches.length - 1 ? matches[i + 1].index : content.length;
+                const preContent = i === 0 && startIndex > 0 ? content.slice(0, startIndex) : '';
+                const chapterContent = preContent + content.slice(startIndex, endIndex);
+                chunkIndex = pushContentAsChunks(chapterContent, matches[i].title, chunkIndex, chunkSize);
+            }
+
+            return;
+        }
+
+        splitPlainContentIntoMemory(content, chunkSize, minChunkSize);
     }
 
     async function handleClearFile() {
@@ -309,9 +271,9 @@ export function createFileImportService(deps = {}) {
         ErrorHandler.showUserSuccess(`重新分块完成！\n当前共 ${AppState.memory.queue.length} 个章节`);
     }
 
-    function createMemoryChunk(content, chunkIndex) {
+    function createMemoryChunk(content, chunkIndex, title) {
         return {
-            title: `记忆${chunkIndex}`,
+            title: title || `记忆${chunkIndex}`,
             content,
             processed: false,
             failed: false,

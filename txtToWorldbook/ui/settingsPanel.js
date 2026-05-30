@@ -1,4 +1,4 @@
-﻿function buildCustomApiSectionHtml() {
+function buildCustomApiSectionHtml() {
     return `
 <div id="ttw-custom-api-section" style="display:none;margin-bottom:16px;padding:12px;border:1px solid rgba(52,152,219,0.3);border-radius:8px;background:rgba(52,152,219,0.1);">
 <div style="font-weight:bold;color:#3498db;margin-bottom:12px;">🔧 自定义API配置</div>
@@ -63,6 +63,13 @@ function buildChapterRegexHtml() {
     return `
     <div class="ttw-setting-card" style="background:rgba(230,126,34,0.1);border:1px solid rgba(230,126,34,0.3);">
         <div style="font-weight:bold;color:#e67e22;margin-bottom:10px;">📖 章回正则设置</div>
+        <label class="ttw-checkbox-label ttw-checkbox-with-hint" style="margin-bottom:8px;background:rgba(230,126,34,0.12);border:1px solid rgba(230,126,34,0.25);">
+            <input type="checkbox" id="ttw-use-chapter-regex" checked>
+            <div>
+                <span style="color:#e67e22;">启用章回正则匹配</span>
+                <div class="ttw-setting-hint">开启后按章节标题优先分块；关闭后仅按每块字数切分</div>
+            </div>
+        </label>
         <div class="ttw-setting-hint" style="margin-bottom:8px;">自定义章节检测正则表达式</div>
         <input type="text" id="ttw-chapter-regex" class="ttw-input" value="第[零一二三四五六七八九十百千万0-9]+[章回卷节部篇]" style="margin-bottom:8px;">
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -558,6 +565,9 @@ export function hydrateSettingsFromState(deps = {}) {
 
     const forceChapterMarkerEl = document.getElementById('ttw-force-chapter-marker');
     if (forceChapterMarkerEl) forceChapterMarkerEl.checked = AppState.settings.forceChapterMarker;
+
+    const useChapterRegexEl = document.getElementById('ttw-use-chapter-regex');
+    if (useChapterRegexEl) useChapterRegexEl.checked = AppState.config.chapterRegex.useCustomRegex !== false;
 
     const suffixPromptEl = document.getElementById('ttw-suffix-prompt');
     if (suffixPromptEl) suffixPromptEl.value = AppState.settings.customSuffixPrompt || '';

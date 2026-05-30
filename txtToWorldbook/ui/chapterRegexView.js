@@ -36,6 +36,11 @@ export function createChapterRegexView(deps = {}) {
             return;
         }
 
+        if (AppState.config.chapterRegex.useCustomRegex === false) {
+            ErrorHandler.showUserError('请先启用章回正则匹配');
+            return;
+        }
+
         const regexInput = document.getElementById('ttw-chapter-regex');
         const pattern = regexInput?.value || AppState.config.chapterRegex.pattern;
 

@@ -235,9 +235,18 @@ export function createImportExportService(deps = {}) {
                     AppState.persistent.customCategories = data.customWorldbookCategories;
                     await saveCustomCategories();
                 }
+                const hasSavedChapterRegexToggle = data.settings?.chapterRegexToggleSaved === true;
                 if (data.chapterRegexSettings) {
-                    AppState.config.chapterRegex = data.chapterRegexSettings;
+                    AppState.config.chapterRegex = { ...AppState.config.chapterRegex, ...data.chapterRegexSettings };
+                    if (!hasSavedChapterRegexToggle && data.chapterRegexSettings.useCustomRegex === false) {
+                        AppState.config.chapterRegex.useCustomRegex = true;
+                    }
+                } else {
+                    AppState.config.chapterRegex.useCustomRegex = hasSavedChapterRegexToggle
+                        ? AppState.settings.useCustomChapterRegex !== false
+                        : true;
                 }
+                AppState.settings.useCustomChapterRegex = AppState.config.chapterRegex.useCustomRegex !== false;
                 if (data.defaultWorldbookEntriesUI) {
                     AppState.persistent.defaultEntries = data.defaultWorldbookEntriesUI;
                 }
