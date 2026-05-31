@@ -224,4 +224,6 @@ export const defaultSettings = {
     allowRecursion: false,
     filterResponseTags: 'thinking,/think',
     debugMode: false,
+    chapterMinChars: 0,
+    chapterMergeRatio: 1.2,
 };

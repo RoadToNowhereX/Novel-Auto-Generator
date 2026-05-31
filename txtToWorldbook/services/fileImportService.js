@@ -195,6 +195,25 @@ export function createFileImportService(deps = {}) {
                 chunkIndex = pushContentAsChunks(chapterContent, matches[i].title, chunkIndex, chunkSize);
             }
 
+            const minChapterChars = AppState.settings.chapterMinChars || 0;
+            if (minChapterChars > 0) {
+                const mergeRatio = AppState.settings.chapterMergeRatio || 1.2;
+                const mergeLimit = chunkSize * mergeRatio;
+                for (let i = AppState.memory.queue.length - 1; i > 0; i--) {
+                    const current = AppState.memory.queue[i];
+                    if (current.content.length < minChapterChars) {
+                        const prev = AppState.memory.queue[i - 1];
+                        if (prev.content.length + current.content.length <= mergeLimit) {
+                            prev.content += current.content;
+                            if (!prev.title.endsWith('(已合并)')) {
+                                prev.title += '(已合并)';
+                            }
+                            AppState.memory.queue.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
             return;
         }
 

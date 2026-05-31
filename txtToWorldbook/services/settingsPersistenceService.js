@@ -32,6 +32,8 @@ export function createSettingsPersistenceService(deps) {
         const chapterRegexPattern = document.getElementById('ttw-chapter-regex')?.value || AppState.config.chapterRegex.pattern;
         AppState.config.chapterRegex.pattern = chapterRegexPattern;
         AppState.settings.chapterRegexPattern = chapterRegexPattern;
+        AppState.settings.chapterMinChars = parseInt(document.getElementById('ttw-chapter-min-chars')?.value, 10) || 0;
+        AppState.settings.chapterMergeRatio = (parseFloat(document.getElementById('ttw-chapter-merge-ratio')?.value) || 120) / 100;
         AppState.settings.defaultWorldbookEntriesUI = AppState.persistent.defaultEntries;
         AppState.settings.categoryDefaultConfig = AppState.config.categoryDefault;
         AppState.settings.entryPositionConfig = AppState.config.entryPosition;

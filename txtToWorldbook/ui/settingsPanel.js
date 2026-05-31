@@ -72,6 +72,13 @@ function buildChapterRegexHtml() {
         </label>
         <div class="ttw-setting-hint" style="margin-bottom:8px;">自定义章节检测正则表达式</div>
         <input type="text" id="ttw-chapter-regex" class="ttw-input" value="第[零一二三四五六七八九十百千万0-9]+[章回卷节部篇]" style="margin-bottom:8px;">
+        <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <label style="font-size:12px;white-space:nowrap;">最小章节字数:</label>
+            <input type="number" id="ttw-chapter-min-chars" value="0" min="0" max="500000" step="100" class="ttw-input" style="width:90px;" title="小于该字数的短章节将向前合并到前一章节，0=不限制">
+            <label style="font-size:12px;white-space:nowrap;">合并上限(%):</label>
+            <input type="number" id="ttw-chapter-merge-ratio" value="120" min="100" max="300" step="5" class="ttw-input" style="width:80px;" title="合并后总字数上限 = 每块字数 × 此比例">
+            <span class="ttw-setting-hint" style="font-size:11px;">短章节向前合并到前一章节，不向后合并</span>
+        </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button class="ttw-btn ttw-btn-small ttw-chapter-preset" data-regex="第[零一二三四五六七八九十百千万0-9]+[章回卷节部篇]">中文通用</button>
             <button class="ttw-btn ttw-btn-small ttw-chapter-preset" data-regex="Chapter\\s*\\d+">英文Chapter</button>
@@ -568,6 +575,11 @@ export function hydrateSettingsFromState(deps = {}) {
 
     const useChapterRegexEl = document.getElementById('ttw-use-chapter-regex');
     if (useChapterRegexEl) useChapterRegexEl.checked = AppState.config.chapterRegex.useCustomRegex !== false;
+
+    const chapterMinCharsEl = document.getElementById('ttw-chapter-min-chars');
+    if (chapterMinCharsEl) chapterMinCharsEl.value = AppState.settings.chapterMinChars ?? 0;
+    const chapterMergeRatioEl = document.getElementById('ttw-chapter-merge-ratio');
+    if (chapterMergeRatioEl) chapterMergeRatioEl.value = Math.round((AppState.settings.chapterMergeRatio ?? 1.2) * 100);
 
     const suffixPromptEl = document.getElementById('ttw-suffix-prompt');
     if (suffixPromptEl) suffixPromptEl.value = AppState.settings.customSuffixPrompt || '';
