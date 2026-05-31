@@ -1,4 +1,4 @@
-﻿export function bindActionEvents(deps = {}) {
+export function bindActionEvents(deps = {}) {
     const {
         AppState,
         handleStartConversion,
@@ -136,15 +136,18 @@ export function bindFileEvents(deps = {}) {
     uploadArea.addEventListener('click', () => fileInput.click());
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         uploadArea.style.borderColor = '#e67e22';
         uploadArea.style.background = 'rgba(230,126,34,0.1)';
     });
-    uploadArea.addEventListener('dragleave', () => {
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.stopPropagation();
         uploadArea.style.borderColor = '#555';
         uploadArea.style.background = 'transparent';
     });
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         uploadArea.style.borderColor = '#555';
         uploadArea.style.background = 'transparent';
         if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files[0]);
